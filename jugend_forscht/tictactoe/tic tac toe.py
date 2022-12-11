@@ -69,6 +69,10 @@ def is_player_end_state(n):
             player_win = True
         elif n[12] == n[13] == n[14] == n[15] == '2':
             player_win = True
+        elif n[0] == n[5] == n[10] == n[15] == '2':
+            player_win = True
+        elif n[3] == n[6] == n[9] == n[12] == '2':
+            player_win = True
         else:
             player_win = False
     return player_win
@@ -76,27 +80,51 @@ def is_player_end_state(n):
 
 # Positionen, wie die Lage aussehen koennte, wenn der Computer gewinnt
 def is_com_end_state(n):
-    if n[0] == n[3] == n[6] == '1':
-        computer_win = True
-    elif n[1] == n[4] == n[7] == '1':
-        computer_win = True
-    elif n[2] == n[5] == n[8] == '1':
-        computer_win = True
-    elif n[0] == n[1] == n[2] == '1':
-        computer_win = True
-    elif n[3] == n[4] == n[5] == '1':
-        computer_win = True
-    elif n[6] == n[7] == n[8] == '1':
-        computer_win = True
-    elif n[0] == n[4] == n[8] == '1':
-        computer_win = True
-    elif n[2] == n[4] == n[6] == '1':
-        computer_win = True
-    else:
-        computer_win = False
-    return computer_win
-
-# Ist der Computer dran
+   if len(n) == 9:
+       if n[0] == n[3] == n[6] == '1':
+           computer_win = True
+       elif n[1] == n[4] == n[7] == '1':
+           computer_win = True
+       elif n[2] == n[5] == n[8] == '1':
+           computer_win = True
+       elif n[0] == n[1] == n[2] == '1':
+           computer_win = True
+       elif n[3] == n[4] == n[5] == '1':
+           computer_win = True
+       elif n[6] == n[7] == n[8] == '1':
+           computer_win = True
+       elif n[0] == n[4] == n[8] == '1':
+           computer_win = True
+       elif n[2] == n[4] == n[6] == '1':
+           computer_win = True
+       else:
+           computer_win = False
+       return computer_win
+   if len(n) == 16:
+       if n[0] == n[4] == n[8] == n[12] == '1':
+           computer_win = True
+       elif n[1] == n[5] == n[9] == n[13] == '1':
+           computer_win = True
+       elif n[2] == n[6] == n[10] == n[14] == '1':
+           computer_win = True
+       elif n[3] == n[7] == n[11] == n[15] == '1':
+           computer_win = True
+       elif n[0] == n[1] == n[2] == n[3] == '1':
+           computer_win = True
+       elif n[4] == n[5] == n[6] == n[7] == '1':
+           computer_win = True
+       elif n[8] == n[9] == n[10] == n[11] == '1':
+           computer_win = True
+       elif n[12] == n[13] == n[14] == n[15] == '1':
+           computer_win = True
+       elif n[0] == n[5] == n[10] == n[15] == '1':
+           computer_win = True
+       elif n[3] == n[6] == n[9] == n[12] == '1':
+           computer_win = True
+       else:
+           computer_win = False
+       return computer_win
+# Ist der Computer dran?
 def com_turn(state):
     X = 0
     O = 0
@@ -116,7 +144,7 @@ def com_turn(state):
         else:
             return False
 
-#
+# Wir geben jedem moeglichem Zug einen Wert
 def get_wert(state):
     if state in Wert_dict:
         return Wert_dict[state]
@@ -139,7 +167,7 @@ def get_wert(state):
     Wert_dict[state] = state_wert
     return state_wert
 
-
+# In welches Kaestchen soll der Computer ziehen?
 def com_move(state):
     next_states = next_com_state(state)
     next_best_state = next_states[0]
@@ -153,14 +181,14 @@ def com_move(state):
         if state[i] != next_best_state[i]:
             return i
 
-
+# Der Computer zieht einen beliebigen Zug, sodass der Spieler auch gewinnen kann(einfachere Spielvariante)
 def com_random_move(state):
     while True:
         x = random.randint(0, 8)
         if state[x] == '0':
             return x
 
-
+# Es wird nach jedem Zug die Brettlage besimmt
 def convert_state_to_board(state, i):
     if state[i] == '0':
         return ' '
@@ -169,7 +197,7 @@ def convert_state_to_board(state, i):
     if state[i] == '2':
         return 'X'
 
-
+# 3x3 Brett
 def printBoard3(state):
     print('__ __ __ __ __')
     print('|', convert_state_to_board(state, 0), '|', convert_state_to_board(state, 1), '|',
@@ -182,7 +210,7 @@ def printBoard3(state):
           convert_state_to_board(state, 8), '|')
     print('__ __ __ __ __')
 
-
+# 4x4 Brett
 def printBoard4(state):
     print('__ __ __ __ __ __')
     print('|', convert_state_to_board(state, 0), '|', convert_state_to_board(state, 1), '|',
