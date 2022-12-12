@@ -1,3 +1,5 @@
+import time
+
 import pygame
 from pygame.locals import *
 import random
@@ -147,8 +149,10 @@ def com_turn(state):
 
 # Wir geben jedem moeglichem Zug einen Wert
 def get_wert(state):
+    #print("Came to get_wert for ", state)
     if state in Wert_dict:
         return Wert_dict[state]
+    #print("Wert not found in dict for ", state)
     if is_com_end_state(state):
         return 100
     if is_player_end_state(state):
@@ -170,6 +174,7 @@ def get_wert(state):
 
 # In welches Kaestchen soll der Computer ziehen?
 def com_move(state):
+    #print("Came to com_move with ", state)
     next_states = next_com_state(state)
     next_best_state = next_states[0]
     next_best_wert = get_wert(next_best_state)
@@ -370,20 +375,29 @@ def game():
     surface = print_board(board_size)
     pygame.display.flip()
     state = '0'*(board_size*board_size)
-
     while True:
         if draw(state):
             print("IT WAS A DRAW!!!!!!!!!!!!!!")
+            time.sleep(20)
             break
         if is_com_end_state(state):
             print("COMPUTER WON!!!!")
+            time.sleep(20)
             break
         if is_player_end_state(state):
             print("PLAYER WON!!!!")
+            time.sleep(20)
             break
         if com_turn(state):
             if computer_stufe == 'Hard':
-                move = com_move(state)
+                zeros = 0
+                for i in range(0, board_size*board_size):
+                    if state[i] == '0':
+                        zeros = zeros + 1
+                if zeros > 12:
+                    move = com_random_move(state)
+                else:
+                    move = com_move(state)
             else:
                 move = com_random_move(state)
             row = move // board_size
@@ -402,6 +416,8 @@ def game():
                         pygame.quit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         (row, column) = user_click()
+                        if state[row*board_size + column] != '0':
+                            break
                         print(row, column)
                         surface.blit(x_img, (cell_width * column + cell_width / 3, cell_width * row + cell_width / 3))
                         pygame.display.update()
