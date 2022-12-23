@@ -70,7 +70,7 @@ def get_valid_words(alle_woerter, gestell):
     for suche in range(0,7):
         if gestell[suche]=='*':
             starlist = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-                            's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+                            's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ä', 'ö', 'ü']
             for i in starlist:
                 gestell[suche]=i
 
@@ -198,7 +198,10 @@ def get_valid_words_2():
     print(possible)
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
-     'n': 1, 'o': 2, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3}
+     'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3}
+
+
+
 
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
