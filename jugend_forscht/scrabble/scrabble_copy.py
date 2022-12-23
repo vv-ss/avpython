@@ -163,8 +163,8 @@ def get_valid_words_2():
     spalte = int(input('spalte:'))
     wort_auf_brett=input('Welches Wort liegt bereits auf dem Brett: ')
     possible=[]
-    start_spalte=spalte
-    if diraction=='down':
+    if diraction=='right':
+        start_spalte = spalte
         for buchstabe_auf_brett in wort_auf_brett:
             for lenght_of_word in range(1, 8):
                 alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
@@ -177,8 +177,24 @@ def get_valid_words_2():
                         #print(kombi_list, kombi)
                         neu_wort = ''.join(kombi_list)
                         if neu_wort in alle_woerter:
-                            possible.append((neu_wort, start_row, spalte))
+                            possible.append((neu_wort, start_row, start_spalte))
             start_spalte+=1
+    if diraction=='down':
+        start_row = row
+        for buchstabe_auf_brett in wort_auf_brett:
+            for lenght_of_word in range(1, 8):
+                alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
+                for kombi in alle_kombinationen:
+                    for x in range(lenght_of_word + 1):
+                        #print(x)
+                        start_spalte = spalte - x
+                        kombi_list = list(kombi)
+                        kombi_list.insert(x, buchstabe_auf_brett)
+                        #print(kombi_list, kombi)
+                        neu_wort = ''.join(kombi_list)
+                        if neu_wort in alle_woerter:
+                            possible.append((neu_wort, start_row, start_spalte))
+            start_row+=1
     print(possible)
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,

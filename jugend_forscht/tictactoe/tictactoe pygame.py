@@ -1,13 +1,12 @@
-import time
-
 import pygame
 from pygame.locals import *
 import random
 
 Wert_dict = {}
 com_move_first = True
+cell_width = 200
 
-# Welche Zuege kann der Spieler ziehen
+# Welche Züge kann der Spieler ziehen
 def next_players_state(n):
     moves = []
     for i in range(0, len(n)):
@@ -17,7 +16,7 @@ def next_players_state(n):
             moves.append(''.join(x))
     return moves
 
-# Welche Zuege kann der Computer ziehen
+# Welche Züge kann der Computer ziehen
 def next_com_state(n):
     next_states = []
     for i in range(0, len(n)):
@@ -34,7 +33,7 @@ def draw(n):
     else:
         return True
 
-# Positionen, wie die Lage aussehen koennte, wenn der Spieler gewinnt
+# Positionen, wie die Lage aussehen könnte, wenn der Spieler gewinnt
 def is_player_end_state(n):
     if len(n) == 9:
         if n[0] == n[3] == n[6] == '2':
@@ -55,6 +54,7 @@ def is_player_end_state(n):
             player_win = True
         else:
             player_win = False
+        return player_win
     if len(n) == 16:
         if n[0] == n[4] == n[8] == n[12] == '2':
             player_win = True
@@ -78,10 +78,10 @@ def is_player_end_state(n):
             player_win = True
         else:
             player_win = False
-    return player_win
+        return player_win
 
 
-# Positionen, wie die Lage aussehen koennte, wenn der Computer gewinnt
+# Positionen, wie die Lage aussehen könnte, wenn der Computer gewinnt
 def is_com_end_state(n):
    if len(n) == 9:
        if n[0] == n[3] == n[6] == '1':
@@ -147,7 +147,7 @@ def com_turn(state):
         else:
             return False
 
-# Wir geben jedem moeglichem Zug einen Wert
+# Wir geben jedem möglichem Zug einen Wert
 def get_wert(state):
     #print("Came to get_wert for ", state)
     if state in Wert_dict:
@@ -172,9 +172,8 @@ def get_wert(state):
     Wert_dict[state] = state_wert
     return state_wert
 
-# In welches Kaestchen soll der Computer ziehen?
+# In welches Kästchen soll der Computer ziehen?
 def com_move(state):
-    #print("Came to com_move with ", state)
     next_states = next_com_state(state)
     next_best_state = next_states[0]
     next_best_wert = get_wert(next_best_state)
@@ -187,115 +186,66 @@ def com_move(state):
         if state[i] != next_best_state[i]:
             return i
 
-# Der Computer zieht einen beliebigen Zug, sodass der Spieler auch gewinnen kann(einfachere Spielvariante)
+# Der Computer zieht einen beliebigen Zug, sodass der Spieler auch gewinnen kann(einfache Spielvariante)
 def com_random_move(state):
     while True:
         x = random.randint(0, len(state)-1)
         if state[x] == '0':
             return x
 
-# # Es wird nach jedem Zug die Brettlage besimmt
-# def convert_state_to_board(state, i):
-#     if state[i] == '0':
-#         return ' '
-#     if state[i] == '1':
-#         return 'O'
-#     if state[i] == '2':
-#         return 'X'
-#
-# # 3x3 Brett
-# def printBoard3(state):
-#     print('__ __ __ __ __')
-#     print('|', convert_state_to_board(state, 0), '|', convert_state_to_board(state, 1), '|',
-#           convert_state_to_board(state, 2), '|')
-#     print('__ __ __ __ __')
-#     print('|', convert_state_to_board(state, 3), '|', convert_state_to_board(state, 4), '|',
-#           convert_state_to_board(state, 5), '|')
-#     print('__ __ __ __ __')
-#     print('|', convert_state_to_board(state, 6), '|', convert_state_to_board(state, 7), '|',
-#           convert_state_to_board(state, 8), '|')
-#     print('__ __ __ __ __')
-#
-# # 4x4 Brett
-# def printBoard4(state):
-#     print('__ __ __ __ __ __')
-#     print('|', convert_state_to_board(state, 0), '|', convert_state_to_board(state, 1), '|',
-#           convert_state_to_board(state, 2), '|', convert_state_to_board(state, 3), '|')
-#     print('__ __ __ __ __ __')
-#     print('|', convert_state_to_board(state, 4), '|', convert_state_to_board(state, 5), '|',
-#           convert_state_to_board(state, 6), '|', convert_state_to_board(state, 7), '|')
-#     print('__ __ __ __ __ __')
-#     print('|', convert_state_to_board(state, 8), '|', convert_state_to_board(state, 9), '|',
-#           convert_state_to_board(state, 10), '|', convert_state_to_board(state, 11), '|')
-#     print('__ __ __ __ __ __')
-#     print('|', convert_state_to_board(state, 12), '|', convert_state_to_board(state, 13), '|',
-#           convert_state_to_board(state, 14), '|', convert_state_to_board(state, 15), '|')
-
-
-
+# Farben, die später gebraucht werden
+darkblue=(0,0,139)
+gold=(253, 218, 13)
+darkgreen2=(50,110,100)
+red= (255, 87, 51)
 darkgreen=(0,100,0)
 green = (0, 255, 0)
-tuerkis=(64, 224, 208)
+türkis=(64, 224, 208)
 orange = (255,165,0)
 lightblue=(150,230,250)
 purple=(128,0,128)
 pygame.init()
+# Schriften, die später gebraucht werden
 font_style = pygame.font.SysFont("bahnschrift", 50)
+font_style2 = pygame.font.SysFont("comicschrift", 100)
 
-
-width=1000
-height=1000
-
-X_img = pygame.image.load("red_x.jpg")
-O_img = pygame.image.load("o_modified.png")
-x_img = pygame.transform.scale(X_img, (80, 80))
-o_img = pygame.transform.scale(O_img, (80, 80))
-# Initializing surface
-window = pygame.display.set_mode((width,height))
-pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
-cell_width = 200
-font = pygame.font.Font('freesansbold.ttf', 32)
-
-
-
+# Der Computer berechnet mithilfe der Kordinaten in welches Kästchen der Spieler ziehen möchte
 def user_click():
-    # get coordinates of mouse click
-
-    # font = pygame.font.Font('freesansbold.ttf', 32)
     x, y = pygame.mouse.get_pos()
-
     column = x//cell_width
     row = y//cell_width
     return (row, column)
 
+# Das Brett wird in der Größe 3/4 gemalt
 def print_board(size):
-    margin = 40
+    margin = 60
     surface = pygame.display.set_mode((size* cell_width, size*cell_width))
-    surface.fill((50, 110, 100))
+    surface.fill(red)
     pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
     for n in range(1, size):
-        # senkrecht
+        # Striche, die senkrecht sind
         pygame.draw.rect(window, lightblue, pygame.Rect(n*cell_width, margin, 5, size*cell_width - 2*margin))
-        # waagerecht
+        # Striche,die waagerecht sind
         pygame.draw.rect(window, lightblue, pygame.Rect(margin, n * cell_width, size * cell_width - 2*margin, 5))
 
-    text = font.render('TicTacToe', True, green)
+    text = font.render('TicTacToe', True, purple)
     surface.blit(text, (size*cell_width/2-75,2))
     return surface
 
+# Der Hintergrund der Farben wird gemalt
+width=1600
+height=1000
+window = pygame.display.set_mode((width,height))
+pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
+font = pygame.font.Font('freesansbold.ttf', 24)
+green_cover=pygame.draw.rect(window,türkis,pygame.Rect(0,0,width,height))
 
-
-
-
-
-
-
-green_cover=pygame.draw.rect(window,tuerkis,pygame.Rect(0,0,1000,1000))
-
+# Computer frägt erste Frage
 question1=font_style.render('Do you want to play against easy or hard(e/h)?',True,purple)
-window.blit(question1, (50,490))
+window.blit(question1, (50,200))
 pygame.display.flip()
 
+# Computer beobachtet bis der Spieler "e" oder "h"
 computer_stufe = None
 while True:
     if (computer_stufe):
@@ -312,16 +262,17 @@ while True:
                 computer_stufe = 'Hard'
                 print("Key H has been pressed")
                 break
-
-
+# Computer schreibt die Antwort der ersten Frage darunter
 answer1=font_style.render("You chose " + computer_stufe, True, darkgreen)
-window.blit(answer1, (50,540))
+window.blit(answer1, (50,250))
 pygame.display.flip()
 
+# Computer frägt zweite Frage
 question=font_style.render('Do you want to play on 3x3 or 4x4 (3/4)?',True,purple)
-window.blit(question, (50,650))
+window.blit(question, (50,370))
 pygame.display.flip()
 
+# Computer beobachtet bis der Spieler "3" oder "4"
 board_size = None
 while True:
     if (board_size):
@@ -339,18 +290,17 @@ while True:
                 print("Key 4 has been pressed")
                 break
 
-
+# Computer schreibt die Antwort der zweiten Frage darunter
 answer=font_style.render("You chose " + str(board_size) + 'x' + str(board_size), True, darkgreen)
-window.blit(answer, (50,740))
+window.blit(answer, (50,420))
 pygame.display.flip()
 
-
-
-# Ask next question
-question2=font_style.render('Do you want to start(y/n)?',True,purple)
-window.blit(question2, (50,830))
+# Computer frägt dritte Frage
+question2=font_style.render('Do you want to move first(y/n)?',True,purple)
+window.blit(question2, (50,540))
 pygame.display.flip()
 
+# Computer beobachtet bis der Spieler "n" oder "y"
 start_player = None
 while True:
     if start_player:
@@ -368,6 +318,7 @@ while True:
                 print("Key N has been pressed")
                 break
 
+# So läuft das Spiel ab
 def game():
     global com_move_first
     if start_player == 'Y':
@@ -376,17 +327,21 @@ def game():
     pygame.display.flip()
     state = '0'*(board_size*board_size)
     while True:
+        # Wenn es Unentschieden ist oder jemand gewonnen hat, soll der Computer hinschreiben wie das Spiel geendet ist
         if draw(state):
-            print("IT WAS A DRAW!!!!!!!!!!!!!!")
-            time.sleep(20)
+            computerwin = font_style.render('DRAW!!!', True, purple)
+            surface.blit(computerwin, (board_size * cell_width / 2 - 100, board_size * cell_width-60))
+            pygame.display.flip()
             break
         if is_com_end_state(state):
-            print("COMPUTER WON!!!!")
-            time.sleep(20)
+            computerwin = font_style.render('COMPUTER WON!!!', True, purple)
+            surface.blit(computerwin, (board_size*cell_width/2-175, board_size*cell_width-60))
+            pygame.display.flip()
             break
         if is_player_end_state(state):
-            print("PLAYER WON!!!!")
-            time.sleep(20)
+            computerwin = font_style.render('PLAYER WON!!!', True, purple)
+            surface.blit(computerwin, (board_size * cell_width /2-175, board_size * cell_width -60))
+            pygame.display.flip()
             break
         if com_turn(state):
             if computer_stufe == 'Hard':
@@ -399,10 +354,12 @@ def game():
                 else:
                     move = com_move(state)
             else:
+                # Der Computer malt
                 move = com_random_move(state)
             row = move // board_size
             column = move % board_size
-            surface.blit(o_img, (cell_width * column + cell_width / 3, cell_width * row + cell_width / 3))
+            Oletter = font_style2.render('O', True, darkblue)
+            surface.blit(Oletter, (cell_width * column + cell_width / 3 + 10, cell_width * row + cell_width / 3 + 10))
             pygame.display.update()
             state_list = list(state)
             state_list[move] = '1'
@@ -419,7 +376,8 @@ def game():
                         if state[row*board_size + column] != '0':
                             break
                         print(row, column)
-                        surface.blit(x_img, (cell_width * column + cell_width / 3, cell_width * row + cell_width / 3))
+                        Xletter=font_style2.render('X', True, gold)
+                        surface.blit(Xletter, (cell_width * column + cell_width / 3 + 10, cell_width * row + cell_width / 3 + 10))
                         pygame.display.update()
                         moved = True
                         break
@@ -431,6 +389,11 @@ def game():
                     state = ''.join(state_list)
                     break
 
-
-
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            else:
+                pass
 game()
+# christoph.buergis@gmail.com
