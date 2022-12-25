@@ -9,7 +9,7 @@ darkblue=(0,0,210)
 gold=(253, 218, 13)
 darkgreen2=(50,110,100)
 red= (255, 87, 51)
-darkgreen=(0,100,0)
+darkgreen=(0,30,10)
 green = (0, 255, 0)
 türkis=(64, 224, 208)
 lightblue=(150,230,250)
@@ -19,7 +19,7 @@ pygame.init()
 
 width=2000
 height=2000
-margin=50
+margin=150
 cell_width = (width-2*margin)/15
 
 # Woerterbuch lesen
@@ -95,58 +95,61 @@ def board_in_list():
     my_board.close()
     return board
 
-def board_punkte(possible, d, board, tilesdict):
-    possible_2=[]
-    if diraction == 'right':
-        for (wort, row, spalte) in possible:
-            if len(wort) <= 16 - int(spalte):
-                possible_2.append((wort, row, spalte))
-        for (wort, row, spalte) in possible_2:
-            most_points = 0
-            total_times = 1
-            s = spalte
-            for buchstabe in wort:
-                print("came with", buchstabe, d[buchstabe], row, s, board[row - 1][s - 1])
-                if board[row - 1][s - 1] == '00':
-                    most_points = most_points + d[buchstabe]
-                if board[row - 1][s - 1] == 'DL' and not (row - 1, s - 1) in tilesdict:
-                    most_points = most_points + (d[buchstabe] * 2)
-                if board[row - 1][s - 1] == 'TL' and not (row - 1, s - 1) in tilesdict:
-                    most_points = most_points + (d[buchstabe] * 3)
-                if board[row - 1][s - 1] == 'DW' and not (row - 1, s - 1) in tilesdict:
-                    most_points = most_points + d[buchstabe]
-                    total_times = 2
-                if board[row - 1][s - 1] == 'TW' and not (row - 1, s - 1) in tilesdict:
-                    most_points = most_points + d[buchstabe]
-                    total_times = 3
-                s += 1
-            most_points *= total_times
-            print(wort + '-->', most_points)
+
+
+def board_punkte(worttuple, d, board, tilesdict, direction):
+    (wort, row, spalte) = worttuple
+    points = 0
+    if direction == 'right':
+        total_times = 1
+        s = spalte
+        for buchstabe in wort:
+            print("came with", buchstabe, d[buchstabe], row, s, board[row - 1][s - 1])
+            if board[row - 1][s - 1] == '00':
+                points = points + d[buchstabe]
+            if board[row - 1][s - 1] == 'DL' and not (row - 1, s - 1) in tilesdict:
+                points = points + (d[buchstabe] * 2)
+            if board[row - 1][s - 1] == 'TL' and not (row - 1, s - 1) in tilesdict:
+                points = points + (d[buchstabe] * 3)
+            if board[row - 1][s - 1] == 'DW' and not (row - 1, s - 1) in tilesdict:
+                points = points + d[buchstabe]
+                total_times = 2
+            if board[row - 1][s - 1] == 'TW' and not (row - 1, s - 1) in tilesdict:
+                points = points + d[buchstabe]
+                total_times = 3
+            s += 1
+        points *= total_times
     if diraction == 'down':
-        for (wort, row, spalte) in possible:
-            if len(wort) <= 16 - row:
-                possible_2.append((wort, row, spalte))
-        for (wort, row, spalte) in possible_2:
-            most_points = 0
-            total_times = 1
-            r = row
-            for buchstabe in wort:
-                print("came with", buchstabe, r, spalte, board[r - 1][spalte - 1])
-                if board[r - 1][spalte - 1] == '00':
-                    most_points = most_points + d[buchstabe]
-                if board[r - 1][spalte - 1] == 'DL' and not (r - 1, spalte - 1) in tilesdict:
-                    most_points = most_points + (d[buchstabe] * 2)
-                if board[r - 1][spalte - 1] == 'TL' and not (r - 1, spalte - 1) in tilesdict:
-                    most_points = most_points + (d[buchstabe] * 3)
-                if board[r - 1][spalte - 1] == 'DW' and not (r - 1, spalte - 1) in tilesdict:
-                    most_points = most_points + d[buchstabe]
-                    total_times = 2
-                if board[r - 1][spalte - 1] == 'TW' and not (r - 1, spalte - 1) in tilesdict:
-                    most_points = most_points + d[buchstabe]
-                    total_times = 3
-                r += 1
-            most_points *= total_times
-            print(wort + '-->', most_points)
+        total_times = 1
+        r = row
+        for buchstabe in wort:
+            print("came with", buchstabe, r, spalte, board[r - 1][spalte - 1])
+            if board[r - 1][spalte - 1] == '00':
+                points = points + d[buchstabe]
+            if board[r - 1][spalte - 1] == 'DL' and not (r - 1, spalte - 1) in tilesdict:
+                points = points + (d[buchstabe] * 2)
+            if board[r - 1][spalte - 1] == 'TL' and not (r - 1, spalte - 1) in tilesdict:
+                points = points + (d[buchstabe] * 3)
+            if board[r - 1][spalte - 1] == 'DW' and not (r - 1, spalte - 1) in tilesdict:
+                points = points + d[buchstabe]
+                total_times = 2
+            if board[r - 1][spalte - 1] == 'TW' and not (r - 1, spalte - 1) in tilesdict:
+                points = points + d[buchstabe]
+                total_times = 3
+            r += 1
+        points *= total_times
+    return points
+
+def get_best_word(possible, d, board, tilesdict):
+    max_points = 0
+    for (wort, row, spalte) in possible:
+        points = board_punkte((wort, row, spalte), d, board, tilesdict, valid_direction)
+        if points > max_points:
+            bestwort = wort
+            tilerow = row
+            tilespalte = spalte
+            max_points = points
+    return (bestwort, max_points, tilerow, tilespalte)
 
 
 # Initializing surface
@@ -159,7 +162,7 @@ font3 = pygame.font.SysFont('bahnenschrift.ttf', 45)
 
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
-     'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3}
+     'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3, '*' : 0}
 def decide_color(m,n):
     red1=[(0,0),(0,7),(0,14),(7,0),(7,14),(14,0),(14,7),(14,14)]
     gold1=[(1,1),(2,2),(3,3),(4,4),(13,13),(12,12),(11,11),(10,10),(13,1),(12,2),(11,3),(10,4),(1,13),(2,12),(3,11),(4,10)]
@@ -178,6 +181,7 @@ def decide_color(m,n):
     else:
         return darkgreen2
 def print_board():
+    window.fill(darkgreen)
     for m in range(0,15):
         for n in range(0,15):
             pygame.draw.rect(window, decide_color(m,n), pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width))
@@ -202,6 +206,25 @@ def print_board():
                 DW = font2.render('DL', True, black)
                 window.blit(DW, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
                 pygame.display.flip()
+
+def print_gestell(gestell):
+    margin2=10
+    m=15
+    n=4
+    pygame.draw.rect(window, darkgreen2, pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width * 7, cell_width))
+    for i in gestell:
+        pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2))
+        pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+        letter = font3.render(i.upper(), True, black)
+        points = font3.render(str(d[i]), True, black)
+        window.blit(letter, (margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+        window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
+        n += 1
+        pygame.display.flip()
+
+
+
+
 
 def letters_on_board():
     margin2=10
@@ -252,24 +275,32 @@ def get_valid_words_2(row, spalte, valid_direction):
     print(possible)
     return possible
 
-def max_points():
-    most_points=word
-
-
 
 print_board()
-
 board = board_in_list()
-
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
 gestell = get_seven_letters(bag)
+print_gestell(gestell)
 
+gestell_kordinat={(4,15) : gestell[0],
+                  (5,15) : gestell[1],
+                  (6,15) : gestell[2],
+                  (7,15) : gestell[3],
+                  (8,15) : gestell[4],
+                  (9,15) : gestell[5],
+                  (10,15) : gestell[6]}
+
+
+print(gestell_kordinat)
+#if gestell_touch() in gestell_kordinat:
+ #   print(gestell_kordinat[gestell_touch()])
+#else:
+ #   print('a')
 diraction = input('diraction:')
 row = int(input('row:'))
 spalte = int(input('spalte:'))
 wort_auf_brett = input('Welches Wort liegt bereits auf dem Brett: ')
-
 
 
 tilerow = row
@@ -293,10 +324,12 @@ else:
 possible=get_valid_words_2(row, spalte, valid_direction)
 print(possible[0])
 
-board_punkte(possible, d, board, tilesdict)
+(bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
 
-(word,tilerow,tilespalte)=possible[0]
-for buchstabe in word:
+
+print(bestwort, max_points, tilerow, tilespalte)
+
+for buchstabe in bestwort:
     tilesdict[(tilerow, tilespalte)] = buchstabe
     if valid_direction == 'down':
         tilerow += 1
@@ -310,6 +343,11 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            column = x // cell_width - 1
+            row = y // cell_width - 1
+            print(row, column)
         else:
             pass
 

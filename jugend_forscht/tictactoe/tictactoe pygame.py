@@ -225,7 +225,7 @@ def print_board(size):
     for n in range(1, size):
         # Striche, die senkrecht sind
         pygame.draw.rect(window, lightblue, pygame.Rect(n*cell_width, margin, 5, size*cell_width - 2*margin))
-        # Striche,die waagerecht sind
+        # Striche, die waagerecht sind
         pygame.draw.rect(window, lightblue, pygame.Rect(margin, n * cell_width, size * cell_width - 2*margin, 5))
 
     text = font.render('TicTacToe', True, purple)

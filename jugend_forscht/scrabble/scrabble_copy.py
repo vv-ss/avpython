@@ -101,11 +101,13 @@ def board_in_list():
     my_board.close()
     return board
 
+
 def board_punkte(possible, d, board):
+    #diraction = input('diraction:')
+    #row = int(input('row:'))
+    #spalte = int(input('spalte:'))
+    #wort_auf_brett = input('Welches Wort liegt bereits auf dem Brett: ')
     possible_2=[]
-    diraction = input('diraction:')
-    row = int(input('row:'))
-    spalte = int(input('spalte:'))
     if diraction == 'right':
         for wort in possible:
             if len(wort) <= 16 - int(spalte):
@@ -158,10 +160,6 @@ def board_punkte(possible, d, board):
             print(wort + '-->', most_points)
 
 def get_valid_words_2():
-    diraction = input('diraction:')
-    row = int(input('row:'))
-    spalte = int(input('spalte:'))
-    wort_auf_brett=input('Welches Wort liegt bereits auf dem Brett: ')
     possible=[]
     if diraction=='right':
         start_spalte = spalte
@@ -197,16 +195,29 @@ def get_valid_words_2():
             start_row+=1
     print(possible)
 
+
+#def most_points():
+ #   best_move=get_valid_words_2()[0]
+  #  for i in possible:
+   #     if i[0]
+
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
      'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3}
-
 
 
 
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
 gestell = get_seven_letters(bag)
+
+diraction = input('diraction:')
+row = int(input('row:'))
+spalte = int(input('spalte:'))
+wort_auf_brett = input('Welches Wort liegt bereits auf dem Brett: ')
+
 possible = get_valid_words(alle_woerter, gestell)
+print(possible)
 board = board_in_list()
-#board_punkte(possible, d, board)
+board_punkte(possible, d, board)
 get_valid_words_2()
+
