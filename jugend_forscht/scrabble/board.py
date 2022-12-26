@@ -16,12 +16,16 @@ türkis=(64, 224, 208)
 lightblue=(150,230,250)
 purple=(128,0,128)
 white=(250,249,246)
+yellow=(255, 238, 170)
 pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-width=1400
-height=1400
+highlighted_row = 0
+highlighted_column=0
+highlighted_tile=0
+width=2000
+height=2000
 margin=150
 cell_width = (width-2*margin)/15
 
@@ -108,16 +112,16 @@ def board_punkte(worttuple, d, board, tilesdict, direction):
         s = spalte
         for buchstabe in wort:
             print("came with", buchstabe, d[buchstabe], row, s, board[row - 1][s - 1])
-            if board[row - 1][s - 1] == '00':
+            if board[row][s] == '00':
                 points = points + d[buchstabe]
-            if board[row - 1][s - 1] == 'DL' and not (row - 1, s - 1) in tilesdict:
+            if board[row][s] == 'DL' and not (row, s) in tilesdict:
                 points = points + (d[buchstabe] * 2)
-            if board[row - 1][s - 1] == 'TL' and not (row - 1, s - 1) in tilesdict:
+            if board[row][s] == 'TL' and not (row, s) in tilesdict:
                 points = points + (d[buchstabe] * 3)
-            if board[row - 1][s - 1] == 'DW' and not (row - 1, s - 1) in tilesdict:
+            if board[row][s] == 'DW' and not (row, s) in tilesdict:
                 points = points + d[buchstabe]
                 total_times = 2
-            if board[row - 1][s - 1] == 'TW' and not (row - 1, s - 1) in tilesdict:
+            if board[row][s] == 'TW' and not (row, s) in tilesdict:
                 points = points + d[buchstabe]
                 total_times = 3
             s += 1
@@ -126,17 +130,17 @@ def board_punkte(worttuple, d, board, tilesdict, direction):
         total_times = 1
         r = row
         for buchstabe in wort:
-            print("came with", buchstabe, d[buchstabe], r, spalte, board[r - 1][spalte - 1])
-            if board[r - 1][spalte - 1] == '00':
+            print("came with", buchstabe, d[buchstabe], r, spalte, board[r][spalte])
+            if board[r][spalte] == '00':
                 points = points + d[buchstabe]
-            if board[r - 1][spalte - 1] == 'DL' and not (r - 1, spalte - 1) in tilesdict:
+            if board[r][spalte] == 'DL' and not (r, spalte) in tilesdict:
                 points = points + (d[buchstabe] * 2)
-            if board[r - 1][spalte - 1] == 'TL' and not (r - 1, spalte - 1) in tilesdict:
+            if board[r][spalte] == 'TL' and not (r, spalte) in tilesdict:
                 points = points + (d[buchstabe] * 3)
-            if board[r - 1][spalte - 1] == 'DW' and not (r - 1, spalte - 1) in tilesdict:
+            if board[r][spalte] == 'DW' and not (r, spalte) in tilesdict:
                 points = points + d[buchstabe]
                 total_times = 2
-            if board[r - 1][spalte - 1] == 'TW' and not (r - 1, spalte - 1) in tilesdict:
+            if board[r][spalte] == 'TW' and not (r, spalte) in tilesdict:
                 points = points + d[buchstabe]
                 total_times = 3
             r += 1
@@ -162,7 +166,7 @@ pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
 
 font = pygame.font.Font('freesansbold.ttf', 100)
 font2 = pygame.font.SysFont('bahnenschrift.ttf', 30)
-font3 = pygame.font.SysFont('freesans.ttf', 45)
+font3 = pygame.font.SysFont('bahnenschrift.ttf', 45)
 
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
@@ -223,18 +227,52 @@ def print_gestell(gestell):
         n += 1
     pygame.display.flip()
 
+def highlight_gestell_helper(color1, color2, m, n, i):
+    margin2 = 10
+    pygame.draw.rect(window, color1,
+                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                 cell_width - margin2 * 2, cell_width - margin2 * 2))
+    pygame.draw.rect(window, color2,
+                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                 cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+    letter = font3.render(i.upper(), True, black)
+    points = font3.render(str(d[i]), True, black)
+    window.blit(letter, (
+        margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+    window.blit(points, (
+        margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
+    pygame.display.flip()
+
+def highlight_gestell(row, column,tile):
+    global highlighted_row, highlighted_column, highlighted_tile
+    if highlighted_row != 0:
+        highlight_gestell_helper(white, black, highlighted_row, highlighted_column, highlighted_tile)
+    highlight_gestell_helper(yellow, yellow, row, column, tile)
+    highlighted_row = row
+    highlighted_column = column
+    highlighted_tile = tile
 
 
-
+def highlight_cell(row, column):
+    margin2 = 10
+    m = row
+    n = column
+    pygame.draw.rect(window, yellow,
+                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                 cell_width - margin2 * 2, cell_width - margin2 * 2))
+    pygame.draw.rect(window, yellow,
+                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                 cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+    pygame.display.flip()
 
 def letters_on_board():
-    margin2=3
+    margin2=10
     for kordinat in tilesdict:
         (m,n)=kordinat
-        #pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2*2, cell_width - margin2*2))
-        #pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2),3)
+        pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2*2, cell_width - margin2*2))
+        pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2),3)
         letter = font3.render((str(tilesdict[kordinat])).upper(), True, black)
-        points = font3.render((str(d[tilesdict[kordinat]])), True, black)
+        points = font3.render((str(d[(tilesdict[kordinat]).lower()])), True, black)
         print("Came to letters_on_board", str(tilesdict[kordinat]), letter, points)
         window.blit(letter, (margin + n * cell_width + margin2 + cell_width/4, margin + m * cell_width + margin2 + cell_width/4))
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
@@ -242,7 +280,7 @@ def letters_on_board():
 
 def get_valid_words_2(row, spalte, valid_direction):
     possible=[]
-    if valid_direction== 'down':
+    if valid_direction == 'down':
         start_spalte = spalte
         for buchstabe_auf_brett in wort_auf_brett:
             for lenght_of_word in range(1, 8):
@@ -255,10 +293,10 @@ def get_valid_words_2(row, spalte, valid_direction):
                         kombi_list.insert(x, buchstabe_auf_brett)
                         #print(kombi_list, kombi)
                         neu_wort = ''.join(kombi_list)
-                        if neu_wort in alle_woerter:
+                        if neu_wort in alle_woerter and lenght_of_word + row <= 16:
                             possible.append((neu_wort, start_row, start_spalte))
-            start_spalte+=1
-    if valid_direction== 'right':
+            start_spalte += 1
+    if valid_direction == 'right':
         start_row = row
         for buchstabe_auf_brett in wort_auf_brett:
             for lenght_of_word in range(1, 8):
@@ -271,11 +309,12 @@ def get_valid_words_2(row, spalte, valid_direction):
                         kombi_list.insert(x, buchstabe_auf_brett)
                         #print(kombi_list, kombi)
                         neu_wort = ''.join(kombi_list)
-                        if neu_wort in alle_woerter:
+                        if neu_wort in alle_woerter and lenght_of_word + spalte <= 16:
                             possible.append((neu_wort, start_row, start_spalte))
             start_row+=1
     print(possible)
     return possible
+
 
 
 print_board()
@@ -285,13 +324,13 @@ bag = create_bag('de')
 gestell = get_seven_letters(bag)
 print_gestell(gestell)
 
-gestell_kordinat={(4,15) : gestell[0],
-                  (5,15) : gestell[1],
-                  (6,15) : gestell[2],
-                  (7,15) : gestell[3],
-                  (8,15) : gestell[4],
-                  (9,15) : gestell[5],
-                  (10,15) : gestell[6]}
+gestell_kordinat={(15,4) : gestell[0],
+                  (15,5) : gestell[1],
+                  (15,6) : gestell[2],
+                  (15,7) : gestell[3],
+                  (15,8) : gestell[4],
+                  (15,9) : gestell[5],
+                  (15,10) : gestell[6]}
 
 
 print(gestell_kordinat)
@@ -350,7 +389,13 @@ while True:
             x, y = pygame.mouse.get_pos()
             column = x // cell_width - 1
             row = y // cell_width - 1
-            print(row, column)
+            if ((row, column)) in gestell_kordinat:
+                print(gestell_kordinat[(row, column)])
+                highlight_gestell(row, column, gestell_kordinat[(row,column)])
+            else:
+                pass
+                #if 0 <= row < 15 and 0 <= column < 15:
+                #    highlight_cell(row, column)
         else:
             pass
 
