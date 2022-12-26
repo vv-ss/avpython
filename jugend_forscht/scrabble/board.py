@@ -10,6 +10,7 @@ darkblue=(0,0,210)
 gold=(253, 218, 13)
 darkgreen2=(50,110,100)
 red= (255, 87, 51)
+darkgreen3 = (50,120,100)
 darkgreen=(0,30,10)
 green = (0, 255, 0)
 türkis=(64, 224, 208)
@@ -28,6 +29,7 @@ width=2000
 height=2000
 margin=150
 cell_width = (width-2*margin)/15
+margin2=10
 
 # Woerterbuch lesen
 def read_dictionary(sprache):
@@ -266,7 +268,6 @@ def highlight_cell(row, column):
     pygame.display.flip()
 
 def letters_on_board():
-    margin2=10
     for kordinat in tilesdict:
         (m,n)=kordinat
         pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2*2, cell_width - margin2*2))
@@ -277,6 +278,9 @@ def letters_on_board():
         window.blit(letter, (margin + n * cell_width + margin2 + cell_width/4, margin + m * cell_width + margin2 + cell_width/4))
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
+
+def print_buttons():
+    pygame.draw.rect(window, darkgreen3, pygame.Rect(margin + 1 * cell_width + margin2, margin + 15 * cell_width + margin2, cell_width * 2, cell_width))
 
 def get_valid_words_2(row, spalte, valid_direction):
     possible=[]
@@ -321,6 +325,7 @@ print_board()
 board = board_in_list()
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
+print_buttons()
 gestell = get_seven_letters(bag)
 print_gestell(gestell)
 
