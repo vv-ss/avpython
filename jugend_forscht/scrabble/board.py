@@ -170,7 +170,7 @@ pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
 font = pygame.font.Font('freesansbold.ttf', 100//factor)
 font2 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
 font3 = pygame.font.SysFont('bahnenschrift.ttf', 45//factor)
-
+font4 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
      'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3, '*' : 0}
@@ -235,6 +235,17 @@ def print_gestell(gestell):
         n += 1
     pygame.display.flip()
 
+def remove_from_gestell(m,n):
+    margin2 = 10//factor
+    pygame.draw.rect(window, darkgreen2,
+                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                 cell_width - margin2 * 2, cell_width - margin2 * 2))
+    #pygame.draw.rect(window, black,
+    #                 pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+    #                             cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+    pygame.display.flip()
+
+
 def highlight_gestell_helper(color1, color2, m, n, i):
     margin2 = 10//factor
     pygame.draw.rect(window, color1,
@@ -286,8 +297,11 @@ def letters_on_board():
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
-def print_buttons():
-    pygame.draw.rect(window, darkgreen3, pygame.Rect(margin + 1 * cell_width + margin2, margin + 15 * cell_width + margin2, cell_width * 2, cell_width))
+def print_button(m,n,text):
+    pygame.draw.rect(window, lightblue, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
+    text = font4.render(text, True, black)
+    window.blit(text, (
+    margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
 
 def get_valid_words_2(row, spalte, valid_direction):
     possible=[]
@@ -332,7 +346,9 @@ print_board()
 board = board_in_list()
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
-print_buttons()
+print_button(15,1, "cancel")
+print_button(15,2, "renew")
+print_button(15,12, "confirm")
 gestell = get_seven_letters(bag)
 print_gestell(gestell)
 
@@ -392,7 +408,7 @@ for buchstabe in bestwort:
 
 letters_on_board()
 
-
+currentmove={}
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -405,12 +421,13 @@ while True:
                 print(gestell_kordinat[(row, column)])
                 highlight_gestell(row, column, gestell_kordinat[(row,column)])
             else:
-                if highlighted_row>0:
+                if highlighted_row>0 and (row, column) not in tilesdict and (row, column) not in currentmove:
+                    currentmove[(row, column)]=highlighted_tile
                     print(highlighted_row)
                     paint_tile_with_letter(row,column, highlighted_tile)
+                    remove_from_gestell(highlighted_row, highlighted_column)
                     highlighted_row=0
                     highlighted_column=0
-                    highlighted_tile=0
                 #if 0 <= row < 15 and 0 <= column < 15:
                 #    highlight_cell(row, column)
         else:
