@@ -21,12 +21,13 @@ pygame.init()
 pygame.display.init()
 pygame.font.init()
 
+factor = 2
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=0
-width=2000
-height=2000
-margin=150
+width=2000//factor
+height=2000//factor
+margin=150//factor
 cell_width = (width-2*margin)/15
 
 # Woerterbuch lesen
@@ -164,9 +165,9 @@ def get_best_word(possible, d, board, tilesdict):
 window = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
 
-font = pygame.font.Font('freesansbold.ttf', 100)
-font2 = pygame.font.SysFont('bahnenschrift.ttf', 30)
-font3 = pygame.font.SysFont('bahnenschrift.ttf', 45)
+font = pygame.font.Font('freesansbold.ttf', 100//factor)
+font2 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
+font3 = pygame.font.SysFont('bahnenschrift.ttf', 45//factor)
 
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
@@ -189,31 +190,36 @@ def decide_color(m,n):
     else:
         return darkgreen2
 
+def paint_tile(m,n):
+    pygame.draw.rect(window, decide_color(m, n),
+                     pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width))
+    pygame.draw.rect(window, darkgreen,
+                     pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width), 3)
+    if decide_color(m, n) == purple:
+        star = font.render('*', True, black)
+        window.blit(star, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
+    if decide_color(m, n) == gold:
+        DW = font2.render('DW', True, black)
+        window.blit(DW, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
+    if decide_color(m, n) == red:
+        DW = font2.render('TW', True, black)
+        window.blit(DW, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
+    if decide_color(m, n) == darkblue:
+        DW = font2.render('TL', True, black)
+        window.blit(DW, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
+    if decide_color(m, n) == lightblue:
+        DW = font2.render('DL', True, black)
+        window.blit(DW, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
+
 def print_board():
     window.fill(darkgreen)
     for m in range(0,15):
         for n in range(0,15):
-            pygame.draw.rect(window, decide_color(m,n), pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width))
-            pygame.draw.rect(window, darkgreen, pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width), 3)
-            if decide_color(m,n)==purple:
-                star = font.render('*', True, black)
-                window.blit(star, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
-            if decide_color(m, n) == gold:
-                DW = font2.render('DW', True, black)
-                window.blit(DW, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
-            if decide_color(m, n) == red:
-                DW = font2.render('TW', True, black)
-                window.blit(DW, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
-            if decide_color(m, n) == darkblue:
-                DW = font2.render('TL', True, black)
-                window.blit(DW, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
-            if decide_color(m, n) == lightblue:
-                DW = font2.render('DL', True, black)
-                window.blit(DW, (margin + n * cell_width + cell_width/4, margin + m * cell_width + cell_width/4))
-            pygame.display.flip()
+            paint_tile(m,n)
+    pygame.display.flip()
 
 def print_gestell(gestell):
-    margin2=10
+    margin2=10//factor
     m=15
     n=4
     pygame.draw.rect(window, darkgreen2, pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width * 7, cell_width))
@@ -228,7 +234,7 @@ def print_gestell(gestell):
     pygame.display.flip()
 
 def highlight_gestell_helper(color1, color2, m, n, i):
-    margin2 = 10
+    margin2 = 10//factor
     pygame.draw.rect(window, color1,
                      pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
                                  cell_width - margin2 * 2, cell_width - margin2 * 2))
@@ -252,21 +258,21 @@ def highlight_gestell(row, column,tile):
     highlighted_column = column
     highlighted_tile = tile
 
-
-def highlight_cell(row, column):
-    margin2 = 10
-    m = row
-    n = column
-    pygame.draw.rect(window, yellow,
-                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
-                                 cell_width - margin2 * 2, cell_width - margin2 * 2))
-    pygame.draw.rect(window, yellow,
-                     pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
-                                 cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+def paint_tile_with_letter(row,column, tile):
+    margin2 = 10 // factor
+    pygame.draw.rect(window, white,
+                     pygame.Rect(margin + column * cell_width + margin2, margin + row * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2))
+    pygame.draw.rect(window, black, pygame.Rect(margin + column * cell_width + margin2, margin + row * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
+    letter = font3.render(tile.upper(), True, black)
+    points = font3.render((str(d[tile])), True, black)
+    window.blit(letter, (
+        margin + column * cell_width + margin2 + cell_width / 4, margin + row * cell_width + margin2 + cell_width / 4))
+    window.blit(points, (
+        margin + column * cell_width + margin2 + cell_width / 2, margin + row * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
 def letters_on_board():
-    margin2=10
+    margin2=10//factor
     for kordinat in tilesdict:
         (m,n)=kordinat
         pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2*2, cell_width - margin2*2))
@@ -380,7 +386,6 @@ for buchstabe in bestwort:
 
 letters_on_board()
 
-
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -393,7 +398,12 @@ while True:
                 print(gestell_kordinat[(row, column)])
                 highlight_gestell(row, column, gestell_kordinat[(row,column)])
             else:
-                pass
+                if highlighted_row>0:
+                    print(highlighted_row)
+                    paint_tile_with_letter(row,column, highlighted_tile)
+                    highlighted_row=0
+                    highlighted_column=0
+                    highlighted_tile=0
                 #if 0 <= row < 15 and 0 <= column < 15:
                 #    highlight_cell(row, column)
         else:
