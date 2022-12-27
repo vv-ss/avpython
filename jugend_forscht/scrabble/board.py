@@ -262,7 +262,7 @@ def highlight_gestell_helper(color1, color2, m, n, i):
         margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
-def highlight_gestell(row, column,tile):
+def highlight_gestell(row, column, tile):
     global highlighted_row, highlighted_column, highlighted_tile
     if highlighted_row != 0:
         highlight_gestell_helper(white, black, highlighted_row, highlighted_column, highlighted_tile)
@@ -346,26 +346,12 @@ print_board()
 board = board_in_list()
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
-print_button(15,1, "cancel")
 print_button(15,2, "renew")
-print_button(15,12, "confirm")
+print_button(15,12, "cancel")
+print_button(15,13, "confirm")
 gestell = get_seven_letters(bag)
 print_gestell(gestell)
 
-gestell_kordinat={(15,4) : gestell[0],
-                  (15,5) : gestell[1],
-                  (15,6) : gestell[2],
-                  (15,7) : gestell[3],
-                  (15,8) : gestell[4],
-                  (15,9) : gestell[5],
-                  (15,10) : gestell[6]}
-
-
-print(gestell_kordinat)
-#if gestell_touch() in gestell_kordinat:
- #   print(gestell_kordinat[gestell_touch()])
-#else:
- #   print('a')
 diraction = input('diraction:')
 row = int(input('row:'))
 spalte = int(input('spalte:'))
@@ -415,19 +401,45 @@ while True:
             pygame.quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            column = x // cell_width - 1
-            row = y // cell_width - 1
-            if ((row, column)) in gestell_kordinat:
-                print(gestell_kordinat[(row, column)])
-                highlight_gestell(row, column, gestell_kordinat[(row,column)])
+            column = int(x // cell_width - 1)
+            row = int(y // cell_width - 1)
+            if row == 15 and 4 <= column <= 10:
+                print(gestell[column - 4])
+                highlight_gestell(row, column, gestell[column - 4])
             else:
-                if highlighted_row>0 and (row, column) not in tilesdict and (row, column) not in currentmove:
+                if highlighted_row>0 and 0 <= row < 15 and 0 <= column < 15 and (row, column) not in tilesdict and (row, column) not in currentmove:
                     currentmove[(row, column)]=highlighted_tile
                     print(highlighted_row)
                     paint_tile_with_letter(row,column, highlighted_tile)
                     remove_from_gestell(highlighted_row, highlighted_column)
                     highlighted_row=0
                     highlighted_column=0
+                if ((row, column)) == (15,12):
+                    #print_board()
+                    letters_on_board()
+                    for (row, column) in currentmove:
+                        paint_tile(row, column)
+                    #print_button(15, 2, "renew")
+                    #print_button(15, 12, "cancel")
+                    #print_button(15, 13, "confirm")
+                    currentmove={}
+                    print_gestell(gestell)
+                if ((row, column)) == (15, 2):
+                    # print_board()
+                    letters_on_board()
+                    for (row, column) in currentmove:
+                        paint_tile(row, column)
+                    # print_button(15, 2, "renew")
+                    # print_button(15, 12, "cancel")
+                    # print_button(15, 13, "confirm")
+                    currentmove = {}
+                    print_gestell(gestell)
+                    for gestell_letter in gestell:
+                        bag.append(gestell_letter)
+                    random.shuffle(bag)
+                    gestell = get_seven_letters(bag)
+                    print_gestell(gestell)
+                    currentmove={}
                 #if 0 <= row < 15 and 0 <= column < 15:
                 #    highlight_cell(row, column)
         else:
