@@ -1,4 +1,3 @@
-
 import itertools
 from itertools import repeat
 import random
@@ -18,11 +17,12 @@ lightblue=(150,230,250)
 purple=(128,0,128)
 white=(250,249,246)
 yellow=(255, 238, 170)
+lightpink=(255, 210, 120)
 pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-factor = 2
+factor = 1
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=0
@@ -87,12 +87,11 @@ def create_bag(sprache):
     return bag
 
 
-def get_seven_letters(bag):
-    gestell = []
-    for i in range(0,7):
+def get_letters(bag, num, gestell):
+    for i in range(0,num):
         gestell.append(bag.pop())
     print('Hier sind deine sieben Buchstaben:', gestell)
-    return gestell
+
 
 
 def board_in_list():
@@ -223,7 +222,7 @@ def print_board():
 def print_gestell(gestell):
     margin2=10//factor
     m=15
-    n=4
+    n=0
     pygame.draw.rect(window, darkgreen2, pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width * 7, cell_width))
     for i in gestell:
         pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2))
@@ -271,9 +270,9 @@ def highlight_gestell(row, column, tile):
     highlighted_column = column
     highlighted_tile = tile
 
-def paint_tile_with_letter(row,column, tile):
+def paint_tile_with_letter(row,column, tile,color):
     margin2 = 10 // factor
-    pygame.draw.rect(window, white,
+    pygame.draw.rect(window, color,
                      pygame.Rect(margin + column * cell_width + margin2, margin + row * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2))
     pygame.draw.rect(window, black, pygame.Rect(margin + column * cell_width + margin2, margin + row * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
     letter = font3.render(tile.upper(), True, black)
@@ -297,66 +296,132 @@ def letters_on_board():
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
-def print_button(m,n,text):
-    pygame.draw.rect(window, lightblue, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
+def print_button(m,n,text,color):
+    pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
+    pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
     text = font4.render(text, True, black)
     window.blit(text, (
     margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+def print_player(m,n,scores,color):
+    pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
+    pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
+    text = font4.render("Player " + str(n+1), True, black)
+    window.blit(text, (
+    margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+    score = font4.render(str(scores[n]), True, black)
+    window.blit(score, (
+        margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 4))
+# def get_valid_words_2(row, spalte, valid_direction):
+#     possible=[]
+#     if valid_direction == 'down':
+#         start_spalte = spalte
+#         for buchstabe_auf_brett in wort_auf_brett:
+#             for lenght_of_word in range(1, 8):
+#                 alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
+#                 for kombi in alle_kombinationen:
+#                     for x in range(lenght_of_word + 1):
+#                         #print(x)
+#                         start_row = row - x
+#                         kombi_list = list(kombi)
+#                         kombi_list.insert(x, buchstabe_auf_brett)
+#                         #print(kombi_list, kombi)
+#                         neu_wort = ''.join(kombi_list)
+#                         if neu_wort in alle_woerter and lenght_of_word + row <= 16:
+#                             possible.append((neu_wort, start_row, start_spalte))
+#             start_spalte += 1
+#     if valid_direction == 'right':
+#         start_row = row
+#         for buchstabe_auf_brett in wort_auf_brett:
+#             for lenght_of_word in range(1, 8):
+#                 alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
+#                 for kombi in alle_kombinationen:
+#                     for x in range(lenght_of_word + 1):
+#                         #print(x)
+#                         start_spalte = spalte - x
+#                         kombi_list = list(kombi)
+#                         kombi_list.insert(x, buchstabe_auf_brett)
+#                         #print(kombi_list, kombi)
+#                         neu_wort = ''.join(kombi_list)
+#                         if neu_wort in alle_woerter and lenght_of_word + spalte <= 16:
+#                             possible.append((neu_wort, start_row, start_spalte))
+#             start_row+=1
+#     print(possible)
+#     return possible
 
-def get_valid_words_2(row, spalte, valid_direction):
-    possible=[]
-    if valid_direction == 'down':
-        start_spalte = spalte
-        for buchstabe_auf_brett in wort_auf_brett:
-            for lenght_of_word in range(1, 8):
-                alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
-                for kombi in alle_kombinationen:
-                    for x in range(lenght_of_word + 1):
-                        #print(x)
-                        start_row = row - x
-                        kombi_list = list(kombi)
-                        kombi_list.insert(x, buchstabe_auf_brett)
-                        #print(kombi_list, kombi)
-                        neu_wort = ''.join(kombi_list)
-                        if neu_wort in alle_woerter and lenght_of_word + row <= 16:
-                            possible.append((neu_wort, start_row, start_spalte))
-            start_spalte += 1
-    if valid_direction == 'right':
-        start_row = row
-        for buchstabe_auf_brett in wort_auf_brett:
-            for lenght_of_word in range(1, 8):
-                alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
-                for kombi in alle_kombinationen:
-                    for x in range(lenght_of_word + 1):
-                        #print(x)
-                        start_spalte = spalte - x
-                        kombi_list = list(kombi)
-                        kombi_list.insert(x, buchstabe_auf_brett)
-                        #print(kombi_list, kombi)
-                        neu_wort = ''.join(kombi_list)
-                        if neu_wort in alle_woerter and lenght_of_word + spalte <= 16:
-                            possible.append((neu_wort, start_row, start_spalte))
-            start_row+=1
-    print(possible)
-    return possible
+def print_message(str, color):
+    m = -1.25
+    n = 7
+    pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
+                                                cell_width * 4, cell_width))
+    invalid = font3.render(str, True, black)
+    window.blit(invalid, (margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+    pygame.display.flip()
 
+def is_valid(currentmove):
+    min_column = None
+    max_column = None
+    min_row = None
+    max_row = None
+    if currentmove == {}:
+        return False
+    for (r, c) in currentmove:
+        if not min_row:
+            min_row = max_row = r
+            min_column = max_column = c
+        if (r < min_row):
+            min_row = r
+        if (r > max_row):
+            max_row = r
+        if (c < min_column):
+            min_column = c
+        if (c > max_column):
+            max_column = c
+    if min_row != max_row and min_column != max_column:
+        return False
+    # Case where the user made an across word
+    if min_row == max_row:
+        for c in range(min_column, max_column + 1):
+            if (min_row, c) not in tilesdict and (min_row, c) not in currentmove:
+                return False
 
+    # Case where the user made a down word
+    if min_column == max_column:
+        for r in range(min_row, max_row + 1):
+            if (r, min_column) not in tilesdict and (r, min_column) not in currentmove:
+                return False
+    return True
 
-print_board()
+num_players = 0
+while not 2 <= num_players <= 4:
+    num_players = int(input("Number of players (2-4):"))
+currentplayer = 0
 board = board_in_list()
 alle_woerter = read_dictionary('de')
 bag = create_bag('de')
-print_button(15,2, "renew")
-print_button(15,12, "cancel")
-print_button(15,13, "confirm")
-gestell = get_seven_letters(bag)
-print_gestell(gestell)
+gestell = []
+scores = []
+for player in range(num_players):
+    gestell.append([])
+    get_letters(bag, 7, gestell[player])
+    scores.append(0)
+# Schnittstelle
+print_board()
+print_button(15,11, "renew",lightblue)
+print_button(15,12, "cancel",lightblue)
+print_button(15,13, "confirm",lightblue)
+print_button(-1.25,13, "show",lightblue)
+print_button(-1.25,14, "hide",lightblue)
+for i in range(num_players):
+    if i == currentplayer:
+        print_player(-1.25, i, scores, green)
+    else:
+        print_player(-1.25, i, scores, lightblue)
 
-diraction = input('diraction:')
-row = int(input('row:'))
-spalte = int(input('spalte:'))
-wort_auf_brett = input('Welches Wort liegt bereits auf dem Brett: ')
+print_gestell(gestell[currentplayer])
 
+wort_auf_brett = "affe"
+diraction = "down"
+row = spalte = 3
 
 tilerow = row
 tilespalte = spalte
@@ -378,22 +443,21 @@ else:
 
 # this function finds the possible words in other direction
 # need to rewrite
-possible=get_valid_words_2(row, spalte, valid_direction)
-print(possible[0])
+#possible=get_valid_words_2(row, spalte, valid_direction)
+#print(possible[0])
 
-(bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
+#(bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
 
-print(bestwort, max_points, tilerow, tilespalte)
+#print(bestwort, max_points, tilerow, tilespalte)
 
-for buchstabe in bestwort:
-    tilesdict[(tilerow, tilespalte)] = buchstabe
-    if valid_direction == 'down':
-        tilerow += 1
-    else:
-        tilespalte += 1
+#for buchstabe in bestwort:
+#    tilesdict[(tilerow, tilespalte)] = buchstabe
+#    if valid_direction == 'down':
+#        tilerow += 1
+#    else:
+#        tilespalte += 1
 
 letters_on_board()
-
 currentmove={}
 while True:
     for event in pygame.event.get():
@@ -401,47 +465,71 @@ while True:
             pygame.quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            column = int(x // cell_width - 1)
-            row = int(y // cell_width - 1)
-            if row == 15 and 4 <= column <= 10:
-                print(gestell[column - 4])
-                highlight_gestell(row, column, gestell[column - 4])
+            x -= margin
+            y -= margin
+            column = int(x // cell_width)
+            row = int(y // cell_width)
+            # Fall wo Gestell gedrueckt wird
+            if row == 15 and 0 <= column < len(gestell[currentplayer]):
+                print(gestell[currentplayer][column])
+                highlight_gestell(row, column, gestell[currentplayer][column])
             else:
+                # Case where a board tile is pressed
                 if highlighted_row>0 and 0 <= row < 15 and 0 <= column < 15 and (row, column) not in tilesdict and (row, column) not in currentmove:
                     currentmove[(row, column)]=highlighted_tile
                     print(highlighted_row)
-                    paint_tile_with_letter(row,column, highlighted_tile)
-                    remove_from_gestell(highlighted_row, highlighted_column)
+                    paint_tile_with_letter(row,column, highlighted_tile, lightpink)
+                    #remove_from_gestell(highlighted_row, highlighted_column)
+                    gestell[currentplayer].pop(highlighted_column)
                     highlighted_row=0
                     highlighted_column=0
+                    print_gestell(gestell[currentplayer])
+                # Case where cancel is pressed
                 if ((row, column)) == (15,12):
                     #print_board()
                     letters_on_board()
                     for (row, column) in currentmove:
                         paint_tile(row, column)
-                    #print_button(15, 2, "renew")
-                    #print_button(15, 12, "cancel")
-                    #print_button(15, 13, "confirm")
+                        gestell[currentplayer].append(currentmove[(row, column)])
                     currentmove={}
-                    print_gestell(gestell)
-                if ((row, column)) == (15, 2):
+                    print_gestell(gestell[currentplayer])
+                # Case where renew is pressed
+                if ((row, column)) == (15, 11):
                     # print_board()
                     letters_on_board()
                     for (row, column) in currentmove:
                         paint_tile(row, column)
-                    # print_button(15, 2, "renew")
-                    # print_button(15, 12, "cancel")
-                    # print_button(15, 13, "confirm")
                     currentmove = {}
-                    print_gestell(gestell)
-                    for gestell_letter in gestell:
+                    print_gestell(gestell[currentplayer])
+                    for gestell_letter in gestell[currentplayer]:
                         bag.append(gestell_letter)
                     random.shuffle(bag)
-                    gestell = get_seven_letters(bag)
-                    print_gestell(gestell)
+                    gestell[currentplayer] = []
+                    get_letters(bag, 7, gestell[currentplayer])
+                    print_gestell(gestell[currentplayer])
                     currentmove={}
+                if ((row, column)) == (15, 13):
+                    if is_valid(currentmove):
+                        print_message("Good move", green)
+                        # finally current_player += 1
+                    else:
+                        print_message("Invalid move", red)
+                #if ((row, column)) == (-1, 12):
+                #    show=gestell
+                #    print_button(-1.25, 12, "player1", red)
+                #    print_button(-1.25, 13, "player2", lightblue)
+                #    pygame.display.flip()
+                #if ((row, column)) == (-1, 13):
+                #    show=gestell2
+                #    print_button(-1.25, 12, "player1", lightblue)
+                #    print_button(-1.25, 13, "player2", red)
+                #    pygame.display.flip()
+                if ((row, column)) == (-1, 13):
+                    print_gestell(gestell[currentplayer])
+                if ((row, column)) == (-1, 14):
+                    for i in range(7):
+                        remove_from_gestell(15, i)
                 #if 0 <= row < 15 and 0 <= column < 15:
-                #    highlight_cell(row, column)
+                #    highlight_cell(row, co3lumn)
         else:
             pass
-
