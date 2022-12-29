@@ -357,6 +357,84 @@ def print_message(str, color):
     window.blit(invalid, (margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
     pygame.display.flip()
 
+def print_players(num_players, currentplayer):
+    for i in range(num_players):
+        if i == currentplayer:
+            print_player(-1.25, i, scores, green)
+        else:
+            print_player(-1.25, i, scores, lightblue)
+
+
+def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
+    woerter = []
+    for c in range(mincolumn, maxcolumn+1):
+        if (minrow, c) in tilesdict:
+            continue
+        minr=minrow
+        maxr = minrow
+        while minr > 0 and (minr-1, c) in tilesdict:
+            minr = minr - 1
+        while maxr <14 and (maxr+1, c) in tilesdict:
+            maxr = maxr + 1
+        if minr == maxr:
+            continue
+        str = ''
+        for r in range(minr, maxr+1):
+            if (r, c) in tilesdict:
+                character = tilesdict[(r,c)]
+            else:
+                character = currentm[(r, c)]
+            str = str + character
+        woerter.append(str)
+    while mincolumn > 0 and (minrow, mincolumn - 1) in tilesdict:
+        mincolumn -= 1
+    while maxcolumn < 14 and (minrow, maxcolumn + 1) in tilesdict:
+        maxcolumn += 1
+    str = ''
+    for c in range(mincolumn, maxcolumn+1):
+        if (minrow, c) in tilesdict:
+            character = tilesdict[(minrow, c)]
+        else:
+            character = currentm[(minrow, c)]
+        str = str + character
+    woerter.append(str)
+    return woerter
+
+def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
+    woerter = []
+    for r in range(minrow, maxrow+1):
+        if (r, mincolumn) in tilesdict:
+            continue
+        minc=mincolumn
+        maxc = mincolumn
+        while minc > 0 and (r, minc - 1) in tilesdict:
+            minc = minc - 1
+        while maxc <14 and (r, maxc+1) in tilesdict:
+            maxc = maxc + 1
+        if minc == maxc:
+            continue
+        str = ''
+        for c in range(minc, maxc+1):
+            if (r, c) in tilesdict:
+                character = tilesdict[(r,c)]
+            else:
+                character = currentm[(r, c)]
+            str = str + character
+        woerter.append(str)
+    while minrow > 0 and (minrow - 1, mincolumn) in tilesdict:
+        minrow -= 1
+    while maxrow < 14 and (maxrow + 1, mincolumn) in tilesdict:
+        maxrow += 1
+    str = ''
+    for r in range(minrow, maxrow+1):
+        if (r, mincolumn) in tilesdict:
+            character = tilesdict[(r, mincolumn)]
+        else:
+            character = currentm[(r, mincolumn)]
+        str = str + character
+    woerter.append(str)
+    return woerter
+
 def is_valid(currentmove):
     min_column = None
     max_column = None
@@ -389,6 +467,11 @@ def is_valid(currentmove):
         for r in range(min_row, max_row + 1):
             if (r, min_column) not in tilesdict and (r, min_column) not in currentmove:
                 return False
+    if min_row == max_row:
+        woerter = neue_woerter_waagerecht(min_row, min_column, max_column, currentmove)
+    elif min_column == max_column:
+        woerter = neue_woerter_senkrecht(min_column, min_row, max_row, currentmove)
+    print("Neue woerter => ", woerter)
     return True
 
 num_players = 0
@@ -411,11 +494,8 @@ print_button(15,12, "cancel",lightblue)
 print_button(15,13, "confirm",lightblue)
 print_button(-1.25,13, "show",lightblue)
 print_button(-1.25,14, "hide",lightblue)
-for i in range(num_players):
-    if i == currentplayer:
-        print_player(-1.25, i, scores, green)
-    else:
-        print_player(-1.25, i, scores, lightblue)
+print_players(num_players, currentplayer)
+
 
 print_gestell(gestell[currentplayer])
 
@@ -510,7 +590,18 @@ while True:
                     currentmove={}
                 if ((row, column)) == (15, 13):
                     if is_valid(currentmove):
-                        print_message("Good move", green)
+                        score = random.randint(5, 30)
+                        print_message("Good move. You got " + str(score) + " points.", green)
+                        get_letters(bag, 7 - len(gestell), gestell[currentplayer])
+                        scores[currentplayer] += score
+                        currentplayer = (currentplayer + 1) % num_players
+                        print_players(num_players, currentplayer)
+                        for i in range(len(gestell[currentplayer])):
+                            remove_from_gestell(15, i)
+                        for (row, column) in currentmove:
+                            tilesdict[(row, column)] = currentmove[(row, column)]
+                        letters_on_board()
+                        currentmove = {}
                         # finally current_player += 1
                     else:
                         print_message("Invalid move", red)
@@ -527,7 +618,7 @@ while True:
                 if ((row, column)) == (-1, 13):
                     print_gestell(gestell[currentplayer])
                 if ((row, column)) == (-1, 14):
-                    for i in range(7):
+                    for i in range(len(gestell[currentplayer])):
                         remove_from_gestell(15, i)
                 #if 0 <= row < 15 and 0 <= column < 15:
                 #    highlight_cell(row, co3lumn)
