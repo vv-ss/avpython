@@ -37,9 +37,11 @@ def read_dictionary(sprache):
     alle_woerter = set()
     #  Wir öffnen ein Wörterbuch von Deutsch oder Englisch
     if sprache == 'de':
-        my_file = open("deutsches_Woerterbuch.txt", "r")
-    else:
-        my_file = open("englisches_Woerterbuch.txt", "r")
+        my_file = open("deutsches_woerterbuch.txt", "r")
+    if sprache == 'en':
+        my_file = open("englisches_woerterbuch_us.txt", "r")
+    if sprache == 'fr':
+        my_file = open("franzoesisch_woerterbuch.txt", "r")
     # Benutze READLINE um ein Wort nachdem anderen zulesen
     myline = my_file.readline()
     while myline:
@@ -113,19 +115,27 @@ def board_punkte(worttuple, d, board, tilesdict, direction):
         total_times = 1
         s = spalte
         for buchstabe in wort:
-            print("came with", buchstabe, d[buchstabe], row, s, board[row - 1][s - 1])
-            if board[row][s] == '00':
+            print("came with", buchstabe, d[buchstabe], row, s, board[row][s])
+            if board[row][s] == '00' or board[row][s] == '--':
                 points = points + d[buchstabe]
-            if board[row][s] == 'DL' and not (row, s) in tilesdict:
-                points = points + (d[buchstabe] * 2)
-            if board[row][s] == 'TL' and not (row, s) in tilesdict:
-                points = points + (d[buchstabe] * 3)
-            if board[row][s] == 'DW' and not (row, s) in tilesdict:
+            if board[row][s] == 'DL':
+                if (row, s) in tilesdict:
+                    points = points + (d[buchstabe])
+                else:
+                    points = points + (d[buchstabe] * 2)
+            if board[row][s] == 'TL':
+                if (row, s) in tilesdict:
+                    points = points + (d[buchstabe])
+                else:
+                    points = points + (d[buchstabe] * 3)
+            if board[row][s] == 'DW':
                 points = points + d[buchstabe]
-                total_times = 2
-            if board[row][s] == 'TW' and not (row, s) in tilesdict:
+                if not (row, s) in tilesdict:
+                    total_times = 2
+            if board[row][s] == 'TW':
                 points = points + d[buchstabe]
-                total_times = 3
+                if not (row, s) in tilesdict:
+                    total_times = 3
             s += 1
         points *= total_times
     if direction == 'down':
@@ -133,18 +143,26 @@ def board_punkte(worttuple, d, board, tilesdict, direction):
         r = row
         for buchstabe in wort:
             print("came with", buchstabe, d[buchstabe], r, spalte, board[r][spalte])
-            if board[r][spalte] == '00':
+            if board[r][spalte] == '00' or board[r][spalte] == '--':
                 points = points + d[buchstabe]
-            if board[r][spalte] == 'DL' and not (r, spalte) in tilesdict:
-                points = points + (d[buchstabe] * 2)
-            if board[r][spalte] == 'TL' and not (r, spalte) in tilesdict:
-                points = points + (d[buchstabe] * 3)
-            if board[r][spalte] == 'DW' and not (r, spalte) in tilesdict:
+            if board[r][spalte] == 'DL':
+                if (r, spalte) in tilesdict:
+                    points = points + (d[buchstabe])
+                else:
+                    points = points + (d[buchstabe] * 2)
+            if board[r][spalte] == 'TL':
+                if (r, spalte) in tilesdict:
+                    points = points + (d[buchstabe])
+                else:
+                    points = points + (d[buchstabe] * 3)
+            if board[r][spalte] == 'DW':
                 points = points + d[buchstabe]
-                total_times = 2
-            if board[r][spalte] == 'TW' and not (r, spalte) in tilesdict:
+                if not (r, spalte) in tilesdict:
+                    total_times = 2
+            if board[r][spalte] == 'TW':
                 points = points + d[buchstabe]
-                total_times = 3
+                if not (r, spalte) in tilesdict:
+                    total_times = 3
             r += 1
         points *= total_times
     print ("Word ", wort, " has points ", points)
@@ -291,7 +309,7 @@ def letters_on_board():
         pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2),3)
         letter = font3.render((str(tilesdict[kordinat])).upper(), True, black)
         points = font3.render((str(d[(tilesdict[kordinat]).lower()])), True, black)
-        print("Came to letters_on_board", str(tilesdict[kordinat]), letter, points)
+        # print("Came to letters_on_board", str(tilesdict[kordinat]), letter, points)
         window.blit(letter, (margin + n * cell_width + margin2 + cell_width/4, margin + m * cell_width + margin2 + cell_width/4))
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
@@ -385,7 +403,7 @@ def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
             else:
                 character = currentm[(r, c)]
             str = str + character
-        woerter.append(str)
+        woerter.append((str, minr, c, "down"))
     while mincolumn > 0 and (minrow, mincolumn - 1) in tilesdict:
         mincolumn -= 1
     while maxcolumn < 14 and (minrow, maxcolumn + 1) in tilesdict:
@@ -397,7 +415,7 @@ def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
         else:
             character = currentm[(minrow, c)]
         str = str + character
-    woerter.append(str)
+    woerter.append((str, minrow, mincolumn, "right"))
     return woerter
 
 def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
@@ -420,7 +438,7 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
             else:
                 character = currentm[(r, c)]
             str = str + character
-        woerter.append(str)
+        woerter.append((str, r, minc, "down"))
     while minrow > 0 and (minrow - 1, mincolumn) in tilesdict:
         minrow -= 1
     while maxrow < 14 and (maxrow + 1, mincolumn) in tilesdict:
@@ -432,16 +450,23 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
         else:
             character = currentm[(r, mincolumn)]
         str = str + character
-    woerter.append(str)
+    woerter.append((str, minrow, mincolumn, "right"))
     return woerter
 
-def is_valid(currentmove):
+def alle_woerter_sind_gueltig(woerter):
+    score = 0
+    for (w, r, c, direction) in woerter:
+        if w not in alle_woerter:
+            return -1
+        score += board_punkte((w, r, c), d, board, tilesdict, direction)
+    return score
+def neu_woerter_entstanden(currentmove):
     min_column = None
     max_column = None
     min_row = None
     max_row = None
     if currentmove == {}:
-        return False
+        return []
     for (r, c) in currentmove:
         if not min_row:
             min_row = max_row = r
@@ -455,32 +480,33 @@ def is_valid(currentmove):
         if (c > max_column):
             max_column = c
     if min_row != max_row and min_column != max_column:
-        return False
+        return []
     # Case where the user made an across word
     if min_row == max_row:
         for c in range(min_column, max_column + 1):
             if (min_row, c) not in tilesdict and (min_row, c) not in currentmove:
-                return False
+                return []
 
     # Case where the user made a down word
     if min_column == max_column:
         for r in range(min_row, max_row + 1):
             if (r, min_column) not in tilesdict and (r, min_column) not in currentmove:
-                return False
+                return []
     if min_row == max_row:
         woerter = neue_woerter_waagerecht(min_row, min_column, max_column, currentmove)
     elif min_column == max_column:
         woerter = neue_woerter_senkrecht(min_column, min_row, max_row, currentmove)
     print("Neue woerter => ", woerter)
-    return True
+    return woerter
 
 num_players = 0
 while not 2 <= num_players <= 4:
     num_players = int(input("Number of players (2-4):"))
 currentplayer = 0
 board = board_in_list()
-alle_woerter = read_dictionary('de')
-bag = create_bag('de')
+sprache = input("Which language/Welche Sprache/Quel'que langue? (en/de/fr):")
+alle_woerter = read_dictionary(sprache)
+bag = create_bag(sprache)
 gestell = []
 scores = []
 for player in range(num_players):
@@ -588,11 +614,23 @@ while True:
                     get_letters(bag, 7, gestell[currentplayer])
                     print_gestell(gestell[currentplayer])
                     currentmove={}
+                    #for i in range(len(gestell[currentplayer])):
+                    #    remove_from_gestell(15, i)
+                    #currentplayer = (currentplayer + 1) % num_players
                 if ((row, column)) == (15, 13):
-                    if is_valid(currentmove):
-                        score = random.randint(5, 30)
+                    woerter = neu_woerter_entstanden(currentmove)
+                    if woerter == []:
+                        print_message("Invalid move", red)
+                    else:
+                        score = alle_woerter_sind_gueltig(woerter)
+                        if score < 0:
+                            print_message("At least one invalid word", red)
+                            continue
+                        # if all of Gestell used, then bonus 50
+                        if len(gestell[currentplayer]) == 0:
+                            score += 50
                         print_message("Good move. You got " + str(score) + " points.", green)
-                        get_letters(bag, 7 - len(gestell), gestell[currentplayer])
+                        get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
                         scores[currentplayer] += score
                         currentplayer = (currentplayer + 1) % num_players
                         print_players(num_players, currentplayer)
@@ -603,8 +641,7 @@ while True:
                         letters_on_board()
                         currentmove = {}
                         # finally current_player += 1
-                    else:
-                        print_message("Invalid move", red)
+
                 #if ((row, column)) == (-1, 12):
                 #    show=gestell
                 #    print_button(-1.25, 12, "player1", red)
