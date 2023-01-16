@@ -44,7 +44,6 @@ def read_dictionary(sprache):
         my_file = open("franzoesisch_woerterbuch.txt", "r")
     # Benutze READLINE um ein Wort nachdem anderen zulesen
     myline = my_file.readline()
-    print(myline)
     while myline:
         alle_woerter.add(myline.strip().lower())
         myline = my_file.readline()
@@ -85,7 +84,62 @@ def create_bag(sprache):
         bag.extend(repeat('ö', 1))
         bag.extend(repeat('ü', 1))
         bag.extend(repeat('*', 2))
-    # sprache = 'en'
+    if sprache == 'fr':
+        bag.extend(repeat('a', 9))
+        bag.extend(repeat('b', 2))
+        bag.extend(repeat('c', 2))
+        bag.extend(repeat('d', 3))
+        bag.extend(repeat('e', 15))
+        bag.extend(repeat('f', 2))
+        bag.extend(repeat('g', 2))
+        bag.extend(repeat('h', 2))
+        bag.extend(repeat('i', 8))
+        bag.extend(repeat('j', 1))
+        bag.extend(repeat('k', 1))
+        bag.extend(repeat('l', 5))
+        bag.extend(repeat('m', 3))
+        bag.extend(repeat('n', 6))
+        bag.extend(repeat('o', 6))
+        bag.extend(repeat('p', 2))
+        bag.extend(repeat('q', 1))
+        bag.extend(repeat('r', 6))
+        bag.extend(repeat('s', 6))
+        bag.extend(repeat('t', 6))
+        bag.extend(repeat('u', 6))
+        bag.extend(repeat('v', 2))
+        bag.extend(repeat('w', 1))
+        bag.extend(repeat('x', 1))
+        bag.extend(repeat('y', 1))
+        bag.extend(repeat('z', 1))
+        bag.extend(repeat('*', 2))
+    if sprache == 'en':
+        bag.extend(repeat('a', 9))
+        bag.extend(repeat('b', 2))
+        bag.extend(repeat('c', 2))
+        bag.extend(repeat('d', 4))
+        bag.extend(repeat('e', 12))
+        bag.extend(repeat('f', 2))
+        bag.extend(repeat('g', 3))
+        bag.extend(repeat('h', 2))
+        bag.extend(repeat('i', 9))
+        bag.extend(repeat('j', 1))
+        bag.extend(repeat('k', 1))
+        bag.extend(repeat('l', 4))
+        bag.extend(repeat('m', 2))
+        bag.extend(repeat('n', 6))
+        bag.extend(repeat('o', 8))
+        bag.extend(repeat('p', 2))
+        bag.extend(repeat('q', 1))
+        bag.extend(repeat('r', 6))
+        bag.extend(repeat('s', 4))
+        bag.extend(repeat('t', 6))
+        bag.extend(repeat('u', 4))
+        bag.extend(repeat('v', 2))
+        bag.extend(repeat('w', 2))
+        bag.extend(repeat('x', 1))
+        bag.extend(repeat('y', 2))
+        bag.extend(repeat('z', 1))
+        bag.extend(repeat('*', 2))
     random.shuffle(bag)
     return bag
 
@@ -237,7 +291,6 @@ def print_board():
         for n in range(0,15):
             paint_tile(m,n)
     pygame.display.flip()
-    print('angekommen')
 
 def print_gestell(gestell):
     m=15
@@ -458,7 +511,7 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
 def alle_woerter_sind_gueltig(woerter):
     score = 0
     for (w, r, c, direction) in woerter:
-        if w not in alle_woerter:
+        if w.lower() not in alle_woerter:
             return -1
         score += board_punkte((w, r, c), d, board, tilesdict, direction)
     print("score = ", score)
