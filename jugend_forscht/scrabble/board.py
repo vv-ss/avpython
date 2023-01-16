@@ -244,7 +244,7 @@ def get_best_word(possible, d, board, tilesdict):
 
 # Initializing surface
 window = pygame.display.set_mode((width,height))
-pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
+pygame.display.set_caption('Scrabble game by Aarav and Viyona')
 
 
 
@@ -497,7 +497,7 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
             else:
                 character = currentm[(r, c)]
             str = str + character
-        woerter.append((str, r, minc, "down"))
+        woerter.append((str, r, minc, "right"))
     while minrow > 0 and (minrow - 1, mincolumn) in tilesdict:
         minrow -= 1
     while maxrow < 14 and (maxrow + 1, mincolumn) in tilesdict:
@@ -509,7 +509,7 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
         else:
             character = currentm[(r, mincolumn)]
         str = str + character
-    woerter.append((str, minrow, mincolumn, "right"))
+    woerter.append((str, minrow, mincolumn, "down"))
     return woerter
 
 def alle_woerter_sind_gueltig(woerter):
@@ -541,6 +541,10 @@ def neu_woerter_entstanden(currentmove):
             max_column = c
     if min_row != max_row and min_column != max_column:
         return []
+    # Special case for first move:
+    if tilesdict == {}:
+        if (7,7) not in currentmove:
+            return []
     # Case where the user made an across word
     if min_row == max_row:
         for c in range(min_column, max_column + 1):
@@ -695,6 +699,13 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            print(highlighted_tile, gestell[currentplayer][highlighted_column])
+            if highlighted_tile == '*':
+                if pygame.K_a <= event.key <= pygame.K_z:
+                    gestell[currentplayer][highlighted_column] = '*' + chr(ord('a')+ event.key - pygame.K_a)
+                    print("changing * to ", gestell[currentplayer][highlighted_column])
+                    highlight_gestell(row, column, gestell[currentplayer][column])
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             x -= margin
