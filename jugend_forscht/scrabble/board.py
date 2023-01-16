@@ -32,6 +32,11 @@ margin=200//factor
 cell_width = (width-2*margin)/15
 margin2=10//factor
 
+font = pygame.font.Font('freesansbold.ttf', 100//factor)
+font2 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
+font3 = pygame.font.SysFont('bahnenschrift.ttf', 45//factor)
+font4 = pygame.font.SysFont('bahnenschrift.ttf', 75//factor)
+
 # Woerterbuch lesen
 def read_dictionary(sprache):
     alle_woerter = set()
@@ -185,10 +190,7 @@ def get_best_word(possible, d, board, tilesdict):
 window = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
 
-font = pygame.font.Font('freesansbold.ttf', 100//factor)
-font2 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
-font3 = pygame.font.SysFont('bahnenschrift.ttf', 45//factor)
-font4 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
+
 
 d = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
      'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3, '*' : 0}
@@ -315,7 +317,7 @@ def letters_on_board():
 def print_button(m,n,text,color):
     pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
     pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
-    text = font4.render(text, True, black)
+    text = font2.render(text, True, black)
     window.blit(text, (
     margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
     pygame.display.flip()
@@ -323,10 +325,10 @@ def print_button(m,n,text,color):
 def print_player(m,n,scores,color):
     pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
     pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
-    text = font4.render("Player " + str(n+1), True, black)
+    text = font2.render("Player " + str(n+1), True, black)
     window.blit(text, (
     margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
-    score = font4.render(str(scores[n]), True, black)
+    score = font2.render(str(scores[n]), True, black)
     window.blit(score, (
         margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 4))
     pygame.display.flip()
@@ -502,13 +504,101 @@ def neu_woerter_entstanden(currentmove):
     print("Neue woerter => ", woerter)
     return woerter
 
-print_board()
+# Computer frägt erste Frage
+question1=font4.render('Number of Players (2-4)?',True,purple)
+window.blit(question1, (50,200))
+pygame.display.flip()
+
+# Computer beobachtet bis der Spieler "e" oder "h"
 num_players = 0
-while not 2 <= num_players <= 4:
-    num_players = int(input("Number of players (2-4):"))
+while True:
+    if num_players!=0:
+        break
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_2:
+                print("Key 2 has been pressed")
+                num_players = 2
+                break
+            if event.key == pygame.K_3:
+                num_players = 3
+                print("Key 3 has been pressed")
+                break
+            if event.key == pygame.K_4:
+                num_players = 4
+                print("Key 4 has been pressed")
+                break
+# Computer schreibt die Antwort der ersten Frage darunter
+answer1= font4.render("You chose " + str(num_players), True, darkgreen)
+window.blit(answer1, (50,250))
+pygame.display.flip()
+
+# Computer frägt erste Frage
+question1=font4.render('Language? (d for Deutsch, e for English, f for Franzosisch',True,purple)
+window.blit(question1, (50,350))
+pygame.display.flip()
+
+
+
+# Computer beobachtet bis der Spieler "e" oder "h"
+sprache = None
+while True:
+    if sprache:
+        break
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d:
+                print("Key d has been pressed")
+                sprache = 'de'
+                break
+            if event.key == pygame.K_e:
+                print("Key e has been pressed")
+                sprache = 'en'
+                break
+            if event.key == pygame.K_f:
+                sprache = 'fr'
+                print("Key f has been pressed")
+                break
+# Computer schreibt die Antwort der ersten Frage darunter
+answer1= font4.render("You chose " + sprache, True, darkgreen)
+window.blit(answer1, (50,450))
+pygame.display.flip()
+
+question1=font4.render('Add computer player (y/n)?',True,purple)
+window.blit(question1, (50,550))
+pygame.display.flip()
+
+# Computer beobachtet bis der Spieler "e" oder "h"
+computer_player = None
+while True:
+    if computer_player:
+        break
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_y:
+                print("Key y has been pressed")
+                computer_player = True
+                break
+            if event.key == pygame.K_n:
+                computer_player = False
+                print("Key n has been pressed")
+                break
+# Computer schreibt die Antwort der ersten Frage darunter
+answer1= font4.render("You chose " + str(computer_player), True, darkgreen)
+window.blit(answer1, (50,650))
+pygame.display.flip()
+
+
+print_board()
 currentplayer = 0
 board = board_in_list()
-sprache = input("Which language/Welche Sprache/Quel'que langue? (en/de/fr):")
+
 alle_woerter = read_dictionary(sprache)
 bag = create_bag(sprache)
 gestell = []
@@ -519,7 +609,6 @@ for player in range(num_players):
     scores.append(0)
 # Schnittstelle
 
-print('e')
 print_button(15,11, "renew",lightblue)
 print_button(15,12, "cancel",lightblue)
 print_button(15,13, "confirm",lightblue)
