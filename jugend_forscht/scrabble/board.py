@@ -22,7 +22,7 @@ pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-factor = 3
+factor = 2
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=0
