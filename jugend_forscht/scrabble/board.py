@@ -22,15 +22,15 @@ pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-factor = 1
+factor = 3
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=0
-width=2000//factor
-height=2000//factor
-margin=150//factor
+width=2400//factor
+height=2400//factor
+margin=200//factor
 cell_width = (width-2*margin)/15
-margin2=10
+margin2=10//factor
 
 # Woerterbuch lesen
 def read_dictionary(sprache):
@@ -44,6 +44,7 @@ def read_dictionary(sprache):
         my_file = open("franzoesisch_woerterbuch.txt", "r")
     # Benutze READLINE um ein Wort nachdem anderen zulesen
     myline = my_file.readline()
+    print(myline)
     while myline:
         alle_woerter.add(myline.strip().lower())
         myline = my_file.readline()
@@ -236,9 +237,9 @@ def print_board():
         for n in range(0,15):
             paint_tile(m,n)
     pygame.display.flip()
+    print('angekommen')
 
 def print_gestell(gestell):
-    margin2=10//factor
     m=15
     n=0
     pygame.draw.rect(window, darkgreen2, pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width * 7, cell_width))
@@ -253,7 +254,6 @@ def print_gestell(gestell):
     pygame.display.flip()
 
 def remove_from_gestell(m,n):
-    margin2 = 10//factor
     pygame.draw.rect(window, darkgreen2,
                      pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
                                  cell_width - margin2 * 2, cell_width - margin2 * 2))
@@ -264,7 +264,6 @@ def remove_from_gestell(m,n):
 
 
 def highlight_gestell_helper(color1, color2, m, n, i):
-    margin2 = 10//factor
     pygame.draw.rect(window, color1,
                      pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
                                  cell_width - margin2 * 2, cell_width - margin2 * 2))
@@ -302,7 +301,6 @@ def paint_tile_with_letter(row,column, tile,color):
     pygame.display.flip()
 
 def letters_on_board():
-    margin2=10//factor
     for kordinat in tilesdict:
         (m,n)=kordinat
         pygame.draw.rect(window, white, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2*2, cell_width - margin2*2))
@@ -320,6 +318,8 @@ def print_button(m,n,text,color):
     text = font4.render(text, True, black)
     window.blit(text, (
     margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+    pygame.display.flip()
+
 def print_player(m,n,scores,color):
     pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
     pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
@@ -329,7 +329,9 @@ def print_player(m,n,scores,color):
     score = font4.render(str(scores[n]), True, black)
     window.blit(score, (
         margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 4))
-# def get_valid_words_2(row, spalte, valid_direction):
+    pygame.display.flip()
+
+#def get_valid_words_2(row, spalte, valid_direction):
 #     possible=[]
 #     if valid_direction == 'down':
 #         start_spalte = spalte
@@ -459,6 +461,7 @@ def alle_woerter_sind_gueltig(woerter):
         if w not in alle_woerter:
             return -1
         score += board_punkte((w, r, c), d, board, tilesdict, direction)
+    print("score = ", score)
     return score
 def neu_woerter_entstanden(currentmove):
     min_column = None
@@ -499,6 +502,7 @@ def neu_woerter_entstanden(currentmove):
     print("Neue woerter => ", woerter)
     return woerter
 
+print_board()
 num_players = 0
 while not 2 <= num_players <= 4:
     num_players = int(input("Number of players (2-4):"))
@@ -514,38 +518,18 @@ for player in range(num_players):
     get_letters(bag, 7, gestell[player])
     scores.append(0)
 # Schnittstelle
-print_board()
+
+print('e')
 print_button(15,11, "renew",lightblue)
 print_button(15,12, "cancel",lightblue)
 print_button(15,13, "confirm",lightblue)
 print_button(-1.25,13, "show",lightblue)
 print_button(-1.25,14, "hide",lightblue)
 print_players(num_players, currentplayer)
-
-
-print_gestell(gestell[currentplayer])
-
-wort_auf_brett = "affe"
-diraction = "down"
-row = spalte = 3
-
-tilerow = row
-tilespalte = spalte
+#print_gestell(gestell[currentplayer])
 tilesdict = {}
-for buchstabe in wort_auf_brett:
-    tilesdict[(tilerow, tilespalte)] = buchstabe
-    if diraction == 'down':
-        tilerow += 1
-    else:
-        tilespalte += 1
-
 letters_on_board()
-
-board = board_in_list()
-if diraction == 'down':
-    valid_direction = 'right'
-else:
-    valid_direction = 'down'
+pygame.display.update()
 
 # this function finds the possible words in other direction
 # need to rewrite
@@ -562,8 +546,6 @@ else:
 #        tilerow += 1
 #    else:
 #        tilespalte += 1
-
-letters_on_board()
 currentmove={}
 while True:
     for event in pygame.event.get():
