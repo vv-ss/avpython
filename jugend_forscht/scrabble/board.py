@@ -4,6 +4,7 @@ import random
 import pygame
 from pygame.locals import *
 
+neonblue=(32,210,244)
 black=(0,0,0)
 darkblue=(0,0,210)
 gold=(253, 218, 13)
@@ -18,11 +19,12 @@ purple=(128,0,128)
 white=(250,249,246)
 yellow=(255, 238, 170)
 lightpink=(255, 210, 120)
+neongrün=(223,255,0)
 pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-factor = 2
+factor = 3
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=0
@@ -33,9 +35,9 @@ cell_width = (width-2*margin)/15
 margin2=10//factor
 
 font = pygame.font.Font('freesansbold.ttf', 100//factor)
-font2 = pygame.font.SysFont('bahnenschrift.ttf', 30//factor)
-font3 = pygame.font.SysFont('bahnenschrift.ttf', 45//factor)
-font4 = pygame.font.SysFont('bahnenschrift.ttf', 75//factor)
+font2 = pygame.font.SysFont('bahnenschrift.ttf', 50//factor)
+font3 = pygame.font.SysFont('bahnenschrift.ttf', 40//factor)
+font4 = pygame.font.SysFont('bahnenschrift.ttf', 100//factor)
 
 # Woerterbuch lesen
 def read_dictionary(sprache):
@@ -370,20 +372,20 @@ def letters_on_board():
 def print_button(m,n,text,color):
     pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
     pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
-    text = font2.render(text, True, black)
+    text = font3.render(text, True, black)
     window.blit(text, (
-    margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
+    margin + n * cell_width + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
     pygame.display.flip()
 
 def print_player(m,n,scores,color):
     pygame.draw.rect(window, color, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width))
     pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width, cell_width), 3)
-    text = font2.render("Player " + str(n+1), True, black)
+    text = font2.render("P" + str(n+1), True, black)
     window.blit(text, (
     margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
     score = font2.render(str(scores[n]), True, black)
     window.blit(score, (
-        margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 4))
+        margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 5))
     pygame.display.flip()
 
 #def get_valid_words_2(row, spalte, valid_direction):
@@ -558,7 +560,7 @@ def neu_woerter_entstanden(currentmove):
     return woerter
 
 # Computer frägt erste Frage
-question1=font4.render('Number of Players (2-4)?',True,purple)
+question1=font4.render('Number of Players (2-4)?',True,neongrün)
 window.blit(question1, (50,200))
 pygame.display.flip()
 
@@ -584,12 +586,12 @@ while True:
                 print("Key 4 has been pressed")
                 break
 # Computer schreibt die Antwort der ersten Frage darunter
-answer1= font4.render("You chose " + str(num_players), True, darkgreen)
+answer1= font4.render("You chose " + str(num_players), True, neonblue)
 window.blit(answer1, (50,250))
 pygame.display.flip()
 
 # Computer frägt erste Frage
-question1=font4.render('Language? (d for Deutsch, e for English, f for Franzosisch',True,purple)
+question1=font4.render('Language? (d for Deutsch, e for English, f for Franzosisch',True,neongrün)
 window.blit(question1, (50,350))
 pygame.display.flip()
 
@@ -617,11 +619,11 @@ while True:
                 print("Key f has been pressed")
                 break
 # Computer schreibt die Antwort der ersten Frage darunter
-answer1= font4.render("You chose " + sprache, True, darkgreen)
+answer1= font4.render("You chose " + sprache, True, neonblue)
 window.blit(answer1, (50,450))
 pygame.display.flip()
 
-question1=font4.render('Add computer player (y/n)?',True,purple)
+question1=font4.render('Add computer player (y/n)?',True,neongrün)
 window.blit(question1, (50,550))
 pygame.display.flip()
 
@@ -643,7 +645,7 @@ while True:
                 print("Key n has been pressed")
                 break
 # Computer schreibt die Antwort der ersten Frage darunter
-answer1= font4.render("You chose " + str(computer_player), True, darkgreen)
+answer1= font4.render("You chose " + str(computer_player), True, neonblue)
 window.blit(answer1, (50,650))
 pygame.display.flip()
 
@@ -662,11 +664,11 @@ for player in range(num_players):
     scores.append(0)
 # Schnittstelle
 
-print_button(15,11, "renew",lightblue)
-print_button(15,12, "cancel",lightblue)
-print_button(15,13, "confirm",lightblue)
-print_button(-1.25,13, "show",lightblue)
-print_button(-1.25,14, "hide",lightblue)
+print_button(15,11, "RENEW",lightblue)
+print_button(15,12, "BACK",lightblue)
+print_button(15,13, "DONE",lightblue)
+print_button(-1.25,13, "SHOW",lightblue)
+print_button(-1.25,14, "HIDE",lightblue)
 print_players(num_players, currentplayer)
 #print_gestell(gestell[currentplayer])
 tilesdict = {}
@@ -748,7 +750,7 @@ while True:
                     else:
                         score = alle_woerter_sind_gueltig(woerter)
                         if score < 0:
-                            print_message("At least one invalid word", red)
+                            print_message("Invalid move", red)
                             continue
                         # if all of Gestell used, then bonus 50
                         if len(gestell[currentplayer]) == 0:
