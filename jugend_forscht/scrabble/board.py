@@ -398,6 +398,139 @@ def print_player(m,n,scores,color, is_computer_player):
     pygame.display.flip()
 
 
+
+def find_move_senkrecht(minr, maxr, row, spalte, buchstabe, gestell):
+    best_score = 0
+    best_move = {}
+    best_gestell_buchstaben = []
+    print("came in senkrecht", minr, maxr, row, spalte, buchstabe, gestell)
+    max_characters_from_gestell = min(7, maxr - minr)
+    for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
+        alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
+        for kombi in alle_kombinationen:
+            # word can start from size of word above to one below the row
+            buchstaben_list = list(kombi)
+            for start_pos in range(row - num_characters_from_gestell, row + 1):
+                if start_pos < minr or start_pos + num_characters_from_gestell + 1 > maxr:
+                    continue
+                buchstaben_list.insert(row - start_pos, buchstabe)
+                word = ''.join(buchstaben_list)
+                if word in alle_woerter:
+                    print(word)
+                    #define current move out of gestell
+                    move = {}
+                    worttuple = (word, start_pos, spalte)
+                    for i in buchstaben_list:
+                        move[(start_pos, spalte)] = i
+                        start_pos += 1
+                    score = board_punkte(worttuple, "down", move)
+                    print(score)
+                    if score > best_score:
+                        best_score = score
+                        best_move = move
+                        best_gestell_buchstaben = list(kombi)
+    return best_move, best_score, best_gestell_buchstaben
+
+def find_move_waagerecht(row, column, minc, maxc, buchstabe, gestell):
+    best_score = 0
+    best_move = {}
+    best_gestell_buchstabe = []
+    print("came in waagerecht", row, column, minc, maxc, buchstabe, gestell)
+    max_characters_from_gestell = min(7, maxc - minc)
+    for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
+        alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
+        for kombi in alle_kombinationen:
+            # word can start from size of word above to one below the row
+            buchstaben_list = list(kombi)
+            for start_pos in range(column - num_characters_from_gestell, column + 1):
+                print("values = ", start_pos, column, num_characters_from_gestell, minc, maxc)
+                if start_pos < minc or start_pos + num_characters_from_gestell + 1 > maxc:
+                    continue
+                buchstaben_list.insert(column - start_pos, buchstabe)
+                word = ''.join(buchstaben_list)
+                if word in alle_woerter:
+                    print(word)
+                    #define current move out of gestell
+                    move = {}
+                    worttuple = (word, row, start_pos)
+                    for i in buchstaben_list:
+                        move[(row, start_pos)] = i
+                        start_pos += 1
+                    score = board_punkte(worttuple, "right", move)
+                    print(score)
+                    if score > best_score:
+                        best_score = score
+                        best_move = move
+                        best_gestell_buchstabe = list(kombi)
+    return best_move, best_score, best_gestell_buchstabe
+
+
+
+
+def computermove(tilesdict, gestell):
+    bestmove = {}
+    bestscore = 0
+    best_gestell_buchstabe = []
+    for (r,s) in tilesdict:
+        valid_direction = None
+        if (r,s + 1) in tilesdict or (r,s - 1) in tilesdict:
+            if (r + 1, s) not in tilesdict and (r - 1, s) not in tilesdict:
+                valid_direction = 'down'
+        if (r + 1, s) in tilesdict or (r - 1, s) in tilesdict:
+            if (r, s + 1) not in tilesdict and (r, s - 1) not in tilesdict:
+                valid_direction = 'right'
+        if valid_direction is None:
+            continue
+        if valid_direction == 'down':
+            min_row = r
+            max_row = r
+            for i in range(1,8):
+                if r - i < 0:
+                    break
+                if (r - i, s - 1) not in tilesdict and (r - i, s + 1) not in tilesdict and (r - i, s) not in tilesdict and (r - i - 1, s) not in tilesdict:
+                    min_row -= 1
+                else:
+                    break
+            for i in range(1, 8):
+                if r + 1 > 14:
+                    break
+                if (r + i, s - 1) not in tilesdict and (r + i, s + 1) not in tilesdict and (r + i, s) not in tilesdict and (r + i + 1, s) not in tilesdict:
+                    max_row += 1
+                else:
+                    break
+            if min_row != max_row:
+                (move, score, gb) = find_move_senkrecht(min_row, max_row, r, s, tilesdict[r,s], gestell)
+                if score > bestscore:
+                    bestscore = score
+                    bestmove = move
+                    best_gestell_buchstabe = gb
+
+
+        if valid_direction == 'right':
+            min_spalte = s
+            max_spalte = s
+            for i in range(1, 8):
+                if s - i < 0:
+                    break
+                if (r - 1, s - i) not in tilesdict and (r + 1, s - i) not in tilesdict and (r, s - i) not in tilesdict and (r, s - i - 1) not in tilesdict:
+                    min_spalte -= 1
+                else:
+                    break
+            for i in range(1, 8):
+                if s + i > 14:
+                    break
+                if (r - 1, s + i) not in tilesdict and (r + 1, s + i) not in tilesdict and (r, s + i) not in tilesdict  and (r, s + i + 1) not in tilesdict:
+                    max_spalte += 1
+                else:
+                    break
+            if min_spalte != max_spalte:
+                (move, score, gb) = find_move_waagerecht(r, s, min_spalte, max_spalte, tilesdict[r, s], gestell)
+                if score > bestscore:
+                    bestscore = score
+                    bestmove = move
+                    best_gestell_buchstabe = gb
+    return bestmove, bestscore, best_gestell_buchstabe
+
 def print_message(str, color):
     m = -1.25
     n = 5
