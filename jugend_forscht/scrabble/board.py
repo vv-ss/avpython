@@ -4,6 +4,7 @@ import random
 import pygame
 from pygame.locals import *
 
+# Farben, die später gebraucht werden
 neonblue=(32,210,244)
 black=(0,0,0)
 darkblue=(0,0,210)
@@ -24,16 +25,18 @@ pygame.init()
 pygame.display.init()
 pygame.font.init()
 
-factor = 2
+# Variabeln, die später gebraucht werden
+factor = 3
 highlighted_row = 0
 highlighted_column=0
-highlighted_tile=0
+highlighted_tile=' '
 width=2400//factor
 height=2400//factor
 margin=200//factor
 cell_width = (width-2*margin)/15
 margin2=10//factor
 
+# Schriften, die später gebraucht werden
 font = pygame.font.Font('freesansbold.ttf', 100//factor)
 font2 = pygame.font.SysFont('bahnenschrift.ttf', 50//factor)
 font3 = pygame.font.SysFont('bahnenschrift.ttf', 40//factor)
@@ -42,14 +45,13 @@ font4 = pygame.font.SysFont('bahnenschrift.ttf', 100//factor)
 # Woerterbuch lesen
 def read_dictionary(sprache):
     alle_woerter = set()
-    #  Wir öffnen ein Wörterbuch von Deutsch oder Englisch
+    # Der Computer öffnet ein Wörterbuch von Deutsch, Englisch oder Französisch
     if sprache == 'de':
         my_file = open("deutsches_woerterbuch.txt", "r")
     if sprache == 'en':
         my_file = open("englisches_woerterbuch_us.txt", "r")
     if sprache == 'fr':
         my_file = open("franzoesisch_woerterbuch.txt", "r")
-    # Benutze READLINE um ein Wort nachdem anderen zulesen
     myline = my_file.readline()
     while myline:
         alle_woerter.add(myline.strip().lower())
@@ -57,7 +59,7 @@ def read_dictionary(sprache):
     my_file.close()
     return alle_woerter
 
-# ein Sack voller Buchstaben
+# Säcke mit Buchstaben der verschieden Sprachen
 def create_bag(sprache):
     bag = list()
     if sprache == 'de':
@@ -150,14 +152,12 @@ def create_bag(sprache):
     random.shuffle(bag)
     return bag
 
-
+# Der Computer gibt die sieben Buchstaben
 def get_letters(bag, num, gestell):
     for i in range(0,num):
         gestell.append(bag.pop())
-    print('Hier sind deine sieben Buchstaben:', gestell)
 
-
-
+# Informationen des Brettes aus einer Datei lesen und in eine Liste speichern
 def board_in_list():
     board=list()
     my_board = open("board.txt", 'r')
@@ -169,7 +169,8 @@ def board_in_list():
     return board
 
 
-
+# Berechnet Punkte mithilfe des Brettes,
+# des entstandenen Wortes und der Positionen
 def board_punkte(worttuple, direction, currentmove):
     (wort, row, spalte) = worttuple
     points = 0
@@ -243,14 +244,15 @@ def board_punkte(worttuple, direction, currentmove):
 
 
 
-# Initializing surface
+# Fenster gestalten
 window = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Scrabble game by Aarav and Viyona')
 
-
-
+# Buchstabenwerte
 buchstaben_punkte = {'a': 1, 'ä': 6, 'b': 3, 'c': 4, 'd': 1, 'e': 1, 'f': 4, 'g': 2, 'h': 2, 'i': 1, 'j': 6, 'k': 4, 'l': 2, 'm': 3,
      'n': 1, 'o': 2, 'ö': 8, 'p': 4, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'ü' : 6, 'v': 6, 'w': 3, 'x': 8, 'y': 10, 'z': 3, '*' : 0}
+
+# Die Brettfarbe wird entschieden
 def decide_color(m,n):
     red1=[(0,0),(0,7),(0,14),(7,0),(7,14),(14,0),(14,7),(14,14)]
     gold1=[(1,1),(2,2),(3,3),(4,4),(13,13),(12,12),(11,11),(10,10),(13,1),(12,2),(11,3),(10,4),(1,13),(2,12),(3,11),(4,10)]
@@ -269,6 +271,7 @@ def decide_color(m,n):
     else:
         return darkgreen2
 
+# Ein Kästchen gestalten
 def paint_tile(m,n):
     pygame.draw.rect(window, decide_color(m, n),
                      pygame.Rect(margin + n * cell_width, margin + m * cell_width, cell_width, cell_width))
@@ -290,6 +293,7 @@ def paint_tile(m,n):
         DW = font2.render('DL', True, black)
         window.blit(DW, (margin + n * cell_width + cell_width / 4, margin + m * cell_width + cell_width / 4))
 
+# Brett wird gedruckt
 def print_board():
     window.fill(darkgreen)
     for m in range(0,15):
@@ -297,6 +301,7 @@ def print_board():
             paint_tile(m,n)
     pygame.display.flip()
 
+# Ablagebank wird gedruckt
 def print_gestell(gestell):
     m=15
     n=0
@@ -311,16 +316,14 @@ def print_gestell(gestell):
         n += 1
     pygame.display.flip()
 
+# Einen Buchstaben von der Ablagebank entfernen
 def remove_from_gestell(m,n):
     pygame.draw.rect(window, darkgreen2,
                      pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
                                  cell_width - margin2 * 2, cell_width - margin2 * 2))
-    #pygame.draw.rect(window, black,
-    #                 pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
-    #                             cell_width - margin2 * 2, cell_width - margin2 * 2), 3)
     pygame.display.flip()
 
-
+# Hilfe, um den angeklickten Buchstaben auf der Ablagebank zu markieren
 def highlight_gestell_helper(color1, color2, m, n, i):
     pygame.draw.rect(window, color1,
                      pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2,
@@ -336,6 +339,7 @@ def highlight_gestell_helper(color1, color2, m, n, i):
         margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
+# Den angeklickten Buchstaben auf der Ablagebank markieren
 def highlight_gestell(row, column, tile):
     global highlighted_row, highlighted_column, highlighted_tile
     if highlighted_row != 0:
@@ -345,6 +349,7 @@ def highlight_gestell(row, column, tile):
     highlighted_column = column
     highlighted_tile = tile
 
+# Einen Buchstaben auf dem Brett malen
 def paint_tile_with_letter(row,column, tile,color):
     margin2 = 10 // factor
     pygame.draw.rect(window, color,
@@ -358,6 +363,7 @@ def paint_tile_with_letter(row,column, tile,color):
         margin + column * cell_width + margin2 + cell_width / 2, margin + row * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
 
+#
 def letters_on_board():
     for kordinat in tilesdict:
         (m,n)=kordinat
@@ -365,7 +371,6 @@ def letters_on_board():
         pygame.draw.rect(window, black, pygame.Rect(margin + n * cell_width + margin2, margin + m * cell_width + margin2, cell_width - margin2 * 2, cell_width - margin2 * 2),3)
         letter = font3.render((str(tilesdict[kordinat])).upper(), True, black)
         points = font3.render((str(buchstaben_punkte[(tilesdict[kordinat][0]).lower()])), True, black)
-        # print("Came to letters_on_board", str(tilesdict[kordinat]), letter, points)
         window.blit(letter, (margin + n * cell_width + margin2 + cell_width/4, margin + m * cell_width + margin2 + cell_width/4))
         window.blit(points, (margin + n * cell_width + margin2 + cell_width / 2, margin + m * cell_width + margin2 + cell_width / 2))
     pygame.display.flip()
@@ -392,178 +397,6 @@ def print_player(m,n,scores,color, is_computer_player):
         margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + 3 * cell_width / 5))
     pygame.display.flip()
 
-def get_valid_words_2(row, spalte, valid_direction):
-     possible=[]
-     if valid_direction == 'down':
-         start_spalte = spalte
-         for buchstabe_auf_brett in wort_auf_brett:
-             for lenght_of_word in range(1, 8):
-                 alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
-                 print(alle_kombinationen)
-                 for kombi in alle_kombinationen:
-                     print(kombi)
-                     for x in range(lenght_of_word + 1):
-                         #print(x)
-                         start_row = row - x
-                         kombi_list = list(kombi)
-                         kombi_list.insert(x, buchstabe_auf_brett)
-                         #print(kombi_list, kombi)
-                         neu_wort = ''.join(kombi_list)
-                         if neu_wort in alle_woerter and lenght_of_word + row <= 16:
-                             possible.append((neu_wort, start_row, start_spalte))
-             start_spalte += 1
-     if valid_direction == 'right':
-         start_row = row
-         for buchstabe_auf_brett in wort_auf_brett:
-             for lenght_of_word in range(1, 8):
-                 alle_kombinationen = list(itertools.permutations(gestell, lenght_of_word))
-                 for kombi in alle_kombinationen:
-                     for x in range(lenght_of_word + 1):
-                         #print(x)
-                         start_spalte = spalte - x
-                         kombi_list = list(kombi)
-                         kombi_list.insert(x, buchstabe_auf_brett)
-                         print(kombi_list, kombi)
-                         neu_wort = ''.join(kombi)
-                         if neu_wort in alle_woerter and lenght_of_word + spalte <= 16:
-                             possible.append((neu_wort, start_row, start_spalte))
-             start_row+=1
-     print(possible)
-     return possible
-
-
-
-def find_move_senkrecht(minr, maxr, row, spalte, buchstabe, gestell):
-    best_score = 0
-    best_move = {}
-    best_gestell_buchstaben = []
-    print("came in senkrecht", minr, maxr, row, spalte, buchstabe, gestell)
-    max_characters_from_gestell = min(7, maxr - minr)
-    for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
-        alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
-        for kombi in alle_kombinationen:
-            # word can start from size of word above to one below the row
-            buchstaben_list = list(kombi)
-            for start_pos in range(row - num_characters_from_gestell, row + 1):
-                if start_pos < minr or start_pos + num_characters_from_gestell + 1 > maxr:
-                    continue
-                buchstaben_list.insert(row - start_pos, buchstabe)
-                word = ''.join(buchstaben_list)
-                if word in alle_woerter:
-                    print(word)
-                    #define current move out of gestell
-                    move = {}
-                    worttuple = (word, start_pos, spalte)
-                    for i in buchstaben_list:
-                        move[(start_pos, spalte)] = i
-                        start_pos += 1
-                    score = board_punkte(worttuple, "down", move)
-                    print(score)
-                    if score > best_score:
-                        best_score = score
-                        best_move = move
-                        best_gestell_buchstaben = list(kombi)
-    return best_move, best_score, best_gestell_buchstaben
-
-def find_move_waagerecht(row, column, minc, maxc, buchstabe, gestell):
-    best_score = 0
-    best_move = {}
-    best_gestell_buchstabe = []
-    print("came in waagerecht", row, column, minc, maxc, buchstabe, gestell)
-    max_characters_from_gestell = min(7, maxc - minc)
-    for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
-        alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
-        for kombi in alle_kombinationen:
-            # word can start from size of word above to one below the row
-            buchstaben_list = list(kombi)
-            for start_pos in range(column - num_characters_from_gestell, column + 1):
-                print("values = ", start_pos, column, num_characters_from_gestell, minc, maxc)
-                if start_pos < minc or start_pos + num_characters_from_gestell + 1 > maxc:
-                    continue
-                buchstaben_list.insert(column - start_pos, buchstabe)
-                word = ''.join(buchstaben_list)
-                if word in alle_woerter:
-                    print(word)
-                    #define current move out of gestell
-                    move = {}
-                    worttuple = (word, row, start_pos)
-                    for i in buchstaben_list:
-                        move[(row, start_pos)] = i
-                        start_pos += 1
-                    score = board_punkte(worttuple, "right", move)
-                    print(score)
-                    if score > best_score:
-                        best_score = score
-                        best_move = move
-                        best_gestell_buchstabe = list(kombi)
-    return best_move, best_score, best_gestell_buchstabe
-
-
-
-
-def computermove(tilesdict, gestell):
-    bestmove = {}
-    bestscore = 0
-    best_gestell_buchstabe = []
-    for (r,s) in tilesdict:
-        valid_direction = None
-        if (r,s + 1) in tilesdict or (r,s - 1) in tilesdict:
-            if (r + 1, s) not in tilesdict and (r - 1, s) not in tilesdict:
-                valid_direction = 'down'
-        if (r + 1, s) in tilesdict or (r - 1, s) in tilesdict:
-            if (r, s + 1) not in tilesdict and (r, s - 1) not in tilesdict:
-                valid_direction = 'right'
-        if valid_direction is None:
-            continue
-        if valid_direction == 'down':
-            min_row = r
-            max_row = r
-            for i in range(1,8):
-                if r - i < 0:
-                    break
-                if (r - i, s - 1) not in tilesdict and (r - i, s + 1) not in tilesdict and (r - i, s) not in tilesdict and (r - i - 1, s) not in tilesdict:
-                    min_row -= 1
-                else:
-                    break
-            for i in range(1, 8):
-                if r + 1 > 14:
-                    break
-                if (r + i, s - 1) not in tilesdict and (r + i, s + 1) not in tilesdict and (r + i, s) not in tilesdict and (r + i + 1, s) not in tilesdict:
-                    max_row += 1
-                else:
-                    break
-            if min_row != max_row:
-                (move, score, gb) = find_move_senkrecht(min_row, max_row, r, s, tilesdict[r,s], gestell)
-                if score > bestscore:
-                    bestscore = score
-                    bestmove = move
-                    best_gestell_buchstabe = gb
-
-
-        if valid_direction == 'right':
-            min_spalte = s
-            max_spalte = s
-            for i in range(1, 8):
-                if s - i < 0:
-                    break
-                if (r - 1, s - i) not in tilesdict and (r + 1, s - i) not in tilesdict and (r, s - i) not in tilesdict and (r, s - i - 1) not in tilesdict:
-                    min_spalte -= 1
-                else:
-                    break
-            for i in range(1, 8):
-                if s + i > 14:
-                    break
-                if (r - 1, s + i) not in tilesdict and (r + 1, s + i) not in tilesdict and (r, s + i) not in tilesdict  and (r, s + i + 1) not in tilesdict:
-                    max_spalte += 1
-                else:
-                    break
-            if min_spalte != max_spalte:
-                (move, score, gb) = find_move_waagerecht(r, s, min_spalte, max_spalte, tilesdict[r, s], gestell)
-                if score > bestscore:
-                    bestscore = score
-                    bestmove = move
-                    best_gestell_buchstabe = gb
-    return bestmove, bestscore, best_gestell_buchstabe
 
 def print_message(str, color):
     m = -1.25
@@ -574,10 +407,10 @@ def print_message(str, color):
     window.blit(invalid, (margin + n * cell_width + margin2 + cell_width / 4, margin + m * cell_width + margin2 + cell_width / 4))
     pygame.display.flip()
 
+# Der Computer zeigt die Punkte an und markiert wer dran ist
 def print_players(num_players, currentplayer, computer_player):
     for i in range(num_players):
         is_computer_player = False
-        # wenn computer spielt mit und letzte Spieler ist ...
         if computer_player:
             if i == num_players - 1:
                 is_computer_player = True
@@ -586,7 +419,8 @@ def print_players(num_players, currentplayer, computer_player):
         else:
             print_player(-1.25, i, scores, lightblue, is_computer_player)
 
-
+# Der Computer sucht alle neuentstandenen Wörter,
+# im Fall, dass das gebildete Wort waagerecht ist
 def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
     woerter = []
     for c in range(mincolumn, maxcolumn+1):
@@ -622,6 +456,8 @@ def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
     woerter.append((str, minrow, mincolumn, "right"))
     return woerter
 
+# Der Computer sucht alle neuentstandenen Wörter,
+# im Fall, dass das gebildete Wort senkrecht ist
 def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
     woerter = []
     for r in range(minrow, maxrow+1):
@@ -657,6 +493,7 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
     woerter.append((str, minrow, mincolumn, "down"))
     return woerter
 
+# Prüft, ob die neuentstandenen Wörter gültig sind
 def alle_woerter_sind_gueltig(woerter, currentmove):
     score = 0
     for (w, r, c, direction) in woerter:
@@ -668,6 +505,8 @@ def alle_woerter_sind_gueltig(woerter, currentmove):
         score += board_punkte((w, r, c), direction, currentmove)
     print("score = ", score)
     return score
+
+# Welche Wörter sind entstanden
 def neu_woerter_entstanden(currentmove):
     min_column = None
     max_column = None
@@ -689,17 +528,17 @@ def neu_woerter_entstanden(currentmove):
             max_column = c
     if min_row != max_row and min_column != max_column:
         return []
-    # Special case for first move:
+    # Fall in dem der Spieler den ersten Zug zieht
     if tilesdict == {}:
         if (7,7) not in currentmove:
             return []
-    # Case where the user made an across word
+    # Fall in dem der Spieler ein queres Wort bildet
     if min_row == max_row:
         for c in range(min_column, max_column + 1):
             if (min_row, c) not in tilesdict and (min_row, c) not in currentmove:
                 return []
 
-    # Case where the user made a down word
+    # Fall in dem der Spieler ein senkrechtes Wort bildet
     if min_column == max_column:
         for r in range(min_row, max_row + 1):
             if (r, min_column) not in tilesdict and (r, min_column) not in currentmove:
@@ -718,12 +557,13 @@ def neu_woerter_entstanden(currentmove):
                 return []
     return woerter
 
+# Computer frägt die dritte Frage
 def add_computer_player():
     question1 = font4.render('Add computer player (y/n)?', True, neongrün)
     window.blit(question1, (50, 550))
     pygame.display.flip()
 
-    # Computer beobachtet bis der Spieler "e" oder "h"
+    # Computer beobachtet bis der Spieler "y" oder "n" drückt
     computer_player = None
     while True:
         if computer_player is not None:
@@ -744,7 +584,7 @@ question1=font4.render('Number of human Players (1-4)?',True,neongrün)
 window.blit(question1, (50,200))
 pygame.display.flip()
 
-# Computer beobachtet bis der Spieler "e" oder "h"
+# Computer beobachtet bis der Spieler "2","3" oder "4" drückt
 num_players = 0
 while True:
     if num_players!=0:
@@ -769,19 +609,17 @@ while True:
                 num_players = 4
                 print("Key 4 has been pressed")
                 break
-# Computer schreibt die Antwort der ersten Frage darunter
+# Computer schreibt die Antwort der zweiten Frage darunter
 answer1= font4.render("You chose " + str(num_players), True, neonblue)
 window.blit(answer1, (50,250))
 pygame.display.flip()
 
-# Computer frägt erste Frage
+# Computer frägt zweite Frage
 question1=font4.render('Language? (d for Deutsch, e for English, f for Franzosisch',True,neongrün)
 window.blit(question1, (50,350))
 pygame.display.flip()
 
-
-
-# Computer beobachtet bis der Spieler "e" oder "h"
+# Computer beobachtet bis der Spieler "d","e" oder "f" drückt
 sprache = None
 while True:
     if sprache:
@@ -802,26 +640,23 @@ while True:
                 sprache = 'fr'
                 print("Key f has been pressed")
                 break
-# Computer schreibt die Antwort der ersten Frage darunter
+# Computer schreibt die Antwort der dritten Frage darunter
 answer1= font4.render("You chose " + sprache, True, neonblue)
 window.blit(answer1, (50,450))
 pygame.display.flip()
 
-while True:
-    if 1 < num_players < 4:
-        computer_player = add_computer_player()
-        if computer_player:
-            num_players += 1
-            break
-        else:
-            break
-    if num_players == 1:
-        computer_player = True
-        num_players = 2
-        break
-    if num_players == 4:
-        computer_player = False
-        break
+# Wenn es 2/3 Spieler gibt frägt der Computer, ob man
+# einen Computerspieler addieren möchte
+if 1 < num_players < 4:
+    computer_player = add_computer_player()
+    if computer_player:
+        num_players += 1
+
+# Wenn es nur einen Spieler gibt muss es einen Computer-Spieler geben
+if num_players == 1:
+    computer_player = True
+    num_players = 2
+
 print_board()
 currentplayer = 0
 board = board_in_list()
@@ -834,34 +669,19 @@ for player in range(num_players):
     gestell.append([])
     get_letters(bag, 7, gestell[player])
     scores.append(0)
-# Schnittstelle
 
+# Zusätzlichen Tasten werden gedruckt
 print_button(15,11, "RENEW",lightblue)
 print_button(15,12, "BACK",lightblue)
 print_button(15,13, "DONE",lightblue)
 print_button(-1.25,13, "SHOW",lightblue)
 print_button(-1.25,14, "HIDE",lightblue)
 print_players(num_players, currentplayer, computer_player)
-#print_gestell(gestell[currentplayer])
 tilesdict = {}
 letters_on_board()
 pygame.display.update()
 
-# this function finds the possible words in other direction
-# need to rewrite
-
-
-
-
-
-#print(bestwort, max_points, tilerow, tilespalte)
-
-#for buchstabe in bestwort:
-#    tilesdict[(tilerow, tilespalte)] = buchstabe
-#    if valid_direction == 'down':
-#        tilerow += 1
-#    else:
-#        tilespalte += 1
+# Spielverlaufsprogrammierung
 currentmove={}
 print(gestell)
 while True:
@@ -908,21 +728,19 @@ while True:
                 highlight_gestell(row, column, gestell[currentplayer][column])
                 print_message((""), darkgreen)
             else:
-                # Case where a board tile is pressed
+                # Fall in dem man einen Buchstaben auf das Brett überträgt
                 if highlighted_row>0 and 0 <= row < 15 and 0 <= column < 15 and (row, column) not in tilesdict and (row, column) not in currentmove:
                     if highlighted_tile == '*':
                         continue
                     currentmove[(row, column)]=highlighted_tile
                     print(highlighted_row)
                     paint_tile_with_letter(row,column, highlighted_tile, lightpink)
-                    #remove_from_gestell(highlighted_row, highlighted_column)
                     gestell[currentplayer].pop(highlighted_column)
                     highlighted_row=0
                     highlighted_column=0
                     print_gestell(gestell[currentplayer])
-                # Case where cancel is pressed
+                # Fall, wo cancel gedruckt wird
                 if ((row, column)) == (15,12):
-                    #print_board()
                     letters_on_board()
                     for (row, column) in currentmove:
                         paint_tile(row, column)
@@ -930,9 +748,8 @@ while True:
                     currentmove={}
                     print_gestell(gestell[currentplayer])
                     print_message((""), darkgreen)
-                # Case where renew is pressed
+                # Fall, wo renew gedruckt wird
                 if ((row, column)) == (15, 11):
-                    # print_board()
                     letters_on_board()
                     for (row, column) in currentmove:
                         paint_tile(row, column)
@@ -946,9 +763,7 @@ while True:
                     print_gestell(gestell[currentplayer])
                     print_message((""), darkgreen)
                     currentmove={}
-                    #for i in range(len(gestell[currentplayer])):
-                    #    remove_from_gestell(15, i)
-                    #currentplayer = (currentplayer + 1) % num_players
+                # Fall, wo done gedruckt wird
                 if ((row, column)) == (15, 13):
                     woerter = neu_woerter_entstanden(currentmove)
                     woerter_sind_entstanden = ''
@@ -968,7 +783,6 @@ while True:
                             else:
                                 print_message(str(len(woerter_sind_entstanden.split(' '))) + "invalid words: " + (str(woerter_sind_entstanden)), red)
                             continue
-                        # if all of Gestell used, then bonus 50
                         if len(gestell[currentplayer]) == 0:
                             score += 50
                         print_message("Good move. You got " + str(score) + " points.", green)
@@ -982,24 +796,11 @@ while True:
                             tilesdict[(row, column)] = currentmove[(row, column)]
                         letters_on_board()
                         currentmove = {}
-                        # finally current_player += 1
-
-                #if ((row, column)) == (-1, 12):
-                #    show=gestell
-                #    print_button(-1.25, 12, "player1", red)
-                #    print_button(-1.25, 13, "player2", lightblue)
-                #    pygame.display.flip()
-                #if ((row, column)) == (-1, 13):
-                #    show=gestell2
-                #    print_button(-1.25, 12, "player1", lightblue)
-                #    print_button(-1.25, 13, "player2", red)
-                #    pygame.display.flip()
                 if ((row, column)) == (-1, 13):
+                    print("came here")
                     print_gestell(gestell[currentplayer])
                 if ((row, column)) == (-1, 14):
                     for i in range(len(gestell[currentplayer])):
                         remove_from_gestell(15, i)
-                #if 0 <= row < 15 and 0 <= column < 15:
-                #    highlight_cell(row, co3lumn)
         else:
             pass

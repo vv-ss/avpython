@@ -245,7 +245,7 @@ question1=font_style.render('Do you want to play against easy or hard(e/h)?',Tru
 window.blit(question1, (50,200))
 pygame.display.flip()
 
-# Computer beobachtet bis der Spieler "e" oder "h"
+# Computer beobachtet bis der Spieler "e" oder "h" drückt
 computer_stufe = None
 while True:
     if (computer_stufe):
@@ -272,7 +272,7 @@ question=font_style.render('Do you want to play on 3x3 or 4x4 (3/4)?',True,purpl
 window.blit(question, (50,370))
 pygame.display.flip()
 
-# Computer beobachtet bis der Spieler "3" oder "4"
+# Computer beobachtet bis der Spieler "3" oder "4" drückt
 board_size = None
 while True:
     if (board_size):
@@ -300,7 +300,7 @@ question2=font_style.render('Do you want to move first(y/n)?',True,purple)
 window.blit(question2, (50,540))
 pygame.display.flip()
 
-# Computer beobachtet bis der Spieler "n" oder "y"
+# Computer beobachtet bis der Spieler "n" oder "y" drückt
 start_player = None
 while True:
     if start_player:
