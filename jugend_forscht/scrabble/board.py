@@ -155,7 +155,10 @@ def create_bag(sprache):
 # Der Computer gibt die sieben Buchstaben
 def get_letters(bag, num, gestell):
     for i in range(0,num):
-        gestell.append(bag.pop())
+        try:
+            gestell.append(bag.pop())
+        except IndexError:
+            return
 
 # Informationen des Brettes aus einer Datei lesen und in eine Liste speichern
 def board_in_list():
@@ -403,15 +406,17 @@ def find_move_senkrecht(minr, maxr, row, spalte, buchstabe, gestell):
     best_score = 0
     best_move = {}
     best_gestell_buchstaben = []
+    bestword = ''
     print("came in senkrecht", minr, maxr, row, spalte, buchstabe, gestell)
     max_characters_from_gestell = min(7, maxr - minr)
     for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
         alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
         for kombi in alle_kombinationen:
             # word can start from size of word above to one below the row
-            buchstaben_list = list(kombi)
             for start_pos in range(row - num_characters_from_gestell, row + 1):
-                if start_pos < minr or start_pos + num_characters_from_gestell + 1 > maxr:
+                buchstaben_list = list(kombi)
+                # wenn das Wort ist nicht auf dem Brett
+                if start_pos < minr or start_pos + num_characters_from_gestell > maxr:
                     continue
                 buchstaben_list.insert(row - start_pos, buchstabe)
                 word = ''.join(buchstaben_list)
@@ -429,22 +434,24 @@ def find_move_senkrecht(minr, maxr, row, spalte, buchstabe, gestell):
                         best_score = score
                         best_move = move
                         best_gestell_buchstaben = list(kombi)
-    return best_move, best_score, best_gestell_buchstaben
+                        bestword = word
+    return best_move, best_score, best_gestell_buchstaben, bestword
 
 def find_move_waagerecht(row, column, minc, maxc, buchstabe, gestell):
     best_score = 0
     best_move = {}
     best_gestell_buchstabe = []
+    bestword = ''
     print("came in waagerecht", row, column, minc, maxc, buchstabe, gestell)
     max_characters_from_gestell = min(7, maxc - minc)
     for num_characters_from_gestell in range(1, max_characters_from_gestell + 1):
         alle_kombinationen = list(itertools.permutations(gestell, num_characters_from_gestell))
         for kombi in alle_kombinationen:
             # word can start from size of word above to one below the row
-            buchstaben_list = list(kombi)
             for start_pos in range(column - num_characters_from_gestell, column + 1):
-                print("values = ", start_pos, column, num_characters_from_gestell, minc, maxc)
-                if start_pos < minc or start_pos + num_characters_from_gestell + 1 > maxc:
+                #print("values = ", start_pos, column, num_characters_from_gestell, minc, maxc)
+                buchstaben_list = list(kombi)
+                if start_pos < minc or start_pos + num_characters_from_gestell > maxc:
                     continue
                 buchstaben_list.insert(column - start_pos, buchstabe)
                 word = ''.join(buchstaben_list)
@@ -462,7 +469,8 @@ def find_move_waagerecht(row, column, minc, maxc, buchstabe, gestell):
                         best_score = score
                         best_move = move
                         best_gestell_buchstabe = list(kombi)
-    return best_move, best_score, best_gestell_buchstabe
+                        bestword = word
+    return best_move, best_score, best_gestell_buchstabe, bestword
 
 
 
@@ -471,8 +479,12 @@ def computermove(tilesdict, gestell):
     bestmove = {}
     bestscore = 0
     best_gestell_buchstabe = []
+    bestword = ''
     for (r,s) in tilesdict:
         valid_direction = None
+        # special case - only one letter in center
+        if (r, s+1) not in tilesdict and (r, s-1) not in tilesdict and (r-1, s) not in tilesdict and (r+1, s) not in tilesdict:
+            valid_direction = 'down'
         if (r,s + 1) in tilesdict or (r,s - 1) in tilesdict:
             if (r + 1, s) not in tilesdict and (r - 1, s) not in tilesdict:
                 valid_direction = 'down'
@@ -492,18 +504,19 @@ def computermove(tilesdict, gestell):
                 else:
                     break
             for i in range(1, 8):
-                if r + 1 > 14:
+                if r + i > 14:
                     break
                 if (r + i, s - 1) not in tilesdict and (r + i, s + 1) not in tilesdict and (r + i, s) not in tilesdict and (r + i + 1, s) not in tilesdict:
                     max_row += 1
                 else:
                     break
             if min_row != max_row:
-                (move, score, gb) = find_move_senkrecht(min_row, max_row, r, s, tilesdict[r,s], gestell)
+                (move, score, gb, word) = find_move_senkrecht(min_row, max_row, r, s, tilesdict[r,s], gestell)
                 if score > bestscore:
                     bestscore = score
                     bestmove = move
                     best_gestell_buchstabe = gb
+                    bestword = word
 
 
         if valid_direction == 'right':
@@ -524,12 +537,13 @@ def computermove(tilesdict, gestell):
                 else:
                     break
             if min_spalte != max_spalte:
-                (move, score, gb) = find_move_waagerecht(r, s, min_spalte, max_spalte, tilesdict[r, s], gestell)
+                (move, score, gb, word) = find_move_waagerecht(r, s, min_spalte, max_spalte, tilesdict[r, s], gestell)
                 if score > bestscore:
                     bestscore = score
                     bestmove = move
                     best_gestell_buchstabe = gb
-    return bestmove, bestscore, best_gestell_buchstabe
+                    bestword = word
+    return bestmove, bestscore, best_gestell_buchstabe, bestword
 
 def print_message(str, color):
     m = -1.25
@@ -586,7 +600,8 @@ def neue_woerter_waagerecht(minrow, mincolumn, maxcolumn, currentm):
         else:
             character = currentm[(minrow, c)]
         str = str + character
-    woerter.append((str, minrow, mincolumn, "right"))
+    if len(str) > 1:
+        woerter.append((str, minrow, mincolumn, "right"))
     return woerter
 
 # Der Computer sucht alle neuentstandenen Wörter,
@@ -623,21 +638,26 @@ def neue_woerter_senkrecht(mincolumn, minrow, maxrow, currentm):
         else:
             character = currentm[(r, mincolumn)]
         str = str + character
-    woerter.append((str, minrow, mincolumn, "down"))
+    if len(str) > 1:
+        woerter.append((str, minrow, mincolumn, "down"))
     return woerter
 
 # Prüft, ob die neuentstandenen Wörter gültig sind
 def alle_woerter_sind_gueltig(woerter, currentmove):
     score = 0
+    falsche_woerter = []
+    richtige_woerter = []
     for (w, r, c, direction) in woerter:
         w = w.lower().replace("*", "")
-        if len(w) == 1 and len(woerter) > 1:
-            continue
         if w not in alle_woerter:
-            return -1
-        score += board_punkte((w, r, c), direction, currentmove)
+            falsche_woerter.append(w)
+        else:
+            richtige_woerter.append(w)
+            score += board_punkte((w, r, c), direction, currentmove)
     print("score = ", score)
-    return score
+    if falsche_woerter != []:
+        score = -1
+    return falsche_woerter, richtige_woerter, score
 
 # Welche Wörter sind entstanden
 def neu_woerter_entstanden(currentmove):
@@ -648,7 +668,7 @@ def neu_woerter_entstanden(currentmove):
     if currentmove == {}:
         return []
     for (r, c) in currentmove:
-        if not min_row:
+        if min_row is None:
             min_row = max_row = r
             min_column = max_column = c
         if (r < min_row):
@@ -661,33 +681,47 @@ def neu_woerter_entstanden(currentmove):
             max_column = c
     if min_row != max_row and min_column != max_column:
         return []
+
     # Fall in dem der Spieler den ersten Zug zieht
     if tilesdict == {}:
         if (7,7) not in currentmove:
             return []
-    # Fall in dem der Spieler ein queres Wort bildet
+        str = ''
+        if min_row == max_row:
+            for c in range(min_column, max_column + 1):
+                str = str + currentmove[(min_row, c)]
+            return [(str, min_row, min_column, "right")]
+        else:
+            for r in range(min_row, max_row + 1):
+                str = str + currentmove[(r, min_column)]
+            return [(str, min_row, min_column, "down")]
+    # Fall schon etwas auf dem Brett liegt, in dem der Spieler ein queres Wort bildet
     if min_row == max_row:
+        print("came to waagerecht")
         for c in range(min_column, max_column + 1):
             if (min_row, c) not in tilesdict and (min_row, c) not in currentmove:
                 return []
+        woerter = neue_woerter_waagerecht(min_row, min_column, max_column, currentmove)
 
     # Fall in dem der Spieler ein senkrechtes Wort bildet
-    if min_column == max_column:
+    elif min_column == max_column:
+        print("came to senkrecht")
         for r in range(min_row, max_row + 1):
             if (r, min_column) not in tilesdict and (r, min_column) not in currentmove:
                 return []
-    if min_row == max_row:
-        woerter = neue_woerter_waagerecht(min_row, min_column, max_column, currentmove)
-    elif min_column == max_column:
         woerter = neue_woerter_senkrecht(min_column, min_row, max_row, currentmove)
     print("Neue woerter => ", woerter)
     # Special case for non-first move:
-    if tilesdict != {}:
-        if len(woerter) == 1:
-            (wort, row, spalte, d) = woerter[0]
-            if len(wort) == len(currentmove):
-                print("far away word")
-                return []
+    if len(woerter) == 1:
+        (wort, row, spalte, d) = woerter[0]
+        if len(wort) == len(currentmove):
+            print("far away word")
+            return []
+    if len(woerter) > 1:
+        for (wort, row, spalte, d) in woerter:
+            if len(wort) == 1:
+                pass
+                # remove word
     return woerter
 
 # Computer frägt die dritte Frage
@@ -780,6 +814,7 @@ pygame.display.flip()
 
 # Wenn es 2/3 Spieler gibt frägt der Computer, ob man
 # einen Computerspieler addieren möchte
+computer_player = False
 if 1 < num_players < 4:
     computer_player = add_computer_player()
     if computer_player:
@@ -816,22 +851,31 @@ pygame.display.update()
 
 # Spielverlaufsprogrammierung
 currentmove={}
+tilesdict[(7,7)]='a'
 print(gestell)
 while True:
-    if computer_player:
-        if currentplayer == num_players-1:
-            (currentmove, score, gestell_buchstaben) = computermove(tilesdict, gestell[currentplayer])
+    if computer_player or not computer_player:
+        if currentplayer <= num_players-1:
+            (currentmove, score, gestell_buchstaben, word) = computermove(tilesdict, gestell[currentplayer])
             print("Computer's move = ", currentmove, score)
-            for i in range(len(gestell[currentplayer])):
-                remove_from_gestell(15, i)
-            for (row, column) in currentmove:
-                tilesdict[(row, column)] = currentmove[(row, column)]
-            scores[currentplayer] += score
-            for i in gestell_buchstaben:
-                gestell[currentplayer].remove(i)
-            get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
+            # Fall wo der Computer nix machen kann...
+            if currentmove == {}:
+                for gestell_letter in gestell[currentplayer]:
+                    bag.append(gestell_letter[0])
+                random.shuffle(bag)
+                gestell[currentplayer] = []
+                get_letters(bag, 7, gestell[currentplayer])
+                print_message("Computer pass.", green)
+            else:
+                for (row, column) in currentmove:
+                    tilesdict[(row, column)] = currentmove[(row, column)]
+                scores[currentplayer] += score
+                for i in gestell_buchstaben:
+                    gestell[currentplayer].remove(i)
+                get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
             #for (row, column) in currentmove:
             #    tilesdict[(row, column)] = currentmove[(row, column)]
+                print_message("Computer moved " + word + " and got " + str(score) + " points.", green)
             letters_on_board()
             currentmove = {}
             currentplayer = (currentplayer + 1) % num_players
@@ -864,7 +908,10 @@ while True:
                 # Fall in dem man einen Buchstaben auf das Brett überträgt
                 if highlighted_row>0 and 0 <= row < 15 and 0 <= column < 15 and (row, column) not in tilesdict and (row, column) not in currentmove:
                     if highlighted_tile == '*':
-                        continue
+                        print_message("Please assign Blanko before moving.", red)
+                        row = highlighted_row
+                        column = highlighted_column
+                        break
                     currentmove[(row, column)]=highlighted_tile
                     print(highlighted_row)
                     paint_tile_with_letter(row,column, highlighted_tile, lightpink)
@@ -891,6 +938,7 @@ while True:
                     for gestell_letter in gestell[currentplayer]:
                         bag.append(gestell_letter[0])
                     random.shuffle(bag)
+                    print(bag)
                     gestell[currentplayer] = []
                     get_letters(bag, 7, gestell[currentplayer])
                     print_gestell(gestell[currentplayer])
@@ -899,26 +947,16 @@ while True:
                 # Fall, wo done gedruckt wird
                 if ((row, column)) == (15, 13):
                     woerter = neu_woerter_entstanden(currentmove)
-                    woerter_sind_entstanden = ''
-                    for i in woerter:
-                        if i[0] not in alle_woerter:
-                            if woerter_sind_entstanden == '':
-                                woerter_sind_entstanden += i[0]
-                            else:
-                                woerter_sind_entstanden += ', ' + i[0]
                     if woerter == []:
                         print_message("Invalid move", red)
                     else:
-                        score = alle_woerter_sind_gueltig(woerter, currentmove)
+                        falsche_woerter, richtig_woerter, score = alle_woerter_sind_gueltig(woerter, currentmove)
                         if score < 0:
-                            if len(woerter_sind_entstanden.split(' ')) == 1:
-                                print_message("One invalid word: " + (str(woerter_sind_entstanden)), red)
-                            else:
-                                print_message(str(len(woerter_sind_entstanden.split(' '))) + "invalid words: " + (str(woerter_sind_entstanden)), red)
+                            print_message(str(len(falsche_woerter)) + "invalid word(s): " + ','.join(falsche_woerter), red)
                             continue
                         if len(gestell[currentplayer]) == 0:
                             score += 50
-                        print_message("Good move. You got " + str(score) + " points.", green)
+                        print_message("Good move. You got " + str(score) + " points for " + ','.join(richtig_woerter), green)
                         get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
                         scores[currentplayer] += score
                         currentplayer = (currentplayer + 1) % num_players
