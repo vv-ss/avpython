@@ -26,7 +26,7 @@ pygame.display.init()
 pygame.font.init()
 
 # Variabeln, die später gebraucht werden
-factor = 3
+factor = 2
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=' '
@@ -851,11 +851,13 @@ pygame.display.update()
 
 # Spielverlaufsprogrammierung
 currentmove={}
-tilesdict[(7,7)]='a'
+#tilesdict[(7,7)]='a'
 print(gestell)
 while True:
-    if computer_player or not computer_player:
-        if currentplayer <= num_players-1:
+    #if game_end(gestell, pass_player):
+    #    break
+    if computer_player:# or not computer_player:
+        if currentplayer == num_players-1:
             (currentmove, score, gestell_buchstaben, word) = computermove(tilesdict, gestell[currentplayer])
             print("Computer's move = ", currentmove, score)
             # Fall wo der Computer nix machen kann...
