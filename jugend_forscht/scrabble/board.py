@@ -839,6 +839,7 @@ for player in range(num_players):
     scores.append(0)
 
 # Zusätzlichen Tasten werden gedruckt
+print_button(15,10, "PASS",lightblue)
 print_button(15,11, "RENEW",lightblue)
 print_button(15,12, "BACK",lightblue)
 print_button(15,13, "DONE",lightblue)
@@ -851,40 +852,41 @@ pygame.display.update()
 
 # Spielverlaufsprogrammierung
 currentmove={}
-#tilesdict[(7,7)]='a'
+tilesdict[(7,7)]='a'
 print(gestell)
+renew_is_active = False
+renew_letters = []
 while True:
     #if game_end(gestell, pass_player):
     #    break
-    if computer_player:# or not computer_player:
-        if currentplayer == num_players-1:
-            (currentmove, score, gestell_buchstaben, word) = computermove(tilesdict, gestell[currentplayer])
-            print("Computer's move = ", currentmove, score)
-            # Fall wo der Computer nix machen kann...
-            if currentmove == {}:
-                for gestell_letter in gestell[currentplayer]:
-                    bag.append(gestell_letter[0])
-                random.shuffle(bag)
-                gestell[currentplayer] = []
-                get_letters(bag, 7, gestell[currentplayer])
-                print_message("Computer pass.", green)
-            else:
-                for (row, column) in currentmove:
-                    tilesdict[(row, column)] = currentmove[(row, column)]
-                scores[currentplayer] += score
-                for i in gestell_buchstaben:
-                    gestell[currentplayer].remove(i)
-                get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
-            #for (row, column) in currentmove:
+    if True:#computer_player and currentplayer == num_players-1:
+        (currentmove, score, gestell_buchstaben, word) = computermove(tilesdict, gestell[currentplayer])
+        print("Computer's move = ", currentmove, score)
+        # Fall wo der Computer nix machen kann...
+        if currentmove == {}:
+            for gestell_letter in gestell[currentplayer]:
+                bag.append(gestell_letter[0])
+            random.shuffle(bag)
+            gestell[currentplayer] = []
+            get_letters(bag, 7, gestell[currentplayer])
+            print_message("Computer pass.", green)
+        else:
+            for (row, column) in currentmove:
+                tilesdict[(row, column)] = currentmove[(row, column)]
+            scores[currentplayer] += score
+            for i in gestell_buchstaben:
+                gestell[currentplayer].remove(i)
+            get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
+            # for (row, column) in currentmove:
             #    tilesdict[(row, column)] = currentmove[(row, column)]
-                print_message("Computer moved " + word + " and got " + str(score) + " points.", green)
-            letters_on_board()
-            currentmove = {}
-            currentplayer = (currentplayer + 1) % num_players
-            print_players(num_players, currentplayer, computer_player)
-            #possible = get_valid_words_2(row, spalte, valid_direction)
-            #(bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
-            #print(bestwort)
+            print_message("Computer moved " + word + " and got " + str(score) + " points.", green)
+        letters_on_board()
+        currentmove = {}
+        currentplayer = (currentplayer + 1) % num_players
+        print_players(num_players, currentplayer, computer_player)
+        # possible = get_valid_words_2(row, spalte, valid_direction)
+        # (bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
+        # print(bestwort)
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -903,9 +905,13 @@ while True:
             row = int(y // cell_width)
             # Fall wo Gestell gedrueckt wird
             if row == 15 and 0 <= column < len(gestell[currentplayer]):
-                print(gestell[currentplayer][column])
-                highlight_gestell(row, column, gestell[currentplayer][column])
-                print_message((""), darkgreen)
+                if not renew_is_active:
+                    print(gestell[currentplayer][column])
+                    highlight_gestell(row, column, gestell[currentplayer][column])
+                    print_message((""), darkgreen)
+                if renew_is_active:
+                    highlight_gestell_helper(purple, purple, row, column, gestell[currentplayer][column])
+                    renew_letters.append(gestell[currentplayer][column])
             else:
                 # Fall in dem man einen Buchstaben auf das Brett überträgt
                 if highlighted_row>0 and 0 <= row < 15 and 0 <= column < 15 and (row, column) not in tilesdict and (row, column) not in currentmove:
@@ -928,47 +934,76 @@ while True:
                         paint_tile(row, column)
                         gestell[currentplayer].append(currentmove[(row, column)])
                     currentmove={}
+                    renew_letters = []
                     print_gestell(gestell[currentplayer])
                     print_message((""), darkgreen)
+                    renew_is_active = False
                 # Fall, wo renew gedruckt wird
                 if ((row, column)) == (15, 11):
+                    if currentmove != {}:
+                        print_message("Please press Back before Renew", red)
+                        break
+                    if renew_is_active:
+                        print_message("Please press Done to finish Renew", red)
+                        break
+                    renew_is_active = True
+
+                # Fall, wo pass gedruckt wird
+                if ((row, column)) == (15, 10):
                     letters_on_board()
                     for (row, column) in currentmove:
                         paint_tile(row, column)
-                    currentmove = {}
-                    print_gestell(gestell[currentplayer])
-                    for gestell_letter in gestell[currentplayer]:
-                        bag.append(gestell_letter[0])
-                    random.shuffle(bag)
-                    print(bag)
-                    gestell[currentplayer] = []
-                    get_letters(bag, 7, gestell[currentplayer])
-                    print_gestell(gestell[currentplayer])
-                    print_message((""), darkgreen)
+                    currentplayer = (currentplayer + 1) % num_players
+                    for i in range(len(gestell[currentplayer])):
+                        remove_from_gestell(15, i)
+                    print_message(("You passed"), green)
                     currentmove={}
                 # Fall, wo done gedruckt wird
                 if ((row, column)) == (15, 13):
-                    woerter = neu_woerter_entstanden(currentmove)
-                    if woerter == []:
-                        print_message("Invalid move", red)
+                    highlighted_tile = ' '
+                    highlighted_column = 0
+                    highlighted_row = 0
+                    if renew_is_active:
+                        if renew_letters == []:
+                            print_message("Please select letters to renew", red)
+                            break
+                        else:
+                            for letter in renew_letters:
+                                bag.append(letter[0])
+                                gestell[currentplayer].remove(letter)
+                            random.shuffle(bag)
+                            get_letters(bag, len(renew_letters), gestell[currentplayer])
+                            renew_is_active = False
+                            currentplayer = (currentplayer + 1) % num_players
+                            print_players(num_players, currentplayer, computer_player)
+                            for i in range(len(gestell[currentplayer])):
+                                remove_from_gestell(15, i)
+                            renew_letters = []
+                        break
                     else:
-                        falsche_woerter, richtig_woerter, score = alle_woerter_sind_gueltig(woerter, currentmove)
-                        if score < 0:
-                            print_message(str(len(falsche_woerter)) + "invalid word(s): " + ','.join(falsche_woerter), red)
-                            continue
-                        if len(gestell[currentplayer]) == 0:
-                            score += 50
-                        print_message("Good move. You got " + str(score) + " points for " + ','.join(richtig_woerter), green)
-                        get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
-                        scores[currentplayer] += score
-                        currentplayer = (currentplayer + 1) % num_players
-                        print_players(num_players, currentplayer, computer_player)
-                        for i in range(len(gestell[currentplayer])):
-                            remove_from_gestell(15, i)
-                        for (row, column) in currentmove:
-                            tilesdict[(row, column)] = currentmove[(row, column)]
-                        letters_on_board()
-                        currentmove = {}
+                        woerter = neu_woerter_entstanden(currentmove)
+                        if woerter == []:
+                            print_message("Invalid move", red)
+                        else:
+                            falsche_woerter, richtig_woerter, score = alle_woerter_sind_gueltig(woerter, currentmove)
+                            if score < 0:
+                                print_message(
+                                    str(len(falsche_woerter)) + "invalid word(s): " + ','.join(falsche_woerter), red)
+                                continue
+                            if len(gestell[currentplayer]) == 0:
+                                score += 50
+                            print_message(
+                                "Good move. You got " + str(score) + " points for " + ','.join(richtig_woerter), green)
+                            get_letters(bag, 7 - len(gestell[currentplayer]), gestell[currentplayer])
+                            scores[currentplayer] += score
+                            currentplayer = (currentplayer + 1) % num_players
+                            print_players(num_players, currentplayer, computer_player)
+                            for i in range(len(gestell[currentplayer])):
+                                remove_from_gestell(15, i)
+                            for (row, column) in currentmove:
+                                tilesdict[(row, column)] = currentmove[(row, column)]
+                            letters_on_board()
+                            currentmove = {}
                 if ((row, column)) == (-1, 13):
                     print("came here")
                     print_gestell(gestell[currentplayer])
