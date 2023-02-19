@@ -233,8 +233,8 @@ def print_board(size):
     return surface
 
 # Der Hintergrund der Farben wird gemalt
-width=1600
-height=1000
+width=1300
+height=800
 window = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Tik Tak Toe by Aarav and Viyona')
 font = pygame.font.Font('freesansbold.ttf', 24)
@@ -300,6 +300,7 @@ question2=font_style.render('Do you want to move first(y/n)?',True,purple)
 window.blit(question2, (50,540))
 pygame.display.flip()
 
+# Computer beobachtet bis der Spieler "n" oder "y" drückt
 # Computer beobachtet bis der Spieler "n" oder "y" drückt
 start_player = None
 while True:
