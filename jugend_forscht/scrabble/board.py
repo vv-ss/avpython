@@ -26,7 +26,7 @@ pygame.display.init()
 pygame.font.init()
 
 # Variabeln, die später gebraucht werden
-factor = 2
+factor = 3
 highlighted_row = 0
 highlighted_column=0
 highlighted_tile=' '
@@ -472,7 +472,45 @@ def find_move_waagerecht(row, column, minc, maxc, buchstabe, gestell):
                         bestword = word
     return best_move, best_score, best_gestell_buchstabe, bestword
 
+def game_end(passcount, gestell_list):
+    gameend = False
+    if passcount >= 3 * num_players:
+        gameend = True
+    for gestell in gestell_list:
+        if gestell == []:
+            gameend = True
+    return gameend
 
+def get_final_scores(gestell_list, scores):
+    bonus = 0
+    for i in range(len(gestell_list)):
+        if gestell_list[i] != []:
+            gestell_score = 0
+            for buchstabe in gestell_list[i]:
+                gestell_score += buchstaben_punkte[buchstabe]
+            bonus += gestell_score
+            scores[i] -= gestell_score
+        else:
+            scores[i] += bonus
+    return scores
+
+def get_winner(scores, computerplayer):
+    max_score = 0
+    winner = []
+    for i in range(len(scores)):
+        if scores[i] > max_score:
+            max_score = scores[i]
+            winner = []
+            if computerplayer and i == len(scores) - 1:
+                winner.append("Computer")
+            else:
+                winner.append("Player " + str(i+1))
+        elif scores[i] == max_score:
+            if computerplayer and i == len(scores) - 1:
+                winner.append("Computer")
+            else:
+                winner.append("Player " + str(i+1))
+    return ','.join(winner)
 
 
 def computermove(tilesdict, gestell):
@@ -852,14 +890,20 @@ pygame.display.update()
 
 # Spielverlaufsprogrammierung
 currentmove={}
-tilesdict[(7,7)]='a'
+#tilesdict[(7,7)]='a'
 print(gestell)
 renew_is_active = False
 renew_letters = []
+passcount = 0
+
 while True:
+    if game_end(passcount, gestell):
+        x = get_winner(scores, computer_player)
+        print_message("Game over! Winner(s): " + x, gold)
+        break
     #if game_end(gestell, pass_player):
     #    break
-    if True:#computer_player and currentplayer == num_players-1:
+    if computer_player and currentplayer == num_players-1:
         (currentmove, score, gestell_buchstaben, word) = computermove(tilesdict, gestell[currentplayer])
         print("Computer's move = ", currentmove, score)
         # Fall wo der Computer nix machen kann...
@@ -870,7 +914,9 @@ while True:
             gestell[currentplayer] = []
             get_letters(bag, 7, gestell[currentplayer])
             print_message("Computer pass.", green)
+            passcount += 1
         else:
+            passcount = 0
             for (row, column) in currentmove:
                 tilesdict[(row, column)] = currentmove[(row, column)]
             scores[currentplayer] += score
@@ -958,11 +1004,14 @@ while True:
                         remove_from_gestell(15, i)
                     print_message(("You passed"), green)
                     currentmove={}
+                    print_players(num_players, currentplayer, computer_player)
+                    passcount += 1
                 # Fall, wo done gedruckt wird
                 if ((row, column)) == (15, 13):
                     highlighted_tile = ' '
                     highlighted_column = 0
                     highlighted_row = 0
+                    passcount = 0
                     if renew_is_active:
                         if renew_letters == []:
                             print_message("Please select letters to renew", red)
@@ -1012,3 +1061,8 @@ while True:
                         remove_from_gestell(15, i)
         else:
             pass
+
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
