@@ -2,7 +2,7 @@
 import random
 
 Wert_dict = {}
-com_move_first = True
+com_ist_dran = True
 
 # Welche Zuege kann der Spieler ziehen
 def next_players_state(n):
@@ -134,12 +134,12 @@ def com_turn(state):
         if i == '2':
             X += 1
     if O == X:
-        if com_move_first:
+        if com_ist_dran:
             return True
         else:
             return False
     else:
-        if not com_move_first:
+        if not com_ist_dran:
             return True
         else:
             return False
@@ -227,7 +227,7 @@ def printBoard4(state):
 
 
 def game():
-    global com_move_first
+    global com_ist_dran
     brett_size = input('What size do you want? Give in 3,4 or 5.')
     stufe = input('Do you want an easy or a hard level?')
     first_move = input('Would you want to start(yes/no)')
