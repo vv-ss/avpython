@@ -129,10 +129,10 @@ def com_hat_gewonnen(n):
            com_sieg = False
        return com_sieg
 # Ist der Computer dran?
-def com_dran(state):
+def com_dran(spielstand):
     X = 0
     O = 0
-    for kaestchen in state:
+    for kaestchen in spielstand:
         if kaestchen == '1':
             O += 1
         if kaestchen == '2':
@@ -149,49 +149,47 @@ def com_dran(state):
             return False
 
 # Wir geben jedem möglichen Zug einen Wert
-def berechne_wert(state):
-    #print("Came to get_wert for ", state)
-    if state in Wert_dict:
-        return Wert_dict[state]
-    #print("Wert not found in dict for ", state)
-    if com_hat_gewonnen(state):
+def berechne_wert(spielstand):
+    if spielstand in Wert_dict:
+        return Wert_dict[spielstand]
+    if com_hat_gewonnen(spielstand):
         return 100
-    if spieler_hat_gewonnen(state):
+    if spieler_hat_gewonnen(spielstand):
         return -100
-    if unentschieden(state):
+    if unentschieden(spielstand):
         return 0
     alle_werte = []
-    state_wert = 0
-    if com_dran(state):
-        for zug in naechste_com_zuege(state):
+    spielstand_wert = 0
+    if com_dran(spielstand):
+        for zug in naechste_com_zuege(spielstand):
             alle_werte.append(berechne_wert(zug))
-        state_wert = max(alle_werte)
+        spielstand_wert = max(alle_werte)
     else:
-        for zug in naechste_spieler_zuege(state):
+        for zug in naechste_spieler_zuege(spielstand):
             alle_werte.append(berechne_wert(zug))
-        state_wert = min(alle_werte)
-    Wert_dict[state] = state_wert
-    return state_wert
+        spielstand_wert = min(alle_werte)
+    Wert_dict[spielstand] = spielstand_wert
+    return spielstand_wert
 
 # In welches Kästchen soll der Computer ziehen?
-def com_zug(state):
-    next_states = naechste_com_zuege(state)
-    next_best_state = next_states[0]
-    next_best_wert = berechne_wert(next_best_state)
-    for i in next_states:
+def com_zug(spielstand):
+    naechste_spielstaende = naechste_com_zuege(spielstand)
+    naechster_bester_stand = naechste_spielstaende[0]
+    naechster_bester_wert = berechne_wert(naechster_bester_stand)
+    for i in naechste_spielstaende:
         wert = berechne_wert(i)
-        if wert > next_best_wert:
-            next_best_wert = wert
-            next_best_state = i
-    for i in range(0, len(state)):
-        if state[i] != next_best_state[i]:
+        if wert > naechster_bester_wert:
+            naechster_bester_wert = wert
+            naechster_bester_stand = i
+    for i in range(0, len(spielstand)):
+        if spielstand[i] != naechster_bester_stand[i]:
             return i
 
 # Der Computer zieht einen beliebigen Zug, sodass der Spieler auch gewinnen kann(einfache Spielvariante)
-def beliebiger_com_zug(state):
+def beliebiger_com_zug(spielstand):
     while True:
-        x = random.randint(0, len(state)-1)
-        if state[x] == '0':
+        x = random.randint(0, len(spielstand) - 1)
+        if spielstand[x] == '0':
             return x
 
 # Farben, die später gebraucht werden
@@ -362,9 +360,9 @@ def game():
             Oletter = font_style2.render('O', True, dunkelblau)
             surface.blit(Oletter, (kaestchen_groesse * spalte + kaestchen_groesse / 3 + 10, kaestchen_groesse * reihe + kaestchen_groesse / 3 + 10))
             pygame.display.update()
-            state_list = list(spielstand)
-            state_list[move] = '1'
-            spielstand = ''.join(state_list)
+            spielstand_liste = list(spielstand)
+            spielstand_liste[move] = '1'
+            spielstand = ''.join(spielstand_liste)
         else:
             # Player turn
             moved = False
@@ -385,9 +383,9 @@ def game():
                     else:
                         pass
                 if moved:
-                    state_list = list(spielstand)
-                    state_list[reihe * brett_groesse + spalte] = '2'
-                    spielstand = ''.join(state_list)
+                    spielstand_liste = list(spielstand)
+                    spielstand_liste[reihe * brett_groesse + spalte] = '2'
+                    spielstand = ''.join(spielstand_liste)
                     break
 
     while True:
