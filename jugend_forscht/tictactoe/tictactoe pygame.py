@@ -2,10 +2,10 @@ import pygame
 from pygame.locals import *
 import random
 
-groessen_faktor = 2
+groessen_faktor = 1
 Wert_dict = {}
 com_ist_dran = True
-kaestchen_groesse = 230*groessen_faktor
+kaestchen_groesse = 200*groessen_faktor
 
 # Welche Züge kann der Spieler ziehen
 def naechste_spieler_zuege(brettzustand):
@@ -228,7 +228,6 @@ def drucke_brett(groesse):
         pygame.draw.rect(window, hellblau, pygame.Rect(n * kaestchen_groesse, abstand, 5, groesse * kaestchen_groesse - 2 * abstand))
         # Striche, die waagerecht sind
         pygame.draw.rect(window, hellblau, pygame.Rect(abstand, n * kaestchen_groesse, groesse * kaestchen_groesse - 2 * abstand, 5))
-
     text = font.render('TicTacToe', True, lila)
     surface.blit(text, (groesse * kaestchen_groesse / 2 - 75, 2))
     return surface
@@ -358,10 +357,10 @@ def game():
             else:
                 # Der Computer malt
                 move = beliebiger_com_zug(spielstand)
-            row = move // brett_groesse
-            column = move % brett_groesse
+            reihe = move // brett_groesse
+            spalte = move % brett_groesse
             Oletter = font_style2.render('O', True, dunkelblau)
-            surface.blit(Oletter, (kaestchen_groesse * column + kaestchen_groesse / 3 + 10, kaestchen_groesse * row + kaestchen_groesse / 3 + 10))
+            surface.blit(Oletter, (kaestchen_groesse * spalte + kaestchen_groesse / 3 + 10, kaestchen_groesse * reihe + kaestchen_groesse / 3 + 10))
             pygame.display.update()
             state_list = list(spielstand)
             state_list[move] = '1'
@@ -374,12 +373,12 @@ def game():
                     if event.type == QUIT:
                         pygame.quit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        (row, column) = spieler_klick()
-                        if spielstand[row * brett_groesse + column] != '0':
+                        (reihe, spalte) = spieler_klick()
+                        if spielstand[reihe * brett_groesse + spalte] != '0':
                             break
-                        print(row, column)
+                        print(reihe, spalte)
                         Xletter=font_style2.render('X', True, gold)
-                        surface.blit(Xletter, (kaestchen_groesse * column + kaestchen_groesse / 3 + 10, kaestchen_groesse * row + kaestchen_groesse / 3 + 10))
+                        surface.blit(Xletter, (kaestchen_groesse * spalte + kaestchen_groesse / 3 + 10, kaestchen_groesse * reihe + kaestchen_groesse / 3 + 10))
                         pygame.display.update()
                         moved = True
                         break
@@ -387,7 +386,7 @@ def game():
                         pass
                 if moved:
                     state_list = list(spielstand)
-                    state_list[row * brett_groesse + column] = '2'
+                    state_list[reihe * brett_groesse + spalte] = '2'
                     spielstand = ''.join(state_list)
                     break
 
