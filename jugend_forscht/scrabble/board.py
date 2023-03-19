@@ -19,14 +19,14 @@ hellblau=(150, 230, 250)
 lila=(128, 0, 128)
 weiß=(250, 249, 246)
 gelb=(255, 238, 170)
-pink=(255, 210, 120)
+hautfarbe=(255, 210, 120)
 neongrün=(223,255,0)
 pygame.init()
 pygame.display.init()
 pygame.font.init()
 
 # Variabeln, die später gebraucht werden
-bildschirm_größe = 3
+bildschirm_größe = 2
 markierte_reihe = 0
 markierte_spalte=0
 markierter_buchstabenstein= ' '
@@ -35,7 +35,6 @@ höhe= 2400 // bildschirm_größe
 abstand= 200 // bildschirm_größe
 kästchen_größe = (breite - 2 * abstand) / 15
 abstand2= 10 // bildschirm_größe
-
 # Schriften, die später gebraucht werden
 font = pygame.font.Font('freesansbold.ttf', 100 // bildschirm_größe)
 font2 = pygame.font.SysFont('bahnenschrift.ttf', 50 // bildschirm_größe)
@@ -467,7 +466,7 @@ def bestimme_wort_waagerecht(reihe, spalte, min_spalte, max_spalte, buchstabe, a
                     continue
                 buchstaben_liste.insert(spalte - start_pos, buchstabe)
                 wort = ''.join(buchstaben_liste)
-                if wort in alle_woerter:
+                if wort.lower().replace("*", "e") in alle_woerter:
                     print(wort)
                     # Aktuelle Bewegung aus der Ablagebank definieren
                     zug = {}
@@ -852,11 +851,16 @@ while True:
             if event.key == pygame.K_4:
                 anzahl_spieler = 4
                 print("Key 4 has been pressed")
+                break
             if event.key == pygame.K_0:
                 anzahl_spieler = 4
                 super_modus = True
                 print("Super Mode on :-) 4 Com")
                 break
+            nachricht_drucken('ungueltig', hautfarbe)
+
+nachricht_drucken('', schwarz)
+
 # Computer schreibt die Antwort der zweiten Frage darunter
 if not super_modus:
     antwort= font4.render("You chose " + str(anzahl_spieler), True, neonblau)
@@ -971,21 +975,19 @@ while True:
         else:
             anzahl_pass = 0
             for (reihe, spalte) in aktueller_zug:
-                buchstabensteine_dictionary[(reihe, spalte)] = aktueller_zug[(reihe, spalte)]
+                if aktueller_zug[(reihe, spalte)] == '*':
+                    buchstabensteine_dictionary[(reihe, spalte)] = '*e'
+                else:
+                    buchstabensteine_dictionary[(reihe, spalte)] = aktueller_zug[(reihe, spalte)]
             punktestand[aktueller_spieler] += score
             for i in ablagebank_buchstaben:
                 ablagebank[aktueller_spieler].remove(i)
             fülle_ablagebank(beutel, 7 - len(ablagebank[aktueller_spieler]), ablagebank[aktueller_spieler])
-            # for (row, column) in currentmove:
-            #    tilesdict[(row, column)] = currentmove[(row, column)]
             nachricht_drucken("Computer moved " + word + " and got " + str(score) + " points.", grün)
         aktualisiere_brett()
         aktueller_zug = {}
         aktueller_spieler = (aktueller_spieler + 1) % anzahl_spieler
         spieler_drucken(anzahl_spieler, aktueller_spieler, computer_spieler)
-        # possible = get_valid_words_2(row, spalte, valid_direction)
-        # (bestwort, max_points, tilerow, tilespalte) = get_best_word(possible, d, board, tilesdict)
-        # print(bestwort)
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -1021,7 +1023,7 @@ while True:
                         break
                     aktueller_zug[(reihe, spalte)]=markierter_buchstabenstein
                     print(markierte_reihe)
-                    drucke_kaestchen_mit_buchstabe(reihe, spalte, markierter_buchstabenstein, pink)
+                    drucke_kaestchen_mit_buchstabe(reihe, spalte, markierter_buchstabenstein, hautfarbe)
                     ablagebank[aktueller_spieler].pop(markierte_spalte)
                     markierte_reihe=0
                     markierte_spalte=0
