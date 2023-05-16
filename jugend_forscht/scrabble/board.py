@@ -26,7 +26,7 @@ pygame.display.init()
 pygame.font.init()
 
 # Variabeln, die später gebraucht werden
-bildschirm_größe = 2
+bildschirm_größe = 3
 markierte_reihe = 0
 markierte_spalte=0
 markierter_buchstabenstein= ' '
@@ -391,8 +391,7 @@ def drucke_knopf(m, n, text, farbe):
     pygame.draw.rect(fenster, farbe, pygame.Rect(abstand + n * kästchen_größe + abstand2, abstand + m * kästchen_größe + abstand2, kästchen_größe, kästchen_größe))
     pygame.draw.rect(fenster, schwarz, pygame.Rect(abstand + n * kästchen_größe + abstand2, abstand + m * kästchen_größe + abstand2, kästchen_größe, kästchen_größe), 3)
     text = font3.render(text, True, schwarz)
-    fenster.blit(text, (
-        abstand + n * kästchen_größe + kästchen_größe / 4, abstand + m * kästchen_größe + abstand2 + kästchen_größe / 4))
+    fenster.blit(text, (abstand + n * kästchen_größe + kästchen_größe / 4, abstand + m * kästchen_größe + abstand2 + kästchen_größe / 4))
     pygame.display.flip()
 
 # aktuellen Spieler anzeigen
@@ -441,11 +440,18 @@ def bestimme_wort_senkrecht(min_reihe, max_reihe, reihe, spalte, buchstabe, abla
                     if len(zug) == 8:
                         erhaltene_punkte += 50
                     print(erhaltene_punkte)
-                    if erhaltene_punkte > meisten_punkte:
+                    if schwierigkeitsgrad == 'hard':
+                        if erhaltene_punkte > meisten_punkte:
+                            meisten_punkte = erhaltene_punkte
+                            bester_zug = zug
+                            buchstaben_des_besten_zuges = list(kombi)
+                            beste_wort = wort
+                    if schwierigkeitsgrad == 'easy':
                         meisten_punkte = erhaltene_punkte
                         bester_zug = zug
                         buchstaben_des_besten_zuges = list(kombi)
                         beste_wort = wort
+                        return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, beste_wort
     return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, beste_wort
 
 # waagerechten Zug suchen
@@ -454,6 +460,7 @@ def bestimme_wort_waagerecht(reihe, spalte, min_spalte, max_spalte, buchstabe, a
     bester_zug = {}
     buchstaben_des_besten_zuges = []
     bestes_wort = ''
+    zuege = {}
     maximale_buchstaben_der_ablagebank = min(7, max_spalte - min_spalte)
     for anzahl_der_buchstaben_der_ablagebank in range(1, maximale_buchstaben_der_ablagebank + 1):
         alle_kombinationen = list(itertools.permutations(ablagebank, anzahl_der_buchstaben_der_ablagebank))
@@ -478,11 +485,20 @@ def bestimme_wort_waagerecht(reihe, spalte, min_spalte, max_spalte, buchstabe, a
                     if len(zug) == 8:
                         erhaltene_punkte +=50
                     print(erhaltene_punkte)
-                    if erhaltene_punkte > meisten_punkte:
-                        meisten_punkte = erhaltene_punkte
-                        bester_zug = zug
-                        buchstaben_des_besten_zuges = list(kombi)
-                        bestes_wort = wort
+                    zuege[wort] = (erhaltene_punkte, zug, list(kombi))
+                    if schwierigkeitsgrad == 'hard':
+                        if erhaltene_punkte > meisten_punkte:
+                            meisten_punkte = erhaltene_punkte
+                            bester_zug = zug
+                            buchstaben_des_besten_zuges = list(kombi)
+                            bestes_wort = wort
+                    if schwierigkeitsgrad == 'easy':
+                        print(zuege)
+                        bestes_wort = random.choice(zuege)
+                        bester_zug = zuege[bestes_wort][1]
+                        meisten_punkte = zuege[bestes_wort][1]
+                        buchstaben_des_besten_zuges = zuege[bestes_wort][2]
+                        return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
     return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
 
 
@@ -519,7 +535,7 @@ def gewinner_bestimmen(punkte, computerspieler):
                 gewinner.append("Player " + str(i+1))
     return ','.join(gewinner)
 
-def erste_computerzug(ablagebank):
+def erste_computerzug(ablagebank, schwierigkeitsgrad):
     bester_zug = {}
     meisten_punkte = 0
     buchstaben_des_besten_zuges = []
@@ -541,21 +557,27 @@ def erste_computerzug(ablagebank):
                 if len(zug) == 7:
                     punkte += 50
                 print(punkte)
-                if punkte > meisten_punkte:
+                if schwierigkeitsgrad == 'hard':
+                    if punkte > meisten_punkte:
+                        meisten_punkte = punkte
+                        bester_zug = zug
+                        buchstaben_des_besten_zuges = list(kombi)
+                if schwierigkeitsgrad == 'easy':
                     meisten_punkte = punkte
                     bester_zug = zug
                     buchstaben_des_besten_zuges = list(kombi)
+                    #return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
     return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
 
 
 # Computerzug
-def computerzug(buchstabensteine_dictionary, ablagebank):
+def computerzug(buchstabensteine_dictionary, ablagebank, schwierigkeitsgrad):
     bester_zug = {}
     meisten_punkte = 0
     buchstaben_des_besten_zuges = []
     bestes_wort = ''
     if buchstabensteine_dictionary == {}:
-        return erste_computerzug(ablagebank)
+        return erste_computerzug(ablagebank, schwierigkeitsgrad)
     for (r,s) in buchstabensteine_dictionary:
         wort_richtung = None
         # Spezialfall nur ein Buchstabe auf dem Brett
@@ -588,11 +610,19 @@ def computerzug(buchstabensteine_dictionary, ablagebank):
                     break
             if min_reihe != max_reihe:
                 (zug, punkte, bbz, wort) = bestimme_wort_senkrecht(min_reihe, max_reihe, r, s, buchstabensteine_dictionary[r, s], ablagebank)
-                if punkte > meisten_punkte:
+                print(schwierigkeitsgrad)
+                if schwierigkeitsgrad == 'hard':
+                    if punkte > meisten_punkte:
+                        meisten_punkte = punkte
+                        bester_zug = zug
+                        buchstaben_des_besten_zuges = bbz
+                        bestes_wort = wort
+                if schwierigkeitsgrad == 'easy':
                     meisten_punkte = punkte
                     bester_zug = zug
                     buchstaben_des_besten_zuges = bbz
                     bestes_wort = wort
+                    #return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
         if wort_richtung == 'right':
             min_spalte = s
             max_spalte = s
@@ -612,11 +642,18 @@ def computerzug(buchstabensteine_dictionary, ablagebank):
                     break
             if min_spalte != max_spalte:
                 (zug, punkte, bbz, wort) = bestimme_wort_waagerecht(r, s, min_spalte, max_spalte, buchstabensteine_dictionary[r, s], ablagebank)
-                if punkte > meisten_punkte:
+                if schwierigkeitsgrad == 'hard':
+                    if punkte > meisten_punkte:
+                        meisten_punkte = punkte
+                        bester_zug = zug
+                        buchstaben_des_besten_zuges = bbz
+                        bestes_wort = wort
+                if schwierigkeitsgrad == 'easy':
                     meisten_punkte = punkte
                     bester_zug = zug
                     buchstaben_des_besten_zuges = bbz
                     bestes_wort = wort
+                    #return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
     return bester_zug, meisten_punkte, buchstaben_des_besten_zuges, bestes_wort
 
 # Nachricht anzeigen
@@ -802,13 +839,14 @@ def neu_woerter_entstanden(aktueller_zug):
 # Computer frägt die dritte Frage
 def computer_spieler_hinzufuegen():
     frage = font4.render('Add computer player (y/n)?', True, neongrün)
-    fenster.blit(frage, (50, 550))
+    fenster.blit(frage, (50, 400))
     pygame.display.flip()
 
     # Computer beobachtet, ob der Spieler "y" oder "n" drückt
     computer_spieler = None
+    is_computer = None
     while True:
-        if computer_spieler is not None:
+        if is_computer is not None:
             break
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -816,14 +854,26 @@ def computer_spieler_hinzufuegen():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_y:
                     print("Key y has been pressed")
-                    return True
+                    is_computer = 'Yes'
+                    break
                 if event.key == pygame.K_n:
                     print("Key n has been pressed")
-                    return False
+                    is_computer = 'No'
+                    break
+
+    buchstaben_punkte_bestimmen(sprache)
+    antwort = font4.render("You chose " + is_computer, True, neonblau)
+    fenster.blit(antwort, (50, 450))
+    pygame.display.flip()
+
+    if is_computer == 'Yes':
+        return True
+    else:
+        return False
 
 # Computer frägt die erste Frage
 frage=font4.render('Number of human Players (1-4)?', True, neongrün)
-fenster.blit(frage, (50, 200))
+fenster.blit(frage, (50, 100))
 pygame.display.flip()
 
 # Computer beobachtet ob der Spieler "2","3" oder "4" drückt
@@ -866,12 +916,12 @@ if not super_modus:
     antwort= font4.render("You chose " + str(anzahl_spieler), True, neonblau)
 else:
     antwort = font4.render("Super Mode On, 4 Computers playing!", True, neonblau)
-fenster.blit(antwort, (50, 250))
+fenster.blit(antwort, (50, 150))
 pygame.display.flip()
 
 # Computer frägt die zweite Frage
 frage=font4.render('Language? (d für Deutsch, e for english, f pour francais)', True, neongrün)
-fenster.blit(frage, (50, 350))
+fenster.blit(frage, (50, 250))
 pygame.display.flip()
 
 # Computer beobachtet bis der Spieler "d","e" oder "f" drückt
@@ -898,7 +948,7 @@ while True:
 # Computer schreibt die Antwort der dritten Frage darunter
 buchstaben_punkte_bestimmen(sprache)
 antwort= font4.render("You chose " + sprache, True, neonblau)
-fenster.blit(antwort, (50, 450))
+fenster.blit(antwort, (50, 300))
 pygame.display.flip()
 
 # Wenn es 2/3 Spieler gibt frägt der Computer, ob man
@@ -913,6 +963,32 @@ if 1 < anzahl_spieler < 4 and not super_modus:
 if anzahl_spieler == 1:
     computer_spieler = True
     anzahl_spieler = 2
+
+frage=font4.render('What difficulty: easy, medium, hard (e/m/h)', True, neongrün)
+fenster.blit(frage, (50, 550))
+pygame.display.flip()
+
+schwierigkeitsgrad = None
+
+while True:
+    if schwierigkeitsgrad:
+        break
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_e:
+                print("Key e has been pressed")
+                schwierigkeitsgrad = 'easy'
+                break
+            if event.key == pygame.K_m:
+                print("Key m has been pressed")
+                schwierigkeitsgrad = 'medium'
+                break
+            if event.key == pygame.K_h:
+                print("Key h has been pressed")
+                schwierigkeitsgrad = 'hard'
+                break
 
 drucke_brett()
 aktueller_spieler = 0
@@ -961,7 +1037,7 @@ while True:
             nachricht_drucken("Game over! Winner(s): " + x, gold)
             break
     if super_modus or (computer_spieler and aktueller_spieler == anzahl_spieler - 1):
-        (aktueller_zug, score, ablagebank_buchstaben, word) = computerzug(buchstabensteine_dictionary, ablagebank[aktueller_spieler])
+        (aktueller_zug, score, ablagebank_buchstaben, word) = computerzug(buchstabensteine_dictionary, ablagebank[aktueller_spieler], schwierigkeitsgrad)
         print("Computer's move = ", aktueller_zug, score, ablagebank[aktueller_spieler])
         # Fall, wo der Computer nichts machen kann...
         if aktueller_zug == {}:
