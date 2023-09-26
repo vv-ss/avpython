@@ -30,6 +30,7 @@ class Robot:
         self.score_x = self.grid.board_width * 0.2 * self.id
         self.store_map()
         self.dijkstra_path = []
+        self.dijkstra_active = False
 
     def dijkstra(self, start, end):
         shortest_path = []
@@ -100,24 +101,34 @@ class Robot:
         print("Robot ", self.id, " speaking ", nearest_battery_path)
         return nearest_battery_path, nearest_battery_distance
 
-    def battery_low(self):
-        nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
-        if nearest_battery_distance:
-            return nearest_battery_distance >= self.battery - 2
-        else:
-            pass
-
     def action(self):
-        if self.battery_low():
-
         # if reached target or battery is empty, then return accordingly
         if self.position == self.target:
             self.turn_angle = 0
             return 'reached_target'
-        self.find_nearest_battery()
         if self.battery == 0:
             self.turn_angle = 0
-            return 'battery_low'
+            return 'battery_empty'
+
+        if self.dijkstra_path:
+            self.position = self.dijkstra_path.pop(0)
+            self.battery -= 1
+            if self.grid.get_id(self.position) in self.grid.chargers:
+                self.battery = self.full_battery
+            return
+
+        nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
+        if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
+            self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
+            print(self.dijkstra_path)
+            self.dijkstra_active = True
+            self.position = self.dijkstra_path.pop(0)
+            self.battery -= 1
+            if self.grid.get_id(self.position) in self.grid.chargers:
+                self.battery = self.full_battery
+            return
+
+
         # if moved in last move, first try to turn left if there is no wall there
         if self.last_moved:
             self.last_moved = False
@@ -134,6 +145,7 @@ class Robot:
                     self.last_moved = True
                     self.store_map(pre_pos)
                     self.battery -= 1
+                    self.dijkstra_active = False
                     if self.grid.get_id(self.position) in self.grid.chargers:
                         self.batteries.append(self.grid.get_id(self.position))
                         self.battery = self.full_battery
@@ -149,6 +161,7 @@ class Robot:
                 self.last_moved = True
                 self.store_map(pre_pos)
                 self.battery -= 1
+                self.dijkstra_active = False
                 if self.grid.get_id(self.position) in self.grid.chargers:
                     self.batteries.append(self.grid.get_id(self.position))
                     self.battery = self.full_battery
