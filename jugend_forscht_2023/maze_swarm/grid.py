@@ -22,7 +22,11 @@ class Grid:
         # Ladestationen
         self.charger_image = pygame.transform.scale(pygame.image.load('img/battery_station.png'), (self.cell_width * 0.5,
                                                                                                    self.cell_width * 0.5))
-        self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
+        # self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
+        if num_chargers == 1:
+            self.chargers = [self.cells_y // 2 * self.cells_x + self.cells_x // 2]
+        else:
+            self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
 
         # Farben
         self.hellblau = (179, 250, 255)

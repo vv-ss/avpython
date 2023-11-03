@@ -5,15 +5,16 @@ from robot import *
 from maze_solver import *
 from maze_generator import *
 
-ui_enabled = False
-repeat = 100
 
+ui_enabled = False
+repeat = 200
+x = 10
+y = 10
 # dijkstra enabled
-for x, y in [(10 * i, 10 * i) for i in range(1, 9)]:
+for full_battery in list(range(x+y-2, 2*x*y-(x+y), 20)):
     reached_target = 0
     not_reached_target = 0
     for repetition in range(repeat):
-        full_battery = x * y - 1
         g = Grid(x, y, 60, 60, 4, [200, 100, 200, 100], 50, 1)
         mg = MazeGenerator(g)
         s = MazeSolver(g, 'lhs')
@@ -49,19 +50,19 @@ for x, y in [(10 * i, 10 * i) for i in range(1, 9)]:
                     robot.update_position()
             if ui_enabled:
                 pygame.display.flip()
+                time.sleep(0.1)
 
         #print(r1.map)
         #print(r1.dijkstra(0, x * y - y - 1))
 
-    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| reached_target =', reached_target, '| not_reached_target =', not_reached_target, '| reached target(%) =', reached_target * 100 / (reached_target + not_reached_target), '| repeat =', repeat)
+    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =', reached_target, '| not_reached_target =', not_reached_target, '| reached target(%) =', reached_target * 100 / (reached_target + not_reached_target), '| repeat =', repeat)
 
 print('\n')
 # dijkstra disabled
-for x, y in [(10 * i, 10 * i) for i in range(1, 9)]:
+for full_battery in list(range(x+y-2, 2*x*y-(x+y), 20)):
     reached_target = 0
     not_reached_target = 0
     for repetition in range(repeat):
-        full_battery = x * y - 1
         g = Grid(x, y, 60, 60, 4, [200, 100, 200, 100], 50, 1)
         mg = MazeGenerator(g)
         s = MazeSolver(g, 'lhs')
@@ -96,11 +97,12 @@ for x, y in [(10 * i, 10 * i) for i in range(1, 9)]:
                     robot.update_position()
             if ui_enabled:
                 pygame.display.flip()
+                time.sleep(0.1)
 
         #print(r1.map)
         #print(r1.dijkstra(0, x * y - y - 1))
 
-    print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| reached_target =', reached_target, '| not_reached_target =', not_reached_target, '| reached target(%) =', reached_target * 100 / (reached_target + not_reached_target), '| repeat =', repeat)
+    print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =', reached_target, '| not_reached_target =', not_reached_target, '| reached target(%) =', reached_target * 100 / (reached_target + not_reached_target), '| repeat =', repeat)
 
 
 print('done')

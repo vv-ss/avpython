@@ -2,16 +2,21 @@ from grid import *
 from robot import *
 from maze_solver import *
 from maze_generator import *
+import matplotlib.pyplot as plt
+
 
 ui_enabled = False
-full_battery = 10000
+full_battery = 1000000
+repeat = 1
 
-for x, y in [(5*i, 10*i) for i in range(1, 20)]:
-    batteries = []
-    for i in range(100*x):
+for x, y in [(5*i, 5*i) for i in range(1, 41)]:
+    battery_usage = []
+    for i in range(repeat):
         g = Grid(x, y, 60, 60, 4, [200, 100, 200, 100], 50, 0)
         mg = MazeGenerator(g)
         s = MazeSolver(g, 'lhs')
+        g.connected_list = mg.prim_algorithmus()
+
         r1 = Robot(g, s, (0, 0), (g.cells_y - 1, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
                    pygame.image.load('img/mouse.png'), 180, full_battery, g.pink, 1)
         r2 = Robot(g, s, (0, g.cells_x - 1), (g.cells_y - 1, 0), g.cell_width * 0.8, g.cell_width * 0.8,
@@ -22,7 +27,6 @@ for x, y in [(5*i, 10*i) for i in range(1, 20)]:
                    pygame.image.load('img/dog.png'), 90, full_battery, g.schwarz, 4)
         robots = [r1, r2, r3, r4]
 
-        g.connected_list = mg.prim_algorithmus()
         if ui_enabled:
             g.draw_maze(g.connected_list)
             pygame.display.flip()
@@ -39,9 +43,12 @@ for x, y in [(5*i, 10*i) for i in range(1, 20)]:
             if ui_enabled:
                 pygame.display.flip()
         for robot in robots:
-            batteries.append(full_battery - robot.battery)
+            battery_usage.append(full_battery - robot.battery)
 
-    print('maze size =', x, y, 'minimum = ', min(batteries), 'maximum = ', max(batteries), 'average = ', sum(batteries)/len(batteries))
+    print('maze size =', x, '*', y, '| minimum battery usage =', min(battery_usage), '| maximum battery usage =', max(battery_usage), '| average battery usage =', sum(battery_usage) / len(battery_usage), '| repeat =', repeat)
+    plt.hist(battery_usage, 200)
+    plt.show()
+
 
 print('done')
 input()

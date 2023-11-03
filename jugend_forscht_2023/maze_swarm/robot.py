@@ -3,7 +3,7 @@ import pygame
 
 class Robot:
     def __init__(self, grid, solver, start_point, target, robot_x, robot_y, robot, set_direction, battery, color,
-                 id, double_color=None):
+                 id, double_color=None, dijkstra_disabled=True):
         self.UP, self.RIGHT, self.DOWN, self.LEFT = range(4)
         self.sight_direction = self.UP
         self.grid = grid
@@ -31,6 +31,7 @@ class Robot:
         self.store_map()
         self.dijkstra_path = []
         self.dijkstra_active = False
+        self.dijkstra_disabled = dijkstra_disabled
 
     def dijkstra(self, start, end):
         shortest_path = []
@@ -89,6 +90,8 @@ class Robot:
         return self.dijkstra(self.position, self.target)
 
     def find_nearest_battery(self):
+        if self.dijkstra_disabled:
+            return [], 0
         nearest_battery_path = []
         nearest_battery_distance = 1000000
         for b in self.batteries:
@@ -98,10 +101,12 @@ class Robot:
                 if path_length < nearest_battery_distance:
                     nearest_battery_path = path
                     nearest_battery_distance = path_length
-        print("Robot ", self.id, " speaking ", nearest_battery_path)
+        # print("Robot ", self.id, " speaking ", nearest_battery_path)
         return nearest_battery_path, nearest_battery_distance
 
     def action(self):
+        # if there is a path to target and it is within reach, go there directly
+
         # if reached target or battery is empty, then return accordingly
         if self.position == self.target:
             self.turn_angle = 0
@@ -120,7 +125,7 @@ class Robot:
         nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
         if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
             self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
-            print(self.dijkstra_path)
+            # print(self.dijkstra_path)
             self.dijkstra_active = True
             self.position = self.dijkstra_path.pop(0)
             self.battery -= 1
@@ -128,6 +133,11 @@ class Robot:
                 self.battery = self.full_battery
             return
 
+        to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
+        #print('robot id', self.id, to_target)
+        if to_target:
+            self.dijkstra_path = to_target
+            return
 
         # if moved in last move, first try to turn left if there is no wall there
         if self.last_moved:
