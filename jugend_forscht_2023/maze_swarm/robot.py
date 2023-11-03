@@ -11,6 +11,7 @@ class Robot:
         self.position = start_point
         self.path = [self.position]
         self.map = [set() for _ in range(self.grid.cell_number)]
+        self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
         self.batteries = []
         self.target = target
@@ -189,3 +190,15 @@ class Robot:
             self.map[self.grid.get_id(self.position)].add(n)
             self.map[n].add(self.grid.get_id(self.position))
         # print('added neighbors for', self.position, neighbors)
+
+    def calculate_target_distance(self):
+        target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
+        frontier = [self.target]
+        target_distances[self.target] = 0
+        while frontier:
+            process_cell = frontier.pop()
+            process_cell_distance = target_distances[process_cell]
+            for neighbour in self.flood_fill_neighbours[process_cell]:
+                if target_distances[neighbour] > process_cell_distance+1:
+                    frontier.append(neighbour)
+                    target_distances[neighbour] = process_cell_distance+1
