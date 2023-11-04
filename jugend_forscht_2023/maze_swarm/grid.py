@@ -47,8 +47,8 @@ class Grid:
     def umrechnen(self, id):
         return id // self.cells_x, id % self.cells_x
 
-    def search_neighbor(self, kaestchen):
-        (reihe, spalte) = self.umrechnen(kaestchen)
+    def search_neighbor(self, cell):
+        (reihe, spalte) = self.umrechnen(cell)
         neighbor = [(reihe - 1, spalte), (reihe, spalte + 1), (reihe + 1, spalte), (reihe, spalte - 1)]
         return [self.get_id((r, s)) for (r, s) in neighbor if 0 <= r < self.cells_y and 0 <= s < self.cells_x]
 
