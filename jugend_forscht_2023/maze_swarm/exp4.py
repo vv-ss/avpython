@@ -4,7 +4,7 @@ from grid import *
 from robot import *
 from maze_generator import *
 
-ui_enabled = False
+ui_enabled = True
 repeat = 100
 
 
@@ -17,7 +17,7 @@ def get_share_map(robots):
 
 
 # dijkstra enabled
-for x, y in [(5 * i, 5 * i) for i in range(1, 9)]:
+for x, y in [(5 * i, 5 * i) for i in range(3, 9)]:
     reached_target = 0
     not_reached_target = 0
     for repetition in range(repeat):
@@ -57,7 +57,7 @@ for x, y in [(5 * i, 5 * i) for i in range(1, 9)]:
                     robot.update_position()
             if ui_enabled:
                 pygame.display.flip()
-                time.sleep(5)
+                time.sleep(0.2)
 
             #print('r1', r1.map)
             #print('r2', r2.map)

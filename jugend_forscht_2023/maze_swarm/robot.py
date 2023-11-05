@@ -1,3 +1,5 @@
+import time
+
 import pygame
 
 
@@ -203,6 +205,20 @@ class Robot:
         # print("Robot ", self.id, " speaking ", nearest_battery_path)
         return nearest_battery_path, nearest_battery_distance
 
+    def take_shortest_path_step(self):
+        # if movement is in sight direction, pop from path and reduce battery
+        # else change sight direction
+        new_position = self.dijkstra_path[0]
+        self.check_sight_direction(new_position)
+        if self.turn_angle == 0:
+            self.position = new_position
+            self.dijkstra_path.pop(0)
+            self.battery -= 1
+            self.path.append(self.position)
+            if self.grid.get_id(self.position) in self.grid.chargers:
+                self.battery = self.full_battery
+        return
+
     def action(self):
         # if there is a path to target and it is within reach, go there directly
 
@@ -215,37 +231,20 @@ class Robot:
             return 'battery_empty'
 
         if self.dijkstra_path:
-            # if movement is in sight direction, pop from path and reduce battery
-            # else change sight direction
-            new_position = self.dijkstra_path[0]
-            turn_angle = self.check_sight_direction(new_position)
-            if turn_angle == 0:
-                self.position = new_position
-                self.dijkstra_path.pop(0)
-                self.battery -= 1
-            elif abs(turn_angle) == turn_angle:
-                self.sight_direction += 1
-            else:
-                self.sight_direction -= 1
-            if self.grid.get_id(self.position) in self.grid.chargers:
-                self.battery = self.full_battery
+            self.take_shortest_path_step()
             return
 
         nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
         if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
             self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
-            # print(self.dijkstra_path)
-            self.dijkstra_active = True
-            self.position = self.dijkstra_path.pop(0)
-            self.battery -= 1
-            if self.grid.get_id(self.position) in self.grid.chargers:
-                self.battery = self.full_battery
+            self.take_shortest_path_step()
             return
 
         to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
         # print('robot id', self.id, to_target)
         if to_target:
-            self.dijkstra_path = to_target
+            self.dijkstra_path = to_target[1:]
+            self.take_shortest_path_step()
             return
 
         # if moved in last move, first try to turn left if there is no wall there
@@ -287,16 +286,25 @@ class Robot:
                 self.path.append(self.position)
 
     def check_sight_direction(self, new_position):
-        move_direction = None
-        if self.position[0] > new_position[0]:
+        move_direction = self.sight_direction
+        if self.position[1] > new_position[1]:
             move_direction = self.LEFT
-        elif self.position[0] < new_position[0]:
-            move_direction = self.RIGHT
         elif self.position[1] < new_position[1]:
+            move_direction = self.RIGHT
+        elif self.position[0] < new_position[0]:
             move_direction = self.DOWN
-        elif self.position[1] > new_position[1]:
+        elif self.position[0] > new_position[0]:
             move_direction = self.UP
-        return (move_direction - self.sight_direction + 4) % 4
+        angle_difference = (move_direction - self.sight_direction + 4) % 4
+        if angle_difference == 0:
+            self.turn_angle = 0
+            return
+        if angle_difference == 1:
+            self.sight_direction = (self.sight_direction + 1) % 4
+            self.turn_angle = 1
+        else:
+            self.sight_direction = (self.sight_direction - 1) % 4
+            self.turn_angle = -1
 
 
     # store_map is called only when entering a new cell - assume three side cameras and enter from fourth side
