@@ -2,7 +2,6 @@ import time
 
 from grid import *
 from robot import *
-from maze_solver import *
 from maze_generator import *
 import matplotlib.pyplot as plt
 
@@ -16,19 +15,18 @@ for x, y in [(5*i, 5*i) for i in range(2, 41)]:
     for i in range(repeat):
         g = Grid(x, y, 60, 60, 4, [200, 100, 200, 100], 50, 0)
         mg = MazeGenerator(g)
-        sl = MazeSolver(g, 'lhs')
-        sr = MazeSolver(g, 'rhs')
+
 
         #g.connected_list = mg.prim_algorithmus()
         g.connected_list = mg.remove_walls(mg.prim_algorithmus(), x*y/5)
 
-        r1 = Robot(g, sl, (0, 0), (g.cells_y - 1, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
+        r1 = Robot(g, 'lhs', (0, 0), (g.cells_y - 1, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
                    pygame.image.load('img/mouse.png'), 180, full_battery, g.pink, 1)
-        r2 = Robot(g, sl, (0, g.cells_x - 1), (g.cells_y - 1, 0), g.cell_width * 0.8, g.cell_width * 0.8,
+        r2 = Robot(g, 'lhs', (0, g.cells_x - 1), (g.cells_y - 1, 0), g.cell_width * 0.8, g.cell_width * 0.8,
                    pygame.image.load('img/snail.png'), -90, full_battery, g.gruen, 2)
-        r3 = Robot(g, sr, (g.cells_y - 1, g.cells_x - 1), (0, 0), g.cell_width * 0.8, g.cell_width * 0.8,
+        r3 = Robot(g, 'rhs', (g.cells_y - 1, g.cells_x - 1), (0, 0), g.cell_width * 0.8, g.cell_width * 0.8,
                    pygame.image.load('img/giraffe.png'), -90, full_battery, g.gelb, 3)
-        r4 = Robot(g, sl, (g.cells_y - 1, 0), (0, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
+        r4 = Robot(g, 'lhs', (g.cells_y - 1, 0), (0, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
                    pygame.image.load('img/dog.png'), 90, full_battery, g.schwarz, 4)
         robots = [r1, r2, r3, r4]
 

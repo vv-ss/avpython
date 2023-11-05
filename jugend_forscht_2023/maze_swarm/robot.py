@@ -2,16 +2,17 @@ import pygame
 
 
 class Robot:
-    def __init__(self, grid, solver, start_point, target, robot_x, robot_y, robot, set_direction, battery, color,
+    def __init__(self, grid, algo, start_point, target, robot_x, robot_y, robot, set_direction, battery, color,
                  id, double_color=None, dijkstra_disabled=True):
         self.UP, self.RIGHT, self.DOWN, self.LEFT = range(4)
         self.sight_direction = self.UP
         self.grid = grid
-        self.solver = solver
+        self.algorithm = algo
         self.position = start_point
         self.path = [self.position]
         self.map = [set() for _ in range(self.grid.cell_number)]
         self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
+        self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
         self.batteries = []
         self.target = target
@@ -56,6 +57,103 @@ class Robot:
                         running = False
         shortest_path.reverse()
         return shortest_path
+
+    def view_neighbors(self, coordinates, sight_direction):
+        (row, col) = (coordinates[0], coordinates[1])
+        neighbors = []
+        if sight_direction == self.UP:
+            if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row - 1, col)))
+            if self.grid.get_id((row, col + 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col + 1)))
+            if self.grid.get_id((row, col - 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col - 1)))
+
+        if sight_direction == self.DOWN:
+            if self.grid.get_id((row + 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row + 1, col)))
+            if self.grid.get_id((row, col + 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col + 1)))
+            if self.grid.get_id((row, col - 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col - 1)))
+
+        if sight_direction == self.RIGHT:
+            if self.grid.get_id((row, col + 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col + 1)))
+            if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row - 1, col)))
+            if self.grid.get_id((row + 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row + 1, col)))
+
+        if sight_direction == self.LEFT:
+            if self.grid.get_id((row, col - 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col - 1)))
+            if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row - 1, col)))
+            if self.grid.get_id((row + 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row + 1, col)))
+        return neighbors
+
+    def move(self, coordinates, sight_direction):
+        (row, col) = (coordinates[0], coordinates[1])
+        if sight_direction == self.UP:
+            if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                if row != 0:
+                    return row - 1, col
+                return coordinates
+            else:
+                return coordinates
+        if sight_direction == self.DOWN:
+            if self.grid.get_id((row + 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                if row != self.grid.cells_y - 1:
+                    return row + 1, col
+                return coordinates
+            else:
+                return coordinates
+        if sight_direction == self.RIGHT:
+            if self.grid.get_id((row, col + 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                if col != self.grid.cells_x - 1:
+                    return row, col + 1
+                return coordinates
+            else:
+                return coordinates
+        if sight_direction == self.LEFT:
+            if self.grid.get_id((row, col - 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                if col != 0:
+                    return row, col - 1
+                return coordinates
+            else:
+                return coordinates
+
+    def check_turn(self, position, sight_direction):
+        if self.algorithm == 'lhs':
+            new_sight_direction = (sight_direction - 1) % 4
+            new_position = self.move(position, new_sight_direction)
+            if new_position == position:
+                return sight_direction, 0
+            else:
+                return new_sight_direction, -1
+        if self.algorithm == 'rhs':
+            new_sight_direction = (sight_direction + 1) % 4
+            new_position = self.move(position, new_sight_direction)
+            if new_position == position:
+                return sight_direction, 0
+            else:
+                return new_sight_direction, 1
+
+    def try_move_forward(self, position, sight_direction):
+        if self.algorithm == 'lhs':
+            new_position = self.move(position, sight_direction)
+            if new_position == position:
+                return position, (sight_direction + 1) % 4, 1
+            else:
+                return new_position, sight_direction, 0
+        if self.algorithm == 'rhs':
+            new_position = self.move(position, sight_direction)
+            if new_position == position:
+                return position, (sight_direction - 1) % 4, -1
+            else:
+                return new_position, sight_direction, 0
 
     def update_position(self):
         c = ((self.position[1] + 0.5) * self.grid.cell_width + self.grid.margin_left,
@@ -117,8 +215,18 @@ class Robot:
             return 'battery_empty'
 
         if self.dijkstra_path:
-            self.position = self.dijkstra_path.pop(0)
-            self.battery -= 1
+            # if movement is in sight direction, pop from path and reduce battery
+            # else change sight direction
+            new_position = self.dijkstra_path[0]
+            turn_angle = self.check_sight_direction(new_position)
+            if turn_angle == 0:
+                self.position = new_position
+                self.dijkstra_path.pop(0)
+                self.battery -= 1
+            elif abs(turn_angle) == turn_angle:
+                self.sight_direction += 1
+            else:
+                self.sight_direction -= 1
             if self.grid.get_id(self.position) in self.grid.chargers:
                 self.battery = self.full_battery
             return
@@ -135,7 +243,7 @@ class Robot:
             return
 
         to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
-        #print('robot id', self.id, to_target)
+        # print('robot id', self.id, to_target)
         if to_target:
             self.dijkstra_path = to_target
             return
@@ -143,13 +251,13 @@ class Robot:
         # if moved in last move, first try to turn left if there is no wall there
         if self.last_moved:
             self.last_moved = False
-            (self.sight_direction, self.turn_angle) = self.solver.check_turn(self.position, self.sight_direction)
+            (self.sight_direction, self.turn_angle) = self.check_turn(self.position, self.sight_direction)
             # if turn_angle is zero, robot found a wall on the left side, if not then the robot turned left and
             # action is complete
             if self.turn_angle == 0:
                 pre_pos = self.position
-                self.position, self.sight_direction, self.turn_angle = self.solver.try_move_forward(self.position,
-                                                                                                    self.sight_direction)
+                self.position, self.sight_direction, self.turn_angle = self.try_move_forward(self.position,
+                                                                                             self.sight_direction)
                 # if turn_angle is zero, robot could move forward, update map and battery
                 # if turn_angle is not zero, robot turns right and the action is complete
                 if self.turn_angle == 0:
@@ -164,8 +272,8 @@ class Robot:
         # if did not move in last move, try to move forward
         else:
             pre_pos = self.position
-            self.position, self.sight_direction, self.turn_angle = self.solver.try_move_forward(self.position,
-                                                                                                self.sight_direction)
+            self.position, self.sight_direction, self.turn_angle = self.try_move_forward(self.position,
+                                                                                         self.sight_direction)
             # if turn_angle is zero, robot could move forward, update map and battery
             # if turn_angle is not zero, robot turns right and the action is complete
             if self.turn_angle == 0:
@@ -178,12 +286,25 @@ class Robot:
                     self.battery = self.full_battery
                 self.path.append(self.position)
 
+    def check_sight_direction(self, new_position):
+        move_direction = None
+        if self.position[0] > new_position[0]:
+            move_direction = self.LEFT
+        elif self.position[0] < new_position[0]:
+            move_direction = self.RIGHT
+        elif self.position[1] < new_position[1]:
+            move_direction = self.DOWN
+        elif self.position[1] > new_position[1]:
+            move_direction = self.UP
+        return (move_direction - self.sight_direction + 4) % 4
+
+
     # store_map is called only when entering a new cell - assume three side cameras and enter from fourth side
     def store_map(self, pre_pos=None):
         if self.visited[self.grid.get_id(self.position)]:
             return
         self.visited[self.grid.get_id(self.position)] = True
-        neighbors = self.solver.get_neighbors(self.position, self.sight_direction)
+        neighbors = self.view_neighbors(self.position, self.sight_direction)
         if pre_pos:
             neighbors.append(self.grid.get_id(pre_pos))
         for n in neighbors:
@@ -192,13 +313,33 @@ class Robot:
         # print('added neighbors for', self.position, neighbors)
 
     def calculate_target_distance(self):
-        target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
         frontier = [self.target]
-        target_distances[self.target] = 0
+        self.target_distances[self.target] = 0
         while frontier:
             process_cell = frontier.pop()
-            process_cell_distance = target_distances[process_cell]
+            process_cell_distance = self.target_distances[process_cell]
             for neighbour in self.flood_fill_neighbours[process_cell]:
-                if target_distances[neighbour] > process_cell_distance+1:
+                if self.target_distances[neighbour] > process_cell_distance + 1:
                     frontier.append(neighbour)
-                    target_distances[neighbour] = process_cell_distance+1
+                    self.target_distances[neighbour] = process_cell_distance + 1
+
+    def flood_fill_move(self):
+        min_distance = self.grid.cell_number
+        new_position = 0
+        for i in self.flood_fill_neighbours[self.position]:
+            if self.target_distances[i] < min_distance:
+                new_position = i
+                min_distance = self.target_distances[i]
+
+        self.position = new_position
+        self.update_position()
+
+    def update_flood_fill_neighbours(self):
+        if self.visited[self.grid.get_id(self.position)]:
+            return
+        self.visited[self.grid.get_id(self.position)] = True
+        neighbors = self.view_neighbors(self.position, self.sight_direction)
+        for i in self.flood_fill_neighbours[self.position]:
+            if i not in neighbors:
+                self.flood_fill_neighbours[self.position].remove(i)
+                self.flood_fill_neighbours[i].remove(self.position)

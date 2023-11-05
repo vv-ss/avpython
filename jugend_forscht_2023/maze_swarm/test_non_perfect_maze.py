@@ -1,3 +1,5 @@
+import pygame as pygame
+
 from grid import *
 from maze_generator import *
 
