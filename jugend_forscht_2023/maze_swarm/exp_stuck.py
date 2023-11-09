@@ -1,6 +1,7 @@
 import time
 
 from grid import *
+from jugend_forscht_2023.maze_swarm import utils
 from robot import *
 from maze_generator import *
 
@@ -13,19 +14,10 @@ for x, y in [(5*i, 5*i) for i in range(5, 6)]:
     not_reached_target = 0
     for repetition in range(1):
         full_battery = x*y//25 - 2
-        g = Grid(x, y, 60, 60, 4, [200, 100, 200, 100], 50, 20)
-        mg = MazeGenerator(g)
-        r1 = Robot(g, 'lhs', (0, 0), (g.cells_y - 1, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
-                   pygame.image.load('img/mouse.png'), 180, full_battery, g.pink, 1)
-        r2 = Robot(g, 'lhs', (0, g.cells_x - 1), (g.cells_y - 1, 0), g.cell_width * 0.8, g.cell_width * 0.8,
-                   pygame.image.load('img/snail.png'), -90, full_battery, g.gruen, 2)
-        r3 = Robot(g, 'lhs', (g.cells_y - 1, g.cells_x - 1), (0, 0), g.cell_width * 0.8, g.cell_width * 0.8,
-                   pygame.image.load('img/giraffe.png'), -90, full_battery, g.gelb, 3)
-        r4 = Robot(g, 'lhs', (g.cells_y - 1, 0), (0, g.cells_x - 1), g.cell_width * 0.8, g.cell_width * 0.8,
-                   pygame.image.load('img/dog.png'), 90, full_battery, g.schwarz, 4)
+        g = utils.initialize_grid(x, y, remove_walls=0, num_chargers=20)
+        r1, r2, r3, r4 = utils.initialize_robots(g, full_battery=full_battery)
         robots = [r1, r2, r3, r4]
         no_action = []
-        g.connected_list = mg.prim_algorithmus()
         if ui_enabled:
             g.draw_maze(g.connected_list)
             pygame.display.flip()
@@ -47,7 +39,7 @@ for x, y in [(5*i, 5*i) for i in range(5, 6)]:
             if ui_enabled:
                 pygame.display.flip()
             if robots[0].batteries:
-                time.sleep(1)
+                time.sleep(0.1)
 
         print(r1.map)
         print(r1.dijkstra(0, x*y-y-1))
