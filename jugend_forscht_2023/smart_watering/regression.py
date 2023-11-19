@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from xgboost.sklearn import XGBRegressor as Model
 import csv
 import pandas as pd
 
@@ -20,12 +20,11 @@ def read_csv_file():
     print(data.columns)
     (min_temp, max_temp, moisture, rain, water) = data['min_temp'], data['max_temp'], data['moisture_sun'], data['rain'], data['water']
     print(min_temp, max_temp, moisture, rain)
-    y = moisture
-    X = np.array([min_temp, max_temp, rain, water])
+    y = moisture[1:]
+    X = np.array([min_temp[1:], max_temp[1:], rain[1:], water[1:], moisture[:-1]])
     X = np.transpose(X)
-    model = LinearRegression().fit(X, y)
+    model = Model().fit(X, y)
     print(model.score(X, y))
-    print(model.predict(np.array([[15, 25, 0, 0]])))
-    print(X)
+    print(model.predict(np.array([[15, 35, 0, 12, 5]])))
 read_csv_file()
 
