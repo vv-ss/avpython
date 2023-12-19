@@ -1,0 +1,45 @@
+Experiment 1:
+SETUP:
+For different grid sizes:
+Two positionings of the destination, opposite corner OR random:
+MEASURE:
+Minimal and maximum and average.
+
+Experiment 2: (Use battery to charge using the shortest path)
+SETUP:
+For different grid sizes and opposite corner destination:
+Add a battery in the center of the grid.
+Choose battery as minimum required.
+MEASURE:
+See how many reached.
+SETUP2:
+Add the ability to return to the battery using the shortest path.
+MEASURE2:
+Compare how many reached.
+
+Experiment 3: (Find out at how much battery most robots reach).
+SETUP:
+For a fixed maze size and opposite corner destination:
+Add a battery in the center of the grid.
+For battery size between min and max:
+MEASURE:
+See how many reached.
+SETUP2:
+Add the ability to return to the battery using the shortest path.
+MEASURE2:
+Compare how many reached.
+
+Experiment 4 (basic cooperation where robots share map).
+SETUP:
+Same setup as Experiment 2.
+Plus, let robots share the map.
+MEASURE:
+See how many reached.
+
+Till now, we considered perfect mazes. Now lets look at mazes with loops.
+
+Experiment 5 (show that LHS or RHS get stuck with loop).
+Flood fill algorithm as solution.
+
+Experiment 6.
+Repeat experiment 4 with maze with loops.

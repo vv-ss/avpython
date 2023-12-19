@@ -35,6 +35,7 @@ class Grid:
         self.gelb = (253, 208, 23)
         self.gruen = (20, 200, 20)
         self.pink = (212, 17, 156)
+        self.purple = (150, 30, 220)
 
         # Schriften
         pygame.init()
