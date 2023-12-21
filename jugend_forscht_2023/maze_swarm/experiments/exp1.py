@@ -10,7 +10,7 @@ full_battery = 10000
 for x, y in [(5*i, 5*i) for i in range(2, 41)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, remove_walls=0)
+        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
         robots = utils.initialize_robots(g, full_battery=full_battery, farthest=True)
         utils.run_robots_battery_check(g, robots, ui_enabled)
         for robot in robots:
@@ -24,7 +24,7 @@ for x, y in [(5*i, 5*i) for i in range(2, 41)]:
 for x, y in [(5*i, 5*i) for i in range(2, 41)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, remove_walls=0)
+        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
         robots = utils.initialize_robots(g, full_battery=full_battery, farthest=False)
         utils.run_robots_battery_check(g, robots, ui_enabled)
         for robot in robots:
