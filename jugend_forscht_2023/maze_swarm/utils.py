@@ -42,16 +42,17 @@ def get_share_map(robots):
     return share_map
 
 
-def run_robots_battery_check(g, robots, ui_enabled=False, share_map=False):
+def run_robots_battery_check(g, robots, ui_enabled=False):
     while True:
-        reached_robots = [r for r in robots if r.position == r.target]
+        reached_robots = [r for r in robots if r.has_reached_target]
         if len(reached_robots) == len(robots):
             break
         if ui_enabled:
             g.draw_maze(g.connected_list)
 
         for robot in robots:
-            robot.action()
+            # IF THE ROBOT HAS ALREADY REACHED TARGET, MAKE IT WAIT TO HAVE CORRECT BATTERY CALCULATION
+            robot.action(robot.has_reached_target)
             if ui_enabled:
                 robot.draw_path()
                 robot.update_position()

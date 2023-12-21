@@ -4,7 +4,7 @@ from jugend_forscht_2023.maze_swarm import utils
 # Hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y großen Irrgarten zu durchqueren
 
 ui_enabled = False
-repeat = 500
+repeat = 1000
 full_battery = 10000
 # FIRST CASE: DESTINATION IN OPPOSITE CORNER
 for x, y in [(5*i, 5*i) for i in range(2, 41)]:
