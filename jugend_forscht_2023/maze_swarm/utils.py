@@ -18,20 +18,20 @@ def initialize_grid(width, height, ui_enabled=False, remove_walls=0, num_charger
     return g
 
 
-def initialize_robots(g, full_battery, dijkstra_disabled=True, farthest = True):
+def initialize_robots(g, full_battery, shortest_path=False, farthest = True):
     src = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
     if farthest:
         dest = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in src]
     else:
         dest = [(random.randint(0, g.cells_y - 1), random.randint(0, g.cells_x - 1)) for i in range(0, 4)]
     r1 = Robot(g, 'lhs', src[0], dest[0], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/mouse.png'), 2, 0, full_battery, g.pink, 1, dijkstra_disabled)
+               pygame.image.load('img/mouse.png'), 2, 0, full_battery, g.pink, 1, shortest_path)
     r2 = Robot(g, 'lhs', src[1], dest[1], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/snail.png'), 3, 0, full_battery, g.gruen, 2, dijkstra_disabled)
+               pygame.image.load('img/snail.png'), 3, 0, full_battery, g.gruen, 2, shortest_path)
     r3 = Robot(g, 'rhs', src[2], dest[2], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/giraffe.png'), 0, -90, full_battery, g.gelb, 3, dijkstra_disabled)
+               pygame.image.load('img/giraffe.png'), 0, -90, full_battery, g.gelb, 3, shortest_path)
     r4 = Robot(g, 'lhs', src[3], dest[3], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/dog.png'), 0, 90, full_battery, g.purple, 4, dijkstra_disabled)
+               pygame.image.load('img/dog.png'), 0, 90, full_battery, g.purple, 4, shortest_path)
     return r1, r2, r3, r4
 
 def get_share_map(robots):
@@ -79,6 +79,7 @@ def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
                 robot.update_position()
         if ui_enabled:
             pygame.display.flip()
+            time.sleep(0.1)
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)

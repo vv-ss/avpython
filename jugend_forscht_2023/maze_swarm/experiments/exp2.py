@@ -7,7 +7,7 @@ ui_enabled = False
 repeat = 100
 
 # dijkstra disabled
-for x, y in [(5 * i, 5 * i) for i in range(3, 9)]:
+for x, y in [(5 * i, 5 * i) for i in range(1, 10)]:
     total_reached_target = 0
     total_not_reached_target = 0
     for repetition in range(repeat):
@@ -41,19 +41,19 @@ for x, y in [(5 * i, 5 * i) for i in range(3, 9)]:
         # print(r1.dijkstra(0, x * y - y - 1))
 
     print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
-          '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
-          total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
+           '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
+           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
 print('\n')
 
 # dijkstra enabled
-for x, y in [(10 * i, 10 * i) for i in range(1, 9)]:
+for x, y in [(5 * i, 5 * i) for i in range(1, 10)]:
     total_reached_target = 0
     total_not_reached_target = 0
     for repetition in range(repeat):
         full_battery = x * y - 1
         g = utils.initialize_grid(x, y, remove_walls=0, num_chargers=1)
-        robots = utils.initialize_robots(g, full_battery=full_battery, dijkstra_disabled=False)
+        robots = utils.initialize_robots(g, full_battery=full_battery, shortest_path=True)
         reached_target = utils.run_robots_reach_check(g, robots, ui_enabled)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)

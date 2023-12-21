@@ -29,7 +29,7 @@ for full_battery in list(range(x+y-2, 2*x*y-(x+y), 20)):
     total_not_reached_target = 0
     for repetition in range(repeat):
         g = utils.initialize_grid(x, y, remove_walls=0, num_chargers=1)
-        robots = utils.initialize_robots(g, full_battery = full_battery, dijkstra_disabled=False)
+        robots = utils.initialize_robots(g, full_battery = full_battery, shortest_path=True)
         reached_target = utils.run_robots_reach_check(g, robots, ui_enabled)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
