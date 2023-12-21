@@ -6,7 +6,7 @@ from jugend_forscht_2023.maze_swarm.maze_generator import *
 import pygame
 
 
-def initialize_grid(width, height, ui_enabled=False, remove_walls=0, num_chargers=0):
+def initialize_grid(width, height, ui_enabled=True, remove_walls=0, num_chargers=0):
     g = Grid(width, height, 60, 60, 4, [200, 100, 200, 100], 50, num_chargers)
     mg = MazeGenerator(g)
     g.connected_list = mg.prim_algorithmus()
@@ -61,19 +61,19 @@ def run_robots_battery_check(g, robots, ui_enabled=False, share_map=False):
 
 
 def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
-    no_action = []
-    reached_target = 0
-    not_reached_target = 0
-    while len(no_action) != len(robots):
+    reached_robots = set()
+    empty_robots = set()
+    # A robot can keep moving even after reaching its target.
+    # So, a robot can be in both reached_robots and empty_robots sets.
+    while len(empty_robots) + len(reached_robots) < len(robots):
         if ui_enabled:
             g.draw_maze(g.connected_list)
-        for robot in [r for r in robots if r not in no_action]:
+        for robot in [r for r in robots if r not in empty_robots]:
             a = robot.action()
             if a == 'reached_target':
-                no_action.append(robot)
-                reached_target += 1
+                reached_robots.add(robot)
             if a == 'battery_empty':
-                no_action.append(robot)
+                empty_robots.add(robot)
             if ui_enabled:
                 robot.draw_path()
                 robot.update_position()
@@ -83,4 +83,33 @@ def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)
-    return reached_target
+    return len(reached_robots)
+
+def run_rl_robots(g, robots, ui_enabled=False):
+    reached_robots = set()
+    empty_robots = set()
+    reward = 0
+    # A robot can keep moving even after reaching its target.
+    # So, a robot can be in both reached_robots and empty_robots sets.
+    while len(empty_robots) + len(reached_robots) < len(robots):
+        if ui_enabled:
+            g.draw_maze(g.connected_list)
+        for robot in [r for r in robots if r not in empty_robots]:
+            a = robot.action()
+            if a == 'reached_target':
+                reached_robots.add(robot)
+                reward += 10
+            if a == 'battery_empty':
+                empty_robots.add(robot)
+                if robot not in reached_robots:
+                    reward -= 25
+            if ui_enabled:
+                robot.draw_path()
+                robot.update_position()
+        if ui_enabled:
+            pygame.display.flip()
+            time.sleep(0.1)
+        # ALWAYS SHARE MAP!
+        for r in robots:
+            r.map = get_share_map(robots)
+    return len(reached_robots)

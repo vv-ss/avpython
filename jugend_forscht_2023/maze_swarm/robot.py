@@ -34,6 +34,7 @@ class Robot:
         self.dijkstra_path = []
         self.dijkstra_active = False
         self.shortest_path_option = shortest_path_option
+        self.has_reached_target = False
 
     def dijkstra(self, start, end):
         shortest_path = []
@@ -209,36 +210,7 @@ class Robot:
                 self.battery = self.full_battery
         return
 
-    def action(self):
-        # if there is a path to target and it is within reach, go there directly
-
-        # if reached target or battery is empty, then return accordingly
-        if self.position == self.target:
-            self.turn_angle = 0
-            return 'reached_target'
-        if self.battery <= 0:
-            self.turn_angle = 0
-            return 'battery_empty'
-
-        if self.dijkstra_path:
-            self.dijkstra_active = True
-            self.take_shortest_path_step()
-            return
-
-        nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
-        if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
-            # print('going to nearest battery ... ', nearest_battery_path)
-            self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
-            self.take_shortest_path_step()
-            return
-
-        to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
-        # print('robot id', self.id, to_target)
-        if to_target:
-            self.dijkstra_path = to_target[1:]
-            self.take_shortest_path_step()
-            return
-
+    def move_wall_algorithm(self):
         # if moved in last move, first try to turn left if there is no wall there
         if self.last_moved:
             self.last_moved = False
@@ -274,6 +246,44 @@ class Robot:
                     self.batteries.append(self.grid.get_id(self.position))
                     self.battery = self.full_battery
                 self.path.append(self.position)
+
+    def action(self, wait=False):
+        # if there is a path to target and it is within reach, go there directly
+
+        # if reached target or battery is empty, then return accordingly
+        if self.position == self.target:
+            if not self.has_reached_target:
+                self.turn_angle = 0
+                self.has_reached_target = True
+                return 'reached_target'
+        if wait:
+            self.turn_angle = 0
+            return
+
+        if self.battery <= 0:
+            self.turn_angle = 0
+            return 'battery_empty'
+
+        if self.dijkstra_path:
+            self.dijkstra_active = True
+            self.take_shortest_path_step()
+            return
+
+        nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
+        if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
+            # print('going to nearest battery ... ', nearest_battery_path)
+            self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
+            self.take_shortest_path_step()
+            return
+
+        if not self.has_reached_target:
+            shortest_path_to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
+            # print('robot id', self.id, to_target)
+            if shortest_path_to_target:
+                self.dijkstra_path = shortest_path_to_target[1:]
+                self.take_shortest_path_step()
+                return
+        self.move_wall_algorithm()
 
     def check_sight_direction(self, new_position):
         move_direction = self.sight_direction
