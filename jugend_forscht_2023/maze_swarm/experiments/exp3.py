@@ -3,9 +3,9 @@ sys.path.append('./')
 import utils
 
 ui_enabled = False
-repeat = 5
-x = 10
-y = 10
+repeat = 500
+x = 15
+y = 15
 
 # shortest path to battery disabled
 for full_battery in list(range(x + y - 2, 2 * x * y - (x + y), 20)):

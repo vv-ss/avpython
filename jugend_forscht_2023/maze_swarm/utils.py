@@ -65,18 +65,17 @@ def run_robots_battery_check(g, robots, ui_enabled=False):
 
 def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
     reached_robots = set()
-    empty_robots = set()
-    # A robot can keep moving even after reaching its target.
-    # So, a robot can be in both reached_robots and empty_robots sets.
-    while len(empty_robots) + len(reached_robots) < len(robots):
+    not_reached_robots = set()
+    while len(not_reached_robots) + len(reached_robots) < len(robots):
         if ui_enabled:
             g.draw_maze(g.connected_list)
-        for robot in [r for r in robots if r not in empty_robots]:
+        for robot in robots:
             a = robot.action()
             if a == 'reached_target':
-                reached_robots.add(robot)
+                reached_robots.add(robot.id)
             if a == 'battery_empty':
-                empty_robots.add(robot)
+                if robot.id not in reached_robots:
+                    not_reached_robots.add(robot.id)
             if ui_enabled:
                 robot.draw_path()
                 robot.update_position()
@@ -86,6 +85,8 @@ def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)
+    print('reached', reached_robots)
+    time.sleep(10)
     return len(reached_robots)
 
 

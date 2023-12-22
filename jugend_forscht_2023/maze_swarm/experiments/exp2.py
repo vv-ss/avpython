@@ -5,7 +5,7 @@ import utils
 # Hier wird der Unterschied des Batterieverbrauches zwischen kürzeste-Weg-an und kürzeste-Weg-aus beobachtet
 
 ui_enabled = False
-repeat = 100
+repeat = 500
 
 # shortest path to battery disabled
 for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
