@@ -85,8 +85,6 @@ def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)
-    print('reached', reached_robots)
-    time.sleep(10)
     return len(reached_robots)
 
 
