@@ -1,8 +1,9 @@
-import random
+import sys
 
-from jugend_forscht_2023.maze_swarm.robot import *
-from jugend_forscht_2023.maze_swarm.grid import *
-from jugend_forscht_2023.maze_swarm.maze_generator import *
+sys.path.append('./')
+from robot import *
+from grid import *
+from maze_generator import *
 import pygame
 
 
@@ -18,7 +19,7 @@ def initialize_grid(width, height, ui_enabled=True, remove_walls=0, num_chargers
     return g
 
 
-def initialize_robots(g, full_battery, shortest_path=False, farthest = True):
+def initialize_robots(g, full_battery, shortest_path=False, farthest=True):
     src = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
     if farthest:
         dest = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in src]
@@ -33,6 +34,7 @@ def initialize_robots(g, full_battery, shortest_path=False, farthest = True):
     r4 = Robot(g, 'lhs', src[3], dest[3], g.cell_width * 0.8, g.cell_width * 0.8,
                pygame.image.load('img/dog.png'), 0, 90, full_battery, g.purple, 4, shortest_path)
     return r1, r2, r3, r4
+
 
 def get_share_map(robots):
     share_map = [set() for _ in range(max([len(r.map) for r in robots]))]
@@ -85,6 +87,7 @@ def run_robots_reach_check(g, robots, ui_enabled=False, share_map=False):
             for r in robots:
                 r.map = get_share_map(robots)
     return len(reached_robots)
+
 
 def run_rl_robots(g, robots, ui_enabled=False):
     reached_robots = set()

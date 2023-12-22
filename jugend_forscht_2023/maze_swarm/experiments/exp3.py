@@ -1,4 +1,6 @@
-from jugend_forscht_2023.maze_swarm import utils
+import sys
+sys.path.append('./')
+import utils
 
 ui_enabled = False
 repeat = 5

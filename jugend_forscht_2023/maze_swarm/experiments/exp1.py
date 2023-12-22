@@ -1,13 +1,14 @@
-import matplotlib.pyplot as plt
-from jugend_forscht_2023.maze_swarm import utils
-
+import sys
+sys.path.append('./')
+import utils
+# import matplotlib.pyplot as plt
 # Hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y großen Irrgarten zu durchqueren
 
 ui_enabled = False
 repeat = 1000
 full_battery = 10000
 # FIRST CASE: DESTINATION IN OPPOSITE CORNER
-for x, y in [(5*i, 5*i) for i in range(2, 41)]:
+for x, y in [(5*i, 5*i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
         g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
@@ -21,7 +22,7 @@ for x, y in [(5*i, 5*i) for i in range(2, 41)]:
     #plt.show()
 
 # SECOND CASE: DESTINATION AT RANDOM POSITION
-for x, y in [(5*i, 5*i) for i in range(2, 41)]:
+for x, y in [(5*i, 5*i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
         g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
