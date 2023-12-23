@@ -7,8 +7,15 @@ from maze_generator import *
 import pygame
 
 
-def initialize_grid(width, height, ui_enabled=True, remove_walls=0, num_chargers=0):
-    g = Grid(width, height, 60, 60, 4, [200, 100, 200, 100], 50, num_chargers)
+def initialize_grid(width, height, ui_enabled=True, remove_walls=0, num_chargers=0, farthest=True):
+    srcs = [(0, 0), (0, width - 1), (height - 1, width - 1), (height - 1, 0)]
+    targets = []
+    if farthest:
+        targets = [(height - 1 - y, width - 1 - x) for (y, x) in srcs]
+    else:
+        targets = [(random.randint(0, height - 1), random.randint(0, width - 1)) for i in range(0, 4)]
+    target_imgs = [pygame.image.load('img/cheese.png'), pygame.image.load('img/leaf.png'), pygame.image.load('img/banana.png'), pygame.image.load('img/bone.png')]
+    g = Grid(width, height, 60, 60, 4, [200, 100, 200, 100], 50, num_chargers, srcs, targets, target_imgs)
     mg = MazeGenerator(g)
     g.connected_list = mg.prim_algorithmus()
     if remove_walls > 0:
@@ -19,20 +26,15 @@ def initialize_grid(width, height, ui_enabled=True, remove_walls=0, num_chargers
     return g
 
 
-def initialize_robots(g, full_battery, shortest_path=False, farthest=True):
-    src = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
-    if farthest:
-        dest = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in src]
-    else:
-        dest = [(random.randint(0, g.cells_y - 1), random.randint(0, g.cells_x - 1)) for i in range(0, 4)]
-    r1 = Robot(g, 'lhs', src[0], dest[0], g.cell_width * 0.8, g.cell_width * 0.8,
+def initialize_robots(g, full_battery, shortest_path=False):
+    r1 = Robot(g, 'lhs', g.start_locs[0], g.targets[0], g.cell_width * 0.8, g.cell_width * 0.8,
                pygame.image.load('img/mouse.png'), 2, 0, full_battery, g.pink, 1, shortest_path)
-    r2 = Robot(g, 'lhs', src[1], dest[1], g.cell_width * 0.8, g.cell_width * 0.8,
+    r2 = Robot(g, 'lhs', g.start_locs[1], g.targets[1], g.cell_width * 0.8, g.cell_width * 0.8,
                pygame.image.load('img/snail.png'), 3, 0, full_battery, g.gruen, 2, shortest_path)
-    r3 = Robot(g, 'rhs', src[2], dest[2], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/giraffe.png'), 0, -90, full_battery, g.gelb, 3, shortest_path)
-    r4 = Robot(g, 'lhs', src[3], dest[3], g.cell_width * 0.8, g.cell_width * 0.8,
-               pygame.image.load('img/dog.png'), 0, 90, full_battery, g.purple, 4, shortest_path)
+    r3 = Robot(g, 'rhs', g.start_locs[2], g.targets[2], g.cell_width * 0.8, g.cell_width * 0.8,
+               pygame.image.load('img/monkey.png'), 0, 180, full_battery, g.gelb, 3, shortest_path)
+    r4 = Robot(g, 'lhs', g.start_locs[3], g.targets[3], g.cell_width * 0.8, g.cell_width * 0.8,
+               pygame.image.load('img/dog.png'), 0, 180, full_battery, g.purple, 4, shortest_path)
     return r1, r2, r3, r4
 
 

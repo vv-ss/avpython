@@ -2,7 +2,8 @@ import pygame
 
 
 class Robot:
-    def __init__(self, grid, algo, start_point, target, robot_x, robot_y, robot, sight_direction, set_direction, battery, color,
+    def __init__(self, grid, algo, start_point, target, robot_x, robot_y, robot, sight_direction,
+                 set_direction, battery, color,
                  id, shortest_path_option, double_color=None):
         self.UP, self.RIGHT, self.DOWN, self.LEFT = range(4)
         self.sight_direction = sight_direction
@@ -305,7 +306,6 @@ class Robot:
         else:
             self.sight_direction = (self.sight_direction - 1) % 4
             self.turn_angle = -1
-
 
     # store_map is called only when entering a new cell - assume three side cameras and enter from fourth side
     def store_map(self, pre_pos=None):

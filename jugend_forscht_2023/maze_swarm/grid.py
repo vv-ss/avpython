@@ -3,7 +3,7 @@ import random
 
 
 class Grid:
-    def __init__(self, cells_x, cells_y, cell_width, wall_height, wall_width, margin, font_size, num_chargers):
+    def __init__(self, cells_x, cells_y, cell_width, wall_height, wall_width, margin, font_size, num_chargers, start_locs, targets, target_imgs):
         self.wall_width = wall_width
         self.wall_height = wall_height
         self.surface = None
@@ -18,10 +18,13 @@ class Grid:
         self.margin_right = margin[1]
         self.margin_down = margin[2]
         self.margin_left = margin[3]
-
+        self.start_locs = start_locs
+        self.targets = targets
+        self.target_imgs = [pygame.transform.scale(target_pic, (0.8 * cell_width, 0.8 * cell_width)) for target_pic in target_imgs]
         # Ladestationen
-        self.charger_image = pygame.transform.scale(pygame.image.load('img/battery_station.png'), (self.cell_width * 0.5,
-                                                                                                   self.cell_width * 0.5))
+        self.charger_image = pygame.transform.scale(pygame.image.load('img/battery_station.png'),
+                                                    (self.cell_width * 0.5,
+                                                     self.cell_width * 0.5))
         # self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
         if num_chargers == 1:
             self.chargers = [self.cells_y // 2 * self.cells_x + self.cells_x // 2]
@@ -55,7 +58,8 @@ class Grid:
 
     def initialize_surface(self):
         # Fenster erstellen
-        self.surface = pygame.display.set_mode((self.margin_left + self.margin_right + self.board_width, self.margin_top + self.margin_down + self.board_height))
+        self.surface = pygame.display.set_mode((self.margin_left + self.margin_right + self.board_width,
+                                                self.margin_top + self.margin_down + self.board_height))
         pygame.display.set_caption('random maze drawing by Aarav and Viyona')
 
     def draw_grid(self):
@@ -72,6 +76,12 @@ class Grid:
                          (reihe + 0.5) * self.cell_width + self.margin_top)
                     self.surface.blit(self.charger_image, self.charger_image.get_rect(center=c))
 
+    def draw_targets(self):
+        for i in range(len(self.targets)):
+            tgt = ((self.targets[i][1] + 0.5) * self.cell_width + self.margin_left,
+                   (self.targets[i][0] + 0.5) * self.cell_width + self.margin_top)
+            self.surface.blit(self.target_imgs[i], self.target_imgs[i].get_rect(center=tgt))
+
     def draw_connections(self, cl):
         # Luecken einfuegen
         for erste in range(len(cl)):
@@ -80,12 +90,14 @@ class Grid:
                 (r2, s2) = self.umrechnen(zweite)
                 if r1 == r2:
                     pygame.draw.rect(self.surface, self.hellblau, pygame.Rect(max(s1, s2) * self.cell_width
-                                                                              - self.wall_width / 2 + self.margin_left, (r1 + 0.5) *
+                                                                              - self.wall_width / 2 + self.margin_left,
+                                                                              (r1 + 0.5) *
                                                                               self.cell_width - self.wall_height / 2 + self.margin_top,
                                                                               self.wall_width, self.wall_height))
                 if s1 == s2:
                     pygame.draw.rect(self.surface, self.hellblau, pygame.Rect((s1 + 0.5) * self.cell_width -
-                                                                              self.wall_height / 2 + self.margin_left, max(r1, r2)
+                                                                              self.wall_height / 2 + self.margin_left,
+                                                                              max(r1, r2)
                                                                               * self.cell_width - self.wall_width / 2 + self.margin_top,
                                                                               self.wall_height, self.wall_width))
 
@@ -93,3 +105,4 @@ class Grid:
         self.initialize_surface()
         self.draw_grid()
         self.draw_connections(cl)
+        self.draw_targets()

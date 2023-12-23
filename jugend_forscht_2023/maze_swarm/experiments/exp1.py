@@ -2,7 +2,7 @@ import sys
 sys.path.append('./')
 import utils
 # import matplotlib.pyplot as plt
-# Hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y großen Irrgarten zu durchqueren
+# Hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y grossen Irrgarten zu durchqueren
 
 ui_enabled = False
 repeat = 1000
@@ -11,8 +11,8 @@ full_battery = 10000
 for x, y in [(5*i, 5*i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
-        robots = utils.initialize_robots(g, full_battery=full_battery, farthest=True)
+        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0, farthest=True)
+        robots = utils.initialize_robots(g, full_battery=full_battery)
         utils.run_robots_battery_check(g, robots, ui_enabled)
         for robot in robots:
             battery_usage.append(full_battery - robot.battery)
@@ -25,8 +25,8 @@ for x, y in [(5*i, 5*i) for i in range(2, 21)]:
 for x, y in [(5*i, 5*i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
-        robots = utils.initialize_robots(g, full_battery=full_battery, farthest=False)
+        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0, farthest=False)
+        robots = utils.initialize_robots(g, full_battery=full_battery)
         utils.run_robots_battery_check(g, robots, ui_enabled)
         for robot in robots:
             battery_usage.append(full_battery - robot.battery)
