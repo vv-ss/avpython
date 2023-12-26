@@ -2,40 +2,30 @@ import pygame
 
 
 class Robot:
-    def __init__(self, grid, algo, start_point, target, robot_x, robot_y, robot, sight_direction,
-                 set_direction, battery, color,
-                 id, shortest_path_option, double_color=None):
+    def __init__(self, grid, algo, start_point, target, sight_direction, set_direction, battery, id, shortest_path_option):
         self.UP, self.RIGHT, self.DOWN, self.LEFT = range(4)
         self.sight_direction = sight_direction
         self.grid = grid
         self.algorithm = algo
         self.position = start_point
-        self.path = [self.position]
         self.map = [set() for _ in range(self.grid.cell_number)]
-        self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
-        self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
+        if False:
+            self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
+            self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
         self.batteries = []
         self.target = target
-        self.robot_x = robot_x
-        self.robot_y = robot_y
-        self.set_direction = set_direction
-        self.robot = pygame.transform.rotate(pygame.transform.scale
-                                             (robot, (self.robot_x, self.robot_y)), self.set_direction)
         self.turn_angle = 0
         self.full_battery = battery
         self.battery = battery
         self.last_moved = False
-        self.color = color
-        self.double_color = double_color
         self.id = id
-        self.margin = self.grid.cell_width * 0.2 * self.id
-        self.score_x = self.grid.board_width * 0.2 * self.id
         self.store_map()
         self.dijkstra_path = []
         self.dijkstra_active = False
         self.shortest_path_option = shortest_path_option
         self.has_reached_target = False
+        self.battery_empty = False
 
     def dijkstra(self, start, end):
         shortest_path = []
@@ -149,35 +139,6 @@ class Robot:
             else:
                 return new_position, sight_direction, 0
 
-    def update_position(self):
-        c = ((self.position[1] + 0.5) * self.grid.cell_width + self.grid.margin_left,
-             (self.position[0] + 0.5) * self.grid.cell_width + self.grid.margin_top)
-        self.robot = pygame.transform.rotate(self.robot, self.turn_angle * -90)
-        self.grid.surface.blit(self.robot, self.robot.get_rect(center=c))
-        text = self.grid.font.render(str(self.battery), True, self.grid.schwarz)
-        self.grid.surface.blit(text, (self.score_x, 10))
-
-    def draw_path(self):
-        coordinates = self.path[0]
-        visited = []
-        for new_coordinates in self.path[1:]:
-            if (coordinates, new_coordinates) not in visited:
-                pygame.draw.line(self.grid.surface, self.color,
-                                 (coordinates[1] * self.grid.cell_width + self.margin + self.grid.margin_left,
-                                  coordinates[0] * self.grid.cell_width + self.margin + self.grid.margin_top),
-                                 (new_coordinates[1] * self.grid.cell_width + self.margin + self.grid.margin_left,
-                                  new_coordinates[0] * self.grid.cell_width + self.margin + self.grid.margin_top),
-                                 self.grid.wall_width)
-                visited.append((new_coordinates, coordinates))
-            elif self.double_color:
-                pygame.draw.line(self.grid.surface, self.double_color,
-                                 (coordinates[1] * self.grid.cell_width + self.margin + self.grid.margin_left,
-                                  coordinates[0] * self.grid.cell_width + self.margin + self.grid.margin_top),
-                                 (new_coordinates[1] * self.grid.cell_width + self.margin + self.grid.margin_left,
-                                  new_coordinates[0] * self.grid.cell_width + self.margin + self.grid.margin_top),
-                                 self.grid.wall_width)
-
-            coordinates = new_coordinates
 
     def find_shortest_route_to_target(self):
         return self.dijkstra(self.position, self.target)
@@ -206,7 +167,6 @@ class Robot:
             self.position = new_position
             self.dijkstra_path.pop(0)
             self.battery -= 1
-            self.path.append(self.position)
             if self.grid.get_id(self.position) in self.grid.chargers:
                 self.battery = self.full_battery
         return
@@ -231,7 +191,6 @@ class Robot:
                     if self.grid.get_id(self.position) in self.grid.chargers:
                         self.batteries.append(self.grid.get_id(self.position))
                         self.battery = self.full_battery
-                    self.path.append(self.position)
         # if did not move in last move, try to move forward
         else:
             pre_pos = self.position
@@ -246,25 +205,21 @@ class Robot:
                 if self.grid.get_id(self.position) in self.grid.chargers:
                     self.batteries.append(self.grid.get_id(self.position))
                     self.battery = self.full_battery
-                self.path.append(self.position)
 
     def action(self, wait=False):
         # if there is a path to target and it is within reach, go there directly
 
         # if reached target or battery is empty, then return accordingly
-        if self.position == self.target:
-            if not self.has_reached_target:
-                self.turn_angle = 0
-                self.has_reached_target = True
-                return 'reached_target'
+        if self.position == self.target and not self.has_reached_target:
+            self.turn_angle = 0
+            self.has_reached_target = True
+        elif self.battery <= 0 and not self.has_reached_target:
+            self.turn_angle = 0
+            self.battery_empty = True
+            return
         if wait:
             self.turn_angle = 0
             return
-
-        if self.battery <= 0:
-            self.turn_angle = 0
-            return 'battery_empty'
-
         if self.dijkstra_path:
             self.dijkstra_active = True
             self.take_shortest_path_step()
@@ -344,7 +299,6 @@ class Robot:
                 min_distance = self.target_distances[i]
 
         self.position = new_position
-        self.update_position()
 
     def update_flood_fill_neighbours(self):
         if self.visited[self.grid.get_id(self.position)]:

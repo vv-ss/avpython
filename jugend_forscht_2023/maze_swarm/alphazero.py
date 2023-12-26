@@ -1,15 +1,17 @@
 import numpy
 
-
-GAME_ACTIONS = [i for i in range(0, 16)]
-
-# Observation is a form of <x_location, y_location, battery> for each player
-
+import utils
+from ui import UI
+from rlgame import Game
 import tensorflow as tf
 from tensorflow import keras
 
-tf.keras.backend.set_floatx('float64')
-HIDDEN_STATES = 64
+GAME_ACTIONS = 4
+
+# Observation is a form of <x_location, y_location, battery> for each player
+
+tf.keras.backend.set_floatx('float32')
+HIDDEN_STATES = 32
 
 '''
 We will use 2 Neural Networks for the algorithm implementation.
@@ -80,8 +82,8 @@ class PolicyP(keras.Model):
 
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+#import matplotlib.pyplot as plt
+#import matplotlib.animation as animation
 from copy import deepcopy
 from math import *
 import random
@@ -179,7 +181,7 @@ class Node:
         child = {}
         action_index = 0
         for action, game in zip(actions, games):
-            observation, reward, done, trunc, _ = game.step(action)
+            observation, reward, done, trunc = game.step(action)
             child[action] = Node(game, done, self, observation, action_index)
             action_index += 1
 
@@ -287,8 +289,8 @@ class Node:
         - The target Policy according to visit counts 
     '''
 
-class ReplayBuffer:
 
+class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
     def __init__(self, buffer_size, batch_size):
@@ -351,8 +353,8 @@ def Policy_Player_MCTS(mytree):
 
 
 from collections import deque, namedtuple
-import matplotlib.pyplot as plt
-from IPython.display import clear_output
+#import matplotlib.pyplot as plt
+#from IPython.display import clear_output
 
 BUFFER_SIZE = int(1000)  # replay buffer size
 BATCH_SIZE = 128  # minibatch size
@@ -393,11 +395,16 @@ Here we are experimenting with our implementation:
 - For CartPole-v1, in particular, 500 is the maximum possible reward. 
 '''
 
+grid = utils.initialize_grid(4, 4, remove_walls=0)
+game = Game(grid, 12)
+ui = utils.initialize_ui(grid, game.robots)
+print("reach normally = ", utils.run_robots_reach_check(grid, game.robots, ui))
+
 for e in range(episodes):
 
     reward_e = 0
-    game = gym.make(GAME_NAME)
-    observation, _ = game.reset()
+    game = Game(grid, 10)
+    observation = game.reset(grid)
     done = False
     trunc = False
 
@@ -422,13 +429,13 @@ for e in range(episodes):
         ps.append(p)
         p_obs.append(p_ob)
 
-        _, reward, done, trunc, _ = game.step(action)
+        obs_temp, reward, done, trunc = game.step(action)
 
         reward_e = reward_e + reward
 
         # game.render()
 
-        print('reward ' + str(reward_e))
+        print('reward ' + str(reward_e) + ' obs = ' + str(obs_temp) + ' done = ' + str(done))
 
         if done:
             for i in range(len(obs)):
@@ -442,12 +449,7 @@ for e in range(episodes):
 
     if (e + 1) % UPDATE_EVERY == 0 and len(replay_buffer) > BATCH_SIZE:
 
-        # clear output
-
-        for i in range(10):
-            clear_output(wait=True)
-
-            # update and train the neural networks
+        # update and train the neural networks
 
         experiences = replay_buffer.sample()
 
@@ -477,14 +479,14 @@ for e in range(episodes):
 
         # plot rewards, value losses and policy losses
 
-        #plt.plot(rewards)
-        #plt.plot(moving_average)
-        #plt.show()
+        # plt.plot(rewards)
+        # plt.plot(moving_average)
+        # plt.show()
 
-        #plt.plot(v_losses)
-        #plt.show()
+        # plt.plot(v_losses)
+        # plt.show()
 
-        #plt.plot(p_losses)
-        #plt.show()
+        # plt.plot(p_losses)
+        # plt.show()
 
         print('moving average: ' + str(np.mean(rewards[-20:])))
