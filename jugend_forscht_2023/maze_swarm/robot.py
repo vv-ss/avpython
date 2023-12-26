@@ -213,11 +213,11 @@ class Robot:
         if self.position == self.target and not self.has_reached_target:
             self.turn_angle = 0
             self.has_reached_target = True
-        elif self.battery <= 0 and not self.has_reached_target:
+        if self.battery <= 0 and not self.has_reached_target:
             self.turn_angle = 0
             self.battery_empty = True
             return
-        if wait:
+        if wait or self.battery <= 0:
             self.turn_angle = 0
             return
         if self.dijkstra_path:

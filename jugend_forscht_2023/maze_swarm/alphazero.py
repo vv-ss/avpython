@@ -6,7 +6,7 @@ from rlgame import Game
 import tensorflow as tf
 from tensorflow import keras
 
-GAME_ACTIONS = 4
+GAME_ACTIONS = 15
 
 # Observation is a form of <x_location, y_location, battery> for each player
 
@@ -395,15 +395,15 @@ Here we are experimenting with our implementation:
 - For CartPole-v1, in particular, 500 is the maximum possible reward. 
 '''
 
-grid = utils.initialize_grid(4, 4, remove_walls=0)
+grid = utils.initialize_grid(5, 5, remove_walls=0)
 game = Game(grid, 12)
 ui = utils.initialize_ui(grid, game.robots)
-print("reach normally = ", utils.run_robots_reach_check(grid, game.robots, ui))
+print("reach normally = ", utils.run_robots_reach_check(grid, game.robots, ui, share_map=True))
 
 for e in range(episodes):
 
     reward_e = 0
-    game = Game(grid, 10)
+    game = Game(grid, 12)
     observation = game.reset(grid)
     done = False
     trunc = False
