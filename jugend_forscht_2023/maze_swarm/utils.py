@@ -9,7 +9,6 @@ import pygame
 
 
 def initialize_grid(width, height, remove_walls=0, num_chargers=0):
-    target_imgs = [pygame.image.load('img/cheese.png'), pygame.image.load('img/leaf.png'), pygame.image.load('img/banana.png'), pygame.image.load('img/bone.png')]
     g = Grid(width, height, num_chargers)
     mg = MazeGenerator(g)
     g.connected_list = mg.prim_algorithmus()
@@ -18,19 +17,18 @@ def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     return g
 
 
-
 def initialize_robots(g, full_battery, shortest_path=False, farthest=True):
     srcs = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
-    targets = []
     if farthest:
         targets = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in srcs]
     else:
         targets = [(random.randint(0, g.height - 1), random.randint(0, g.width - 1)) for i in range(0, 4)]
-    r1 = Robot(g, 'lhs', srcs[0], targets[0], 2, 0, full_battery, 0, shortest_path)
-    r2 = Robot(g, 'lhs', srcs[1], targets[1], 3, 0, full_battery, 1, shortest_path)
-    r3 = Robot(g, 'rhs', srcs[2], targets[2], 0, 180, full_battery, 2, shortest_path)
-    r4 = Robot(g, 'lhs', srcs[3], targets[3], 0, 180, full_battery, 3, shortest_path)
+    r1 = Robot(g, 'lhs', srcs[0], targets[0], 2, full_battery, 0, shortest_path)
+    r2 = Robot(g, 'lhs', srcs[1], targets[1], 3, full_battery, 1, shortest_path)
+    r3 = Robot(g, 'rhs', srcs[2], targets[2], 0, full_battery, 2, shortest_path)
+    r4 = Robot(g, 'lhs', srcs[3], targets[3], 0, full_battery, 3, shortest_path)
     return [r1, r2, r3, r4]
+
 
 def initialize_ui(g : Grid, robots):
     ui = UI(g, 50, 60, 60, 4, [200, 100, 200, 100], robots)
@@ -40,6 +38,7 @@ def initialize_ui(g : Grid, robots):
     pygame.display.flip()
     return ui
 
+
 def get_share_map(robots):
     share_map = [set() for _ in range(max([len(r.map) for r in robots]))]
     for r in robots:
@@ -48,7 +47,7 @@ def get_share_map(robots):
     return share_map
 
 
-def run_robots_battery_check(g, robots, ui):
+def run_robots_battery_check(robots, ui):
     while True:
         reached_robots = [r for r in robots if r.has_reached_target]
         if len(reached_robots) == len(robots):
@@ -67,14 +66,14 @@ def run_robots_battery_check(g, robots, ui):
             time.sleep(0.1)
 
 
-def run_robots_reach_check(g, robots, ui, share_map=False):
+def run_robots_reach_check(robots, ui, share_map=False):
     reached_robots = set()
     not_reached_robots = set()
     while len(not_reached_robots) + len(reached_robots) < len(robots):
         if ui:
             ui.draw_maze()
         for robot in robots:
-            a = robot.action()
+            robot.action()
             if robot.has_reached_target:
                 reached_robots.add(robot.id)
             if robot.battery_empty:

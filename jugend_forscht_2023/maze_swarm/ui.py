@@ -2,6 +2,7 @@ import pygame
 from grid import *
 from robot import *
 
+
 class UI:
     def __init__(self, grid: Grid, font_size, cell_width, wall_height, wall_width, margin, robots):
         self.surface = None
@@ -18,8 +19,8 @@ class UI:
         self.grid = grid
         # Ladestationen
         self.charger_image = pygame.transform.scale(pygame.image.load('img/battery_station.png'),
-                                                        (self.cell_width * 0.5,
-                                                         self.cell_width * 0.5))
+                                                    (self.cell_width * 0.5,
+                                                     self.cell_width * 0.5))
         # self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
         # Farben
         self.hellblau = (179, 250, 255)
@@ -29,15 +30,16 @@ class UI:
         self.gruen = (20, 200, 20)
         self.pink = (212, 17, 156)
         self.purple = (150, 30, 220)
-        x = [0, 0, 180, 180]
+        robot_img_start_direction = [0, 0, 180, 180]
         self.targets = [r.target for r in robots]
         self.target_imgs = [pygame.transform.scale(target_pic, (0.8 * cell_width, 0.8 * cell_width)) for target_pic
-                                in [pygame.image.load('img/cheese.png'), pygame.image.load('img/leaf.png'), pygame.image.load('img/banana.png'), pygame.image.load('img/bone.png')]]
+                            in [pygame.image.load('img/cheese.png'), pygame.image.load('img/leaf.png'),
+                                pygame.image.load('img/banana.png'), pygame.image.load('img/bone.png')]]
         self.robot_imgs = [pygame.transform.scale(robot_pic, (0.8 * cell_width, 0.8 * cell_width)) for robot_pic
-                            in [pygame.image.load('img/mouse.png'), pygame.image.load('img/snail.png'),
-                                pygame.image.load('img/monkey.png'), pygame.image.load('img/dog.png')]]
+                           in [pygame.image.load('img/mouse.png'), pygame.image.load('img/snail.png'),
+                               pygame.image.load('img/monkey.png'), pygame.image.load('img/dog.png')]]
 
-        self.robots = [pygame.transform.rotate(self.robot_imgs[r.id], x[r.id]) for r in robots]
+        self.robots = [pygame.transform.rotate(self.robot_imgs[robot.id], robot_img_start_direction[robot.id]) for robot in robots]
         self.robot_path = [[robot.position] for robot in robots]
         self.robot_colors = [self.pink, self.gruen, self.gelb, self.purple]
         self.double_color = self.schwarz
@@ -110,7 +112,7 @@ class UI:
         text = self.font.render(str(robot.battery), True, self.schwarz)
         self.surface.blit(text, (self.robot_score_x[id], 10))
 
-    def draw_path(self, robot : Robot):
+    def draw_path(self, robot: Robot):
         id = robot.id
         coordinates = self.robot_path[id][0]
         visited = []

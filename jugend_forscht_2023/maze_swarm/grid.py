@@ -1,4 +1,3 @@
-import pygame
 import random
 
 
@@ -12,7 +11,6 @@ class Grid:
             self.chargers = [self.cells_y // 2 * self.cells_x + self.cells_x // 2]
         else:
             self.chargers = random.sample(range(1, self.cells_x * self.cells_y), num_chargers)
-
 
     def get_id(self, coordinates):
         return coordinates[0] * self.cells_x + coordinates[1]

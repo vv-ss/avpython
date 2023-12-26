@@ -396,14 +396,14 @@ Here we are experimenting with our implementation:
 '''
 
 grid = utils.initialize_grid(5, 5, remove_walls=0)
-game = Game(grid, 12)
+game = Game(grid, 10)
 ui = utils.initialize_ui(grid, game.robots)
-print("reach normally = ", utils.run_robots_reach_check(grid, game.robots, ui, share_map=True))
+print("reach normally = ", utils.run_robots_reach_check(game.robots, ui, share_map=True))
 
 for e in range(episodes):
 
     reward_e = 0
-    game = Game(grid, 12)
+    game = Game(grid, 10)
     observation = game.reset(grid)
     done = False
     trunc = False

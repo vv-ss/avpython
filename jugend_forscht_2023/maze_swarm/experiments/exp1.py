@@ -16,7 +16,7 @@ for x, y in [(5*i, 5*i) for i in range(2, 21)]:
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        utils.run_robots_battery_check(g, robots, ui)
+        utils.run_robots_battery_check(robots, ui)
         for robot in robots:
             battery_usage.append(full_battery - robot.battery)
 
@@ -33,7 +33,7 @@ for x, y in [(5*i, 5*i) for i in range(2, 21)]:
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        utils.run_robots_battery_check(g, robots, ui)
+        utils.run_robots_battery_check(robots, ui)
         for robot in robots:
             battery_usage.append(full_battery - robot.battery)
 

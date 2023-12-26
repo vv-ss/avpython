@@ -1,8 +1,8 @@
-import pygame
+from grid import Grid
 
 
 class Robot:
-    def __init__(self, grid, algo, start_point, target, sight_direction, set_direction, battery, id, shortest_path_option):
+    def __init__(self, grid: Grid, algo, start_point, target, sight_direction, battery, id, shortest_path_option):
         self.UP, self.RIGHT, self.DOWN, self.LEFT = range(4)
         self.sight_direction = sight_direction
         self.grid = grid
@@ -21,14 +21,14 @@ class Robot:
         self.last_moved = False
         self.id = id
         self.store_map()
-        self.dijkstra_path = []
-        self.dijkstra_active = False
+        self.shortest_path = []
+        self.shortest_path_active = False
         self.shortest_path_option = shortest_path_option
         self.has_reached_target = False
         self.battery_empty = False
 
-    def dijkstra(self, start, end):
-        shortest_path = []
+    def shortest_path_algorithm(self, start, end):
+        path = []
         visited_dict = {}
         frontier = [start]
         running = True
@@ -42,13 +42,13 @@ class Robot:
                     frontier.append(neighbor)
                     if neighbor == end:
                         cell = end
-                        shortest_path.append(self.grid.umrechnen(cell))
+                        path.append(self.grid.umrechnen(cell))
                         while cell != start:
                             cell = visited_dict[cell]
-                            shortest_path.append(self.grid.umrechnen(cell))
+                            path.append(self.grid.umrechnen(cell))
                         running = False
-        shortest_path.reverse()
-        return shortest_path
+        path.reverse()
+        return path
 
     def view_neighbors(self, coordinates, sight_direction):
         (row, col) = (coordinates[0], coordinates[1])
@@ -139,9 +139,8 @@ class Robot:
             else:
                 return new_position, sight_direction, 0
 
-
     def find_shortest_route_to_target(self):
-        return self.dijkstra(self.position, self.target)
+        return self.shortest_path_algorithm(self.position, self.target)
 
     def find_nearest_battery(self):
         if not self.shortest_path_option:
@@ -149,7 +148,7 @@ class Robot:
         nearest_battery_path = []
         nearest_battery_distance = 1000000
         for b in self.batteries:
-            path = self.dijkstra(self.grid.get_id(self.position), b)
+            path = self.shortest_path_algorithm(self.grid.get_id(self.position), b)
             if path is not None:
                 path_length = len(path) - 1
                 if path_length < nearest_battery_distance:
@@ -161,11 +160,11 @@ class Robot:
     def take_shortest_path_step(self):
         # if movement is in sight direction, pop from path and reduce battery
         # else change sight direction
-        new_position = self.dijkstra_path[0]
+        new_position = self.shortest_path[0]
         self.check_sight_direction(new_position)
         if self.turn_angle == 0:
             self.position = new_position
-            self.dijkstra_path.pop(0)
+            self.shortest_path.pop(0)
             self.battery -= 1
             if self.grid.get_id(self.position) in self.grid.chargers:
                 self.battery = self.full_battery
@@ -220,23 +219,23 @@ class Robot:
         if wait or self.battery <= 0:
             self.turn_angle = 0
             return
-        if self.dijkstra_path:
-            self.dijkstra_active = True
+        if self.shortest_path:
+            self.shortest_path_active = True
             self.take_shortest_path_step()
             return
 
         nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
-        if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.dijkstra_active:
+        if nearest_battery_path and nearest_battery_distance >= self.battery - 2 and not self.shortest_path_active:
             # print('going to nearest battery ... ', nearest_battery_path)
-            self.dijkstra_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
+            self.shortest_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
             self.take_shortest_path_step()
             return
 
         if not self.has_reached_target:
-            shortest_path_to_target = self.dijkstra(self.grid.get_id(self.position), self.grid.get_id(self.target))
+            shortest_path_to_target = self.shortest_path_algorithm(self.grid.get_id(self.position), self.grid.get_id(self.target))
             # print('robot id', self.id, to_target)
             if shortest_path_to_target:
-                self.dijkstra_path = shortest_path_to_target[1:]
+                self.shortest_path = shortest_path_to_target[1:]
                 self.take_shortest_path_step()
                 return
         self.move_wall_algorithm()
@@ -269,7 +268,7 @@ class Robot:
         # THE FOLLOWING LINE MEANS THAT WHEN A NEW CELL IS EXPLORED, ALLOW TO AGAIN FOLLOW SHORTEST PATH TO BATTERY
         # IF WE DO NOT HAVE THIS ACTIVE LOGIC, WE GET STUCK IN A LOOP - TRY WITH REMOVING THE BELOW LINE AND THE
         # LINE THAT SETS DIJKSTRA_ACTIVE TO TRUE
-        self.dijkstra_active = False
+        self.shortest_path_active = False
         self.visited[self.grid.get_id(self.position)] = True
         neighbors = self.view_neighbors(self.position, self.sight_direction)
         if pre_pos:

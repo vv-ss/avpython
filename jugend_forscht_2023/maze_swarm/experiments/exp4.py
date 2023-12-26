@@ -16,7 +16,7 @@ for x, y in [(5 * i, 5 * i) for i in range(3, 9)]:
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        reached_target = utils.run_robots_reach_check(g, robots, ui, share_map=True)
+        reached_target = utils.run_robots_reach_check(robots, ui, share_map=True)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 

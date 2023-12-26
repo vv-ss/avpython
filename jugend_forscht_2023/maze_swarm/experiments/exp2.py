@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('./')
 import utils
 
@@ -18,13 +19,13 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        reached_target = utils.run_robots_reach_check(g, robots, ui)
+        reached_target = utils.run_robots_reach_check(robots, ui)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
     print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
-           '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
-           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
+          '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
+          total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
 print('\n')
 
@@ -39,7 +40,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        reached_target = utils.run_robots_reach_check(g, robots, ui)
+        reached_target = utils.run_robots_reach_check(robots, ui)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 

@@ -17,7 +17,7 @@ for full_battery in list(range(x + y - 2, 2 * x * y - (x + y), 20)):
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        reached_target = utils.run_robots_reach_check(g, robots, ui)
+        reached_target = utils.run_robots_reach_check(robots, ui)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
@@ -40,7 +40,7 @@ for full_battery in list(range(x + y - 2, 2 * x * y - (x + y), 20)):
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
-        reached_target = utils.run_robots_reach_check(g, robots, ui)
+        reached_target = utils.run_robots_reach_check(robots, ui)
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
