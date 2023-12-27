@@ -74,7 +74,7 @@ def run_robots_reach_check(robots, ui, share_map=False):
             ui.draw_maze()
         for robot in robots:
             robot.action()
-            if robot.has_reached_target:
+            if robot.position == robot.target:
                 reached_robots.add(robot.id)
             if robot.battery_empty:
                 if robot.id not in reached_robots:

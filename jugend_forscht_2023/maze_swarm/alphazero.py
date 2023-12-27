@@ -6,7 +6,7 @@ from rlgame import Game
 import tensorflow as tf
 from tensorflow import keras
 
-GAME_ACTIONS = 15
+GAME_ACTIONS = 4
 
 # Observation is a form of <x_location, y_location, battery> for each player
 
@@ -360,7 +360,7 @@ BUFFER_SIZE = int(1000)  # replay buffer size
 BATCH_SIZE = 128  # minibatch size
 UPDATE_EVERY = 1
 
-episodes = 250
+episodes = 1000
 
 rewards = []
 moving_average = []
@@ -368,7 +368,7 @@ v_losses = []
 p_losses = []
 
 # the maximum reward of the current game to scale the values
-MAX_REWARD = 500
+MAX_REWARD = 40
 
 # Create the replay buffer
 replay_buffer = ReplayBuffer(BUFFER_SIZE, BATCH_SIZE)
@@ -395,15 +395,17 @@ Here we are experimenting with our implementation:
 - For CartPole-v1, in particular, 500 is the maximum possible reward. 
 '''
 
-grid = utils.initialize_grid(5, 5, remove_walls=0)
-game = Game(grid, 10)
+width = 10
+height = 10
+grid = utils.initialize_grid(width, height, remove_walls=0)
+game = Game(grid, width * height, width + height + 5)
 ui = utils.initialize_ui(grid, game.robots)
 print("reach normally = ", utils.run_robots_reach_check(game.robots, ui, share_map=True))
 
 for e in range(episodes):
 
     reward_e = 0
-    game = Game(grid, 10)
+    game = Game(grid, width * height, width + height + 5)
     observation = game.reset(grid)
     done = False
     trunc = False

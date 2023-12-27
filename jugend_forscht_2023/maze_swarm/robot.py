@@ -207,17 +207,14 @@ class Robot:
 
     def action(self, wait=False):
         # if there is a path to target and it is within reach, go there directly
-
         # if reached target or battery is empty, then return accordingly
         if self.position == self.target and not self.has_reached_target:
             self.turn_angle = 0
             self.has_reached_target = True
-        if self.battery <= 0 and not self.has_reached_target:
+        if self.battery <= 0:
             self.turn_angle = 0
-            self.battery_empty = True
-            return
-        if wait or self.battery <= 0:
-            self.turn_angle = 0
+            if not self.has_reached_target:
+                self.battery_empty = True
             return
         if self.shortest_path:
             self.shortest_path_active = True
@@ -238,7 +235,8 @@ class Robot:
                 self.shortest_path = shortest_path_to_target[1:]
                 self.take_shortest_path_step()
                 return
-        self.move_wall_algorithm()
+        if not wait:
+            self.move_wall_algorithm()
 
     def check_sight_direction(self, new_position):
         move_direction = self.sight_direction
@@ -296,7 +294,6 @@ class Robot:
             if self.target_distances[i] < min_distance:
                 new_position = i
                 min_distance = self.target_distances[i]
-
         self.position = new_position
 
     def update_flood_fill_neighbours(self):

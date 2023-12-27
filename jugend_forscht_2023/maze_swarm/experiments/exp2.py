@@ -5,7 +5,7 @@ import utils
 
 # Hier wird der Unterschied des Batterieverbrauches zwischen kürzeste-Weg-an und kürzeste-Weg-aus beobachtet
 
-ui_enabled = True
+ui_enabled = False
 repeat = 500
 
 # shortest path to battery disabled

@@ -2,7 +2,7 @@ import sys
 sys.path.append('./')
 import utils
 
-ui_enabled = True
+ui_enabled = False
 repeat = 500
 
 # dijkstra enabled

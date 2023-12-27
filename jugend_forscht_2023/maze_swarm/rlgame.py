@@ -1,11 +1,14 @@
 import utils
-import robot
+from robot import Robot
 
 class Game:
-    def __init__(self, grid, full_battery):
+    def __init__(self, grid, full_battery, low_battery):
         self.full_battery = full_battery
-        self.timeout = full_battery * 2
+        self.low_battery = low_battery
+        self.timeout = full_battery * 3//2
         self.robots = utils.initialize_robots(grid, full_battery=full_battery, farthest=True)
+        self.robots[0].battery = low_battery
+        self.robots[1].battery = low_battery
         self.reached_robots = []
         self.empty_robots = []
 
@@ -23,7 +26,9 @@ class Game:
             return self.get_obs(), reward, True, True
         #self.robots.sort(key=lambda element: element.battery)
         for robot in self.robots:
-            if action % 2 == 1:
+            if robot.id == 0 and (action == 0 or action == 2):
+                robot.action(True)
+            elif robot.id == 1 and (action == 0 or action == 1):
                 robot.action(True)
             else:
                 robot.action(False)
@@ -32,15 +37,14 @@ class Game:
                     if robot.battery <= 0:
                         break
                     robot.action(False)
-            if robot.has_reached_target and robot.id not in self.reached_robots:
+            if robot.position == robot.target and robot.id not in self.reached_robots:
                 reward += 10
                 #print("robot reached", robot.id, " reach set = ", self.reached_robots, " empty = ", self.empty_robots)
                 self.reached_robots.append(robot.id)
             elif robot.battery_empty and robot.id not in self.reached_robots and robot.id not in self.empty_robots:
                 self.empty_robots.append(robot.id)
                 reward += -25
-            action >>= 1
-            # ALWAYS SHARE MAP!
+        # ALWAYS SHARE MAP!
         for r in self.robots:
             r.map = utils.get_share_map(self.robots)
         if len(self.reached_robots) + len(self.empty_robots) == len(self.robots):
@@ -50,9 +54,11 @@ class Game:
 
     def reset(self, grid):
         self.robots = utils.initialize_robots(grid, full_battery=self.full_battery)
+        self.robots[0].battery = self.low_battery
+        self.robots[1].battery = self.low_battery
         self.reached_robots = []
         self.empty_robots = []
-        self.timeout = self.full_battery * 2
+        self.timeout = self.full_battery * 3//2
         return self.get_obs()
 
     def get_obs(self):
