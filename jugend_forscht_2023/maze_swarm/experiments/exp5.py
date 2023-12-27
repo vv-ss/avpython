@@ -12,10 +12,10 @@ full_battery = 1000000
 for x, y in [(5 * i, 5 * i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, remove_walls=0)
+        g = utils.initialize_grid(x, y, remove_walls=10)
         robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo=['floofi', 'floofi', 'floofi',
                                                                                     'floofi'],
-                                         farthest=True)
+                                         farthest=True, demo=True)
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)

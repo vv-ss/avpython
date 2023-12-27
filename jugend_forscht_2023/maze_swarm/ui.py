@@ -118,8 +118,8 @@ class UI:
                 for spalte in range(self.grid.cells_x):
                     text = self.font.render(str(robot.target_distances[(self.grid.get_id((reihe, spalte)))]), True,
                                             self.schwarz)
-                    c = ((spalte + 0.5) * self.cell_width + self.margin_left,
-                         (reihe + 0.5) * self.cell_width + self.margin_top)
+                    c = (spalte * self.cell_width + self.robot_margin[id] + self.margin_left,
+                         reihe * self.cell_width + self.robot_margin[id] + self.margin_top)
                     self.surface.blit(text, c)
 
     def draw_path(self, robot: Robot):

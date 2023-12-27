@@ -295,6 +295,7 @@ class Robot:
         # print('added neighbors for', self.position, neighbors)
 
     def calculate_target_distance(self):
+        self.target_distances = [self.grid.cell_number for _ in range(self.grid.cell_number)]
         frontier = [self.grid.get_id(self.target)]
         self.target_distances[self.grid.get_id(self.target)] = 0
         while frontier:
@@ -308,25 +309,24 @@ class Robot:
     def flood_fill_move(self):
         min_distance = self.grid.cell_number
         new_position = 0
-        if self.id == 0:
-            print('position = ', self.position, ' neighbors = ', self.flood_fill_neighbours[self.grid.get_id(self.position)])
         for i in self.flood_fill_neighbours[self.grid.get_id(self.position)]:
             if self.target_distances[i] < min_distance:
                 new_position = self.grid.umrechnen(i)
                 min_distance = self.target_distances[i]
-        self.position = new_position
-        self.update_flood_fill_neighbours()
+        self.check_sight_direction(new_position)
+        if self.turn_angle == 0:
+            self.position = new_position
+            self.battery -= 1
+            self.update_flood_fill_neighbours()
 
     def update_flood_fill_neighbours(self):
         if self.ff_visited[self.grid.get_id(self.position)]:
             return
         self.ff_visited[self.grid.get_id(self.position)] = True
         neighbors = self.view_neighbors(self.position, None)
-        if self.id == 0:
-            print('position = ', self.position, ' view neighbors returned = ', neighbors)
         for i in self.flood_fill_neighbours[self.grid.get_id(self.position)]:
             if i not in neighbors:
-                self.flood_fill_neighbours[self.grid.get_id(self.position)].remove(i)
                 self.flood_fill_neighbours[i].remove(self.grid.get_id(self.position))
+        self.flood_fill_neighbours[self.grid.get_id(self.position)] = neighbors
         # self.target_distances[self.grid.get_id(self.position)] = min([self.target_distances[neighbor] for neighbor in neighbors])
 

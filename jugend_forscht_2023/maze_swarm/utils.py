@@ -17,7 +17,7 @@ def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     return g
 
 
-def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True):
+def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True, demo=False):
     if robots_algo is None:
         robots_algo = ['lhs', 'lhs', 'rhs', 'lhs']
     srcs = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
@@ -29,6 +29,8 @@ def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, fa
     r2 = Robot(g, robots_algo[1], srcs[1], targets[1], 3, full_battery, 1, shortest_path)
     r3 = Robot(g, robots_algo[2], srcs[2], targets[2], 0, full_battery, 2, shortest_path)
     r4 = Robot(g, robots_algo[3], srcs[3], targets[3], 0, full_battery, 3, shortest_path)
+    if demo:
+        return [r1]
     return [r1, r2, r3, r4]
 
 
@@ -59,7 +61,7 @@ def run_robots_battery_check(robots, ui):
 
         for robot in robots:
             # IF THE ROBOT HAS ALREADY REACHED TARGET, MAKE IT WAIT TO HAVE CORRECT BATTERY CALCULATION
-            robot.action(robot.has_reached_target)
+            robot.action(robot.position == robot.target)
             if ui:
                 ui.draw_path(robot)
                 ui.update_position(robot)
