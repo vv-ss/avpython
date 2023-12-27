@@ -10,8 +10,9 @@ class Robot:
         self.position = start_point
         self.map = [set() for _ in range(self.grid.cell_number)]
         self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
-        self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
+        self.target_distances = [self.grid.cell_number for _ in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
+        self.ff_visited = [False for _ in range(self.grid.cell_number)]
         self.batteries = []
         self.target = target
         self.turn_angle = 0
@@ -25,6 +26,7 @@ class Robot:
         self.shortest_path_option = shortest_path_option
         self.has_reached_target = False
         self.battery_empty = False
+        self.update_flood_fill_neighbours()
 
     def shortest_path_algorithm(self, start, end):
         path = []
@@ -52,6 +54,16 @@ class Robot:
     def view_neighbors(self, coordinates, sight_direction):
         (row, col) = (coordinates[0], coordinates[1])
         neighbors = []
+        if sight_direction is None:
+            if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row - 1, col)))
+            if self.grid.get_id((row, col + 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col + 1)))
+            if self.grid.get_id((row, col - 1)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row, col - 1)))
+            if self.grid.get_id((row + 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
+                neighbors.append(self.grid.get_id((row + 1, col)))
+
         if sight_direction == self.UP:
             if self.grid.get_id((row - 1, col)) in self.grid.connected_list[self.grid.get_id((row, col))]:
                 neighbors.append(self.grid.get_id((row - 1, col)))
@@ -228,14 +240,16 @@ class Robot:
             return
 
         if not self.has_reached_target:
-            shortest_path_to_target = self.shortest_path_algorithm(self.grid.get_id(self.position), self.grid.get_id(self.target))
+            shortest_path_to_target = self.shortest_path_algorithm(self.grid.get_id(self.position),
+                                                                   self.grid.get_id(self.target))
             # print('robot id', self.id, to_target)
             if shortest_path_to_target:
                 self.shortest_path = shortest_path_to_target[1:]
                 self.take_shortest_path_step()
                 return
         if not wait:
-            if self.algo == 'floofi':
+            if self.algorithm == 'floofi':
+                self.calculate_target_distance()
                 self.flood_fill_move()
             else:
                 self.move_wall_algorithm()
@@ -281,8 +295,8 @@ class Robot:
         # print('added neighbors for', self.position, neighbors)
 
     def calculate_target_distance(self):
-        frontier = [self.target]
-        self.target_distances[self.target] = 0
+        frontier = [self.grid.get_id(self.target)]
+        self.target_distances[self.grid.get_id(self.target)] = 0
         while frontier:
             process_cell = frontier.pop()
             process_cell_distance = self.target_distances[process_cell]
@@ -294,18 +308,25 @@ class Robot:
     def flood_fill_move(self):
         min_distance = self.grid.cell_number
         new_position = 0
-        for i in self.flood_fill_neighbours[self.position]:
+        if self.id == 0:
+            print('position = ', self.position, ' neighbors = ', self.flood_fill_neighbours[self.grid.get_id(self.position)])
+        for i in self.flood_fill_neighbours[self.grid.get_id(self.position)]:
             if self.target_distances[i] < min_distance:
-                new_position = i
+                new_position = self.grid.umrechnen(i)
                 min_distance = self.target_distances[i]
         self.position = new_position
+        self.update_flood_fill_neighbours()
 
     def update_flood_fill_neighbours(self):
-        if self.visited[self.grid.get_id(self.position)]:
+        if self.ff_visited[self.grid.get_id(self.position)]:
             return
-        self.visited[self.grid.get_id(self.position)] = True
-        neighbors = self.view_neighbors(self.position, self.sight_direction)
-        for i in self.flood_fill_neighbours[self.position]:
+        self.ff_visited[self.grid.get_id(self.position)] = True
+        neighbors = self.view_neighbors(self.position, None)
+        if self.id == 0:
+            print('position = ', self.position, ' view neighbors returned = ', neighbors)
+        for i in self.flood_fill_neighbours[self.grid.get_id(self.position)]:
             if i not in neighbors:
-                self.flood_fill_neighbours[self.position].remove(i)
-                self.flood_fill_neighbours[i].remove(self.position)
+                self.flood_fill_neighbours[self.grid.get_id(self.position)].remove(i)
+                self.flood_fill_neighbours[i].remove(self.grid.get_id(self.position))
+        # self.target_distances[self.grid.get_id(self.position)] = min([self.target_distances[neighbor] for neighbor in neighbors])
+

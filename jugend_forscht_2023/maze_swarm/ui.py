@@ -95,6 +95,8 @@ class UI:
                                                                               * self.cell_width - self.wall_width / 2 + self.margin_top,
                                                                               self.wall_height, self.wall_width))
 
+
+
     def draw_maze(self):
         self.initialize_surface()
         self.draw_grid()
@@ -111,6 +113,14 @@ class UI:
         self.surface.blit(self.robots[id], self.robots[id].get_rect(center=c))
         text = self.font.render(str(robot.battery), True, self.schwarz)
         self.surface.blit(text, (self.robot_score_x[id], 10))
+        if robot.id == 0:
+            for reihe in range(self.grid.cells_y):
+                for spalte in range(self.grid.cells_x):
+                    text = self.font.render(str(robot.target_distances[(self.grid.get_id((reihe, spalte)))]), True,
+                                            self.schwarz)
+                    c = ((spalte + 0.5) * self.cell_width + self.margin_left,
+                         (reihe + 0.5) * self.cell_width + self.margin_top)
+                    self.surface.blit(text, c)
 
     def draw_path(self, robot: Robot):
         id = robot.id

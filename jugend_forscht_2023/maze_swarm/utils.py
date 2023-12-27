@@ -17,16 +17,18 @@ def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     return g
 
 
-def initialize_robots(g, full_battery, shortest_path=False, farthest=True):
+def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True):
+    if robots_algo is None:
+        robots_algo = ['lhs', 'lhs', 'rhs', 'lhs']
     srcs = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
     if farthest:
         targets = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in srcs]
     else:
         targets = [(random.randint(0, g.height - 1), random.randint(0, g.width - 1)) for i in range(0, 4)]
-    r1 = Robot(g, 'lhs', srcs[0], targets[0], 2, full_battery, 0, shortest_path)
-    r2 = Robot(g, 'lhs', srcs[1], targets[1], 3, full_battery, 1, shortest_path)
-    r3 = Robot(g, 'rhs', srcs[2], targets[2], 0, full_battery, 2, shortest_path)
-    r4 = Robot(g, 'lhs', srcs[3], targets[3], 0, full_battery, 3, shortest_path)
+    r1 = Robot(g, robots_algo[0], srcs[0], targets[0], 2, full_battery, 0, shortest_path)
+    r2 = Robot(g, robots_algo[1], srcs[1], targets[1], 3, full_battery, 1, shortest_path)
+    r3 = Robot(g, robots_algo[2], srcs[2], targets[2], 0, full_battery, 2, shortest_path)
+    r4 = Robot(g, robots_algo[3], srcs[3], targets[3], 0, full_battery, 3, shortest_path)
     return [r1, r2, r3, r4]
 
 
@@ -63,7 +65,7 @@ def run_robots_battery_check(robots, ui):
                 ui.update_position(robot)
         if ui:
             pygame.display.flip()
-            time.sleep(0.1)
+            time.sleep(2)
 
 
 def run_robots_reach_check(robots, ui, share_map=False):
