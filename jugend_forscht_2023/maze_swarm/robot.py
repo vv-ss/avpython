@@ -9,9 +9,8 @@ class Robot:
         self.algorithm = algo
         self.position = start_point
         self.map = [set() for _ in range(self.grid.cell_number)]
-        if False:
-            self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
-            self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
+        self.flood_fill_neighbours = [self.grid.search_neighbor(i) for i in range(self.grid.cell_number)]
+        self.target_distances = [self.grid.cell_number for i in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
         self.batteries = []
         self.target = target
@@ -236,7 +235,12 @@ class Robot:
                 self.take_shortest_path_step()
                 return
         if not wait:
-            self.move_wall_algorithm()
+            if self.algo == 'floofi':
+                self.flood_fill_move()
+            else:
+                self.move_wall_algorithm()
+        else:
+            self.turn_angle = 0
 
     def check_sight_direction(self, new_position):
         move_direction = self.sight_direction

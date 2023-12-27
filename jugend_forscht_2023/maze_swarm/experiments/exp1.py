@@ -4,9 +4,9 @@ import utils
 # import matplotlib.pyplot as plt
 # Hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y grossen Irrgarten zu durchqueren
 
-ui_enabled = False
+ui_enabled = True
 repeat = 1000
-full_battery = 10000
+full_battery = 1000000
 # FIRST CASE: DESTINATION IN OPPOSITE CORNER
 for x, y in [(5*i, 5*i) for i in range(2, 21)]:
     battery_usage = []
