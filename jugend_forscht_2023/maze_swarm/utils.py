@@ -67,7 +67,7 @@ def run_robots_battery_check(robots, ui):
                 ui.update_position(robot)
         if ui:
             pygame.display.flip()
-            time.sleep(2)
+            time.sleep(0.1)
 
 
 def run_robots_reach_check(robots, ui, share_map=False):
