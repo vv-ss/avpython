@@ -41,5 +41,8 @@ Till now, we considered perfect mazes. Now lets look at mazes with loops.
 Experiment 5 (show that LHS or RHS get stuck with loop).
 Flood fill algorithm as solution.
 
-Experiment 6.
-Repeat experiment 4 with maze with loops.
+Experiment 6 (with loops).
+SETUP:
+Repeat experiment 1 to show and compare floofi with lhs/rhs
+MEASURE:
+get numbers for min, avg, max.

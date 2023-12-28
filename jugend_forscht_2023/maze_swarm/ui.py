@@ -4,7 +4,8 @@ from robot import *
 
 
 class UI:
-    def __init__(self, grid: Grid, font_size, cell_width, wall_height, wall_width, margin, robots):
+    def __init__(self, grid: Grid, font_size, cell_width, wall_height, wall_width, margin, robots,
+                 ff_demo=False):
         self.surface = None
         self.cell_width = cell_width
         self.wall_height = wall_height
@@ -49,6 +50,7 @@ class UI:
         # Schriften
         pygame.init()
         self.font = pygame.font.SysFont("comicschrift", font_size)
+        self.ff_demo = ff_demo
 
     def initialize_surface(self):
         # Fenster erstellen
@@ -113,7 +115,7 @@ class UI:
         self.surface.blit(self.robots[id], self.robots[id].get_rect(center=c))
         text = self.font.render(str(robot.battery), True, self.schwarz)
         self.surface.blit(text, (self.robot_score_x[id], 10))
-        if robot.id == 0:
+        if robot.id == 0 and robot.algorithm == 'floofi' and self.ff_demo:
             for reihe in range(self.grid.cells_y):
                 for spalte in range(self.grid.cells_x):
                     text = self.font.render(str(robot.target_distances[(self.grid.get_id((reihe, spalte)))]), True,

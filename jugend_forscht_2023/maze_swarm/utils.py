@@ -1,4 +1,5 @@
 import sys
+import time
 
 sys.path.append('./')
 from robot import *
@@ -17,28 +18,28 @@ def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     return g
 
 
-def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True, demo=False):
+def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True):
     if robots_algo is None:
         robots_algo = ['lhs', 'lhs', 'rhs', 'lhs']
+    if robots_algo == 'floofi':
+        robots_algo = ['floofi', 'floofi', 'floofi', 'floofi']
     srcs = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
     if farthest:
         targets = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in srcs]
     else:
-        targets = [(random.randint(0, g.height - 1), random.randint(0, g.width - 1)) for i in range(0, 4)]
+        targets = [(random.randint(0, g.cells_y - 1), random.randint(0, g.cells_x - 1)) for i in range(0, 4)]
     r1 = Robot(g, robots_algo[0], srcs[0], targets[0], 2, full_battery, 0, shortest_path)
     r2 = Robot(g, robots_algo[1], srcs[1], targets[1], 3, full_battery, 1, shortest_path)
     r3 = Robot(g, robots_algo[2], srcs[2], targets[2], 0, full_battery, 2, shortest_path)
     r4 = Robot(g, robots_algo[3], srcs[3], targets[3], 0, full_battery, 3, shortest_path)
-    if demo:
-        return [r1]
     return [r1, r2, r3, r4]
 
 
-def initialize_ui(g : Grid, robots):
-    ui = UI(g, 50, 60, 60, 4, [200, 100, 200, 100], robots)
+def initialize_ui(g: Grid, robots, ff_demo=False):
+    ui = UI(g, 50, 60, 60, 4, [200, 100, 200, 100], robots, ff_demo)
     ui.draw_maze()
-    for r in robots:
-        ui.update_position(r)
+    for robot in robots:
+        ui.update_position(robot)
     pygame.display.flip()
     return ui
 
@@ -67,7 +68,10 @@ def run_robots_battery_check(robots, ui):
                 ui.update_position(robot)
         if ui:
             pygame.display.flip()
-            time.sleep(0.1)
+            if ui.ff_demo:
+                time.sleep(2)
+            else:
+                time.sleep(0.1)
 
 
 def run_robots_reach_check(robots, ui, share_map=False):
