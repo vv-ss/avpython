@@ -98,3 +98,34 @@ def run_robots_reach_check(robots, ui, share_map=False):
                 r.map = get_share_map(robots)
     return len(reached_robots)
 
+
+def run_robots_calculate_reward(robots, ui, timeout, share_map=False):
+    reached_robots = set()
+    not_reached_robots = set()
+    time_elapsed = 0
+    reward = 0
+    while len(not_reached_robots) + len(reached_robots) < len(robots):
+        if ui:
+            ui.draw_maze()
+        time_elapsed += 1
+        for robot in robots:
+            robot.action()
+            if robot.position == robot.target and robot.id not in reached_robots:
+                print("robot ", robot.id, " reached at time = ", time_elapsed)
+                reached_robots.add(robot.id)
+                reward += 10
+                reward += timeout - time_elapsed
+            if robot.battery_empty:
+                if robot.id not in reached_robots and robot.id not in not_reached_robots:
+                    not_reached_robots.add(robot.id)
+                    reward -= 25
+            if ui:
+                ui.draw_path(robot)
+                ui.update_position(robot)
+        if ui:
+            pygame.display.flip()
+            time.sleep(0.1)
+        if share_map:
+            for r in robots:
+                r.map = get_share_map(robots)
+    return reward

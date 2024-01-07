@@ -397,14 +397,15 @@ Here we are experimenting with our implementation:
 
 width = 10
 height = 10
+grid = utils.initialize_grid(width, height, remove_walls=0)
+game = Game(grid, width * height, width + height + 5)
+ui = utils.initialize_ui(grid, game.robots)
+print("reach normally = ", utils.run_robots_reach_check(game.robots, ui, share_map=True))
 
 for e in range(episodes):
 
     reward_e = 0
-    grid = utils.initialize_grid(width, height, remove_walls=0)
     game = Game(grid, width * height, width + height + 5)
-    reward = utils.run_robots_calculate_reward(game.robots, None, game.timeout, share_map=True)
-    print("reward for classical = ", reward)
     observation = game.reset(grid)
     done = False
     trunc = False
