@@ -109,7 +109,11 @@ def run_robots_calculate_reward(robots, ui, timeout, share_map=False):
             ui.draw_maze()
         time_elapsed += 1
         for robot in robots:
-            robot.action()
+            robot.action(False)
+            while robot.turn_angle != 0:
+                if robot.battery <= 0:
+                    break
+                robot.action(False)
             if robot.position == robot.target and robot.id not in reached_robots:
                 print("robot ", robot.id, " reached at time = ", time_elapsed)
                 reached_robots.add(robot.id)

@@ -23,8 +23,6 @@ class Game:
                     reward -= 25
             return self.get_obs(), reward, True, True
         self.time_elapsed += 1
-        if len(self.reached_robots) + len(self.empty_robots) == len(self.robots):
-            return self.get_obs(), reward, True, True
         #self.robots.sort(key=lambda element: element.battery)
         for robot in self.robots:
             if robot.id == 0 and (action == 0 or action == 2):

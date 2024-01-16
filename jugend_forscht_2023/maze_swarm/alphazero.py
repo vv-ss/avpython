@@ -360,15 +360,16 @@ BUFFER_SIZE = int(1000)  # replay buffer size
 BATCH_SIZE = 128  # minibatch size
 UPDATE_EVERY = 1
 
-episodes = 1000
+episodes = 2
 
-rewards = []
+rewards_rl = []
+rewards_classic = []
 moving_average = []
 v_losses = []
 p_losses = []
 
 # the maximum reward of the current game to scale the values
-MAX_REWARD = 40
+MAX_REWARD = 340
 
 # Create the replay buffer
 replay_buffer = ReplayBuffer(BUFFER_SIZE, BATCH_SIZE)
@@ -402,9 +403,12 @@ for e in range(episodes):
 
     reward_e = 0
     grid = utils.initialize_grid(width, height, remove_walls=0)
+    #game = Game(grid, width * height, random.randint(width + height + 5, width * height))
     game = Game(grid, width * height, width + height + 5)
-    reward = utils.run_robots_calculate_reward(game.robots, None, game.timeout, share_map=True)
+    ui = utils.initialize_ui(grid, game.robots)
+    reward = utils.run_robots_calculate_reward(game.robots, ui, game.timeout, share_map=True)
     print("reward for classical = ", reward)
+    rewards_classic.append(reward)
     observation = game.reset(grid)
     done = False
     trunc = False
@@ -445,8 +449,8 @@ for e in range(episodes):
             break
 
     print('reward ' + str(reward_e))
-    rewards.append(reward_e)
-    moving_average.append(np.mean(rewards[-100:]))
+    rewards_rl.append(reward_e)
+    moving_average.append(np.mean(rewards_rl[-100:]))
 
     if (e + 1) % UPDATE_EVERY == 0 and len(replay_buffer) > BATCH_SIZE:
 
@@ -490,4 +494,6 @@ for e in range(episodes):
         # plt.plot(p_losses)
         # plt.show()
 
-        print('moving average: ' + str(np.mean(rewards[-20:])))
+        print('moving average: ' + str(np.mean(rewards_rl[-20:])))
+print("CLASSIC REWARDS = ", np.mean(rewards_classic))
+print("ALPHAZERO REWARDS = ", np.mean(rewards_rl))
