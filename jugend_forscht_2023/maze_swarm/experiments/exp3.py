@@ -22,9 +22,9 @@ for full_battery in list(range(x + y - 2, 2 * x * y - (x + y), 20)):
         total_not_reached_target += (len(robots) - reached_target)
 
         # print(r1.map)
-        # print(r1.dijkstra(0, x * y - y - 1))
+        # print(r1.Shortest path(0, x * y - y - 1))
 
-    print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =',
+    print('Shortest path DISABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =',
           total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
@@ -44,7 +44,7 @@ for full_battery in list(range(x + y - 2, 2 * x * y - (x + y), 20)):
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
-    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =',
+    print('Shortest path ENABLED: maze size =', x, '*', y, '| full_battery =', full_battery, '| reached_target =',
           total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 

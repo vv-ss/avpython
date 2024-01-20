@@ -23,7 +23,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
-    print('DIJKSTRA DISABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
+    print('Shortest path DISABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
           '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
@@ -44,7 +44,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
-    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
+    print('Shortest path ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target,
           '| not_reached_target =', total_not_reached_target, '| reached target(%) =',
           total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 

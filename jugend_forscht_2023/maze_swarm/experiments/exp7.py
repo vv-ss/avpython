@@ -5,7 +5,7 @@ import utils
 ui_enabled = False
 repeat = 500
 
-# dijkstra enabled
+# Shortest path enabled
 for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
     total_reached_target = 0
     total_not_reached_target = 0
@@ -20,9 +20,9 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
-    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =', total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
+    print('Shortest path ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =', total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
-# dijkstra enabled
+# Shortest path enabled
 for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
     total_reached_target = 0
     total_not_reached_target = 0
@@ -37,7 +37,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         total_reached_target += reached_target
         total_not_reached_target += (len(robots) - reached_target)
 
-    print('DIJKSTRA ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =', total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
+    print('Shortest path ENABLED: maze size =', x, '*', y, '| reached_target =', total_reached_target, '| not_reached_target =', total_not_reached_target, '| reached target(%) =', total_reached_target * 100 / (total_reached_target + total_not_reached_target), '| repeat =', repeat)
 
 
 print('\n')

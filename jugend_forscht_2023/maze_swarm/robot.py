@@ -283,7 +283,7 @@ class Robot:
             return
         # THE FOLLOWING LINE MEANS THAT WHEN A NEW CELL IS EXPLORED, ALLOW TO AGAIN FOLLOW SHORTEST PATH TO BATTERY
         # IF WE DO NOT HAVE THIS ACTIVE LOGIC, WE GET STUCK IN A LOOP - TRY WITH REMOVING THE BELOW LINE AND THE
-        # LINE THAT SETS DIJKSTRA_ACTIVE TO TRUE
+        # LINE THAT SETS Shortest path_ACTIVE TO TRUE
         self.shortest_path_active = False
         self.visited[self.grid.get_id(self.position)] = True
         neighbors = self.view_neighbors(self.position, self.sight_direction)
