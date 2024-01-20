@@ -11,8 +11,8 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
     total_not_reached_target = 0
     for repetition in range(repeat):
         full_battery = x * y // 2 - 1
-        g = utils.initialize_grid(x, y, remove_walls=0, num_chargers=1)
-        robots = utils.initialize_robots(g, full_battery=full_battery, shortest_path=True)
+        g = utils.initialize_grid(x, y, remove_walls=x*y//5, num_chargers=1)
+        robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo = 'floofi', shortest_path=True)
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)
@@ -28,8 +28,8 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
     total_not_reached_target = 0
     for repetition in range(repeat):
         full_battery = x * y - 1
-        g = utils.initialize_grid(x, y, remove_walls=0, num_chargers=1)
-        robots = utils.initialize_robots(g, full_battery=full_battery, shortest_path=True)
+        g = utils.initialize_grid(x, y, remove_walls=x*y//5, num_chargers=1)
+        robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo='floofi', shortest_path=True)
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots)

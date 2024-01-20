@@ -13,7 +13,7 @@ class Robot:
         self.target_distances = [self.grid.cell_number for _ in range(self.grid.cell_number)]
         self.visited = [False for _ in range(self.grid.cell_number)]
         self.ff_visited = [False for _ in range(self.grid.cell_number)]
-        self.batteries = []
+        self.batteries = set()
         self.target = target
         self.turn_angle = 0
         self.full_battery = battery
@@ -199,7 +199,7 @@ class Robot:
                     self.store_map(pre_pos)
                     self.battery -= 1
                     if self.grid.get_id(self.position) in self.grid.chargers:
-                        self.batteries.append(self.grid.get_id(self.position))
+                        self.batteries.add(self.grid.get_id(self.position))
                         self.battery = self.full_battery
         # if did not move in last move, try to move forward
         else:
@@ -213,7 +213,7 @@ class Robot:
                 self.store_map(pre_pos)
                 self.battery -= 1
                 if self.grid.get_id(self.position) in self.grid.chargers:
-                    self.batteries.append(self.grid.get_id(self.position))
+                    self.batteries.add(self.grid.get_id(self.position))
                     self.battery = self.full_battery
 
     def action(self, wait=False):

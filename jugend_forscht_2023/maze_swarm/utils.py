@@ -51,6 +51,12 @@ def get_share_map(robots):
             share_map[set_count] = share_map[set_count].union(r.map[set_count])
     return share_map
 
+def share_battery_locations(robots):
+    battery_locs = set()
+    for r in robots:
+        battery_locs = r.batteries | battery_locs
+    return battery_locs
+
 
 def run_robots_battery_check(robots, ui):
     while True:
@@ -96,6 +102,7 @@ def run_robots_reach_check(robots, ui, share_map=False):
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)
+                r.batteries = share_battery_locations(robots)
     return len(reached_robots)
 
 

@@ -6,20 +6,17 @@ import utils
 # import matplotlib.pyplot as plt
 # hier wird geschaut, wie viel Batterie die Roboter brauchen, um einen x·y grossen Irrgarten zu durchqueren
 
-ui_enabled = True
-repeat = 1000
+ui_enabled = False
+repeat = 500
 full_battery = 1000000
-flood_fill = True
-demo=True
+
+demo=False
 # FIRST CASE: DESTINATION IN OPPOSITE CORNER
 for x, y in [(5 * i, 5 * i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, remove_walls=20)
-        if flood_fill:
-            robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo='floofi', farthest=True)
-        else:
-            robots = utils.initialize_robots(g, full_battery=full_battery, farthest=True)
+        g = utils.initialize_grid(x, y, remove_walls=x*y//5)
+        robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo='floofi', farthest=True)
         if demo:
             robots=[robots[0]]
         ui = None
@@ -39,7 +36,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 21)]:
 for x, y in [(5 * i, 5 * i) for i in range(2, 21)]:
     battery_usage = []
     for i in range(repeat):
-        g = utils.initialize_grid(x, y, ui_enabled, remove_walls=0)
+        g = utils.initialize_grid(x, y, remove_walls=x*y//5)
         robots = utils.initialize_robots(g, full_battery=full_battery, robots_algo=['floofi', 'floofi', 'floofi',
                                                                                     'floofi'], farthest=False)
         ui = None

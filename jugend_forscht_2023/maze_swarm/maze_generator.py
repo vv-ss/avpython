@@ -54,7 +54,7 @@ class MazeGenerator:
                 if c1 - 1 in cl[c1]:
                     if c2 - 1 in cl[c2]:
                         if c1 - 1 in cl[c2 - 1]:
-                            print('reached here')
+                            #print('reached here')
                             return False
             if c1 % self.grid.cells_x != self.grid.cells_x - 1:
                 if c1 + 1 in cl[c1]:
@@ -75,5 +75,5 @@ class MazeGenerator:
                 remove_number -= 1
                 cl[c1].append(c2)
                 cl[c2].append(c1)
-                print('removed the two cells', c1, c2)
+                #print('removed the two cells', c1, c2)
         return cl
