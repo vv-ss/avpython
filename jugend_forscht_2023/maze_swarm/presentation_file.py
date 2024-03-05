@@ -5,7 +5,7 @@ import json
 import time
 
 load_number = 0
-ui_enabled = False
+ui_enabled = True
 num_chargers = 0
 farthest = True
 ff_demo = False
@@ -14,9 +14,9 @@ step_time = .2
 g = None
 
 # IF LOAD NUMBER = 0
-x = 100
-y = 100
-full_battery = 250000
+x = 10
+y = 10
+full_battery = 25
 robots_algo = 'lhs_rhs'
 remove_walls = 0
 if load_number == 0 and robots_algo == 'floofi' and ff_demo:

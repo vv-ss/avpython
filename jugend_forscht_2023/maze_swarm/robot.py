@@ -233,8 +233,8 @@ class Robot:
             return
 
         nearest_battery_path, nearest_battery_distance = self.find_nearest_battery()
-        if nearest_battery_path and nearest_battery_distance > self.battery - 2 and not self.shortest_path_active:
-            print('going to nearest battery ... ', nearest_battery_path)
+        if nearest_battery_path and self.battery - 2 < nearest_battery_distance < self.battery and not self.shortest_path_active:
+            print('gehe zur nächsten Ladestation ... ', nearest_battery_path)
             self.shortest_path = nearest_battery_path[1:-1] + nearest_battery_path[::-1]
             self.take_shortest_path_step()
             return
