@@ -8,6 +8,11 @@ from maze_generator import *
 from ui import *
 import pygame
 
+def generate_maze(width, height, cl, num_chargers = 0):
+    g = Grid(width, height, num_chargers)
+    g.connected_list = cl
+    return g
+
 
 def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     g = Grid(width, height, num_chargers)
@@ -18,11 +23,17 @@ def initialize_grid(width, height, remove_walls=0, num_chargers=0):
     return g
 
 
-def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, farthest=True):
+def initialize_robots(g, full_battery, robots_algo=None, shortest_path=True, farthest=True):
     if robots_algo is None:
         robots_algo = ['lhs', 'lhs', 'rhs', 'lhs']
     if robots_algo == 'floofi':
         robots_algo = ['floofi', 'floofi', 'floofi', 'floofi']
+    if robots_algo == 'lhs':
+        robots_algo = ['lhs', 'lhs', 'lhs', 'lhs']
+    if robots_algo == 'rhs':
+        robots_algo = ['rhs', 'rhs', 'rhs', 'rhs']
+    if robots_algo == 'lhs_rhs':
+        robots_algo = ['lhs', 'lhs', 'rhs', 'rhs']
     srcs = [(0, 0), (0, g.cells_x - 1), (g.cells_y - 1, g.cells_x - 1), (g.cells_y - 1, 0)]
     if farthest:
         targets = [(g.cells_y - 1 - y, g.cells_x - 1 - x) for (y, x) in srcs]
@@ -36,7 +47,9 @@ def initialize_robots(g, full_battery, robots_algo=None, shortest_path=False, fa
 
 
 def initialize_ui(g: Grid, robots, ff_demo=False):
-    ui = UI(g, 50, 60, 60, 4, [200, 100, 200, 100], robots, ff_demo)
+    # ADJUST FOR MONITOR
+    cell_width = 50//(1 + (g.cells_y//15))
+    ui = UI(g, 50, cell_width, cell_width, 3, [200, 100, 200, 100], robots, ff_demo)
     ui.draw_maze()
     for robot in robots:
         ui.update_position(robot)
@@ -50,6 +63,7 @@ def get_share_map(robots):
         for set_count in range(len(r.map)):
             share_map[set_count] = share_map[set_count].union(r.map[set_count])
     return share_map
+
 
 def share_battery_locations(robots):
     battery_locs = set()
@@ -75,19 +89,20 @@ def run_robots_battery_check(robots, ui):
         if ui:
             pygame.display.flip()
             if ui.ff_demo:
-                time.sleep(2)
+                time.sleep(0.5)
             else:
                 time.sleep(0.1)
 
 
-def run_robots_reach_check(robots, ui, share_map=False):
+def run_robots_reach_check(robots, ui, share_map=False, sleep_time=0.1):
     reached_robots = set()
     not_reached_robots = set()
     while len(not_reached_robots) + len(reached_robots) < len(robots):
         if ui:
             ui.draw_maze()
         for robot in robots:
-            robot.action()
+            if robot.id not in reached_robots:
+                robot.action()
             if robot.position == robot.target:
                 reached_robots.add(robot.id)
             if robot.battery_empty:
@@ -98,7 +113,7 @@ def run_robots_reach_check(robots, ui, share_map=False):
                 ui.update_position(robot)
         if ui:
             pygame.display.flip()
-            time.sleep(0.1)
+            time.sleep(sleep_time)
         if share_map:
             for r in robots:
                 r.map = get_share_map(robots)
