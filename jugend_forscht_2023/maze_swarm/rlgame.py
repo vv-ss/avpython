@@ -21,7 +21,7 @@ class Game:
             for r in self.robots:
                 if r.id not in self.reached_robots and r.id not in self.empty_robots:
                     reward -= 25
-            return self.get_obs(), reward, True, True
+            return self.get_obs(), reward, True
         self.time_elapsed += 1
         #self.robots.sort(key=lambda element: element.battery)
         for robot in self.robots:
@@ -49,9 +49,9 @@ class Game:
         for r in self.robots:
             r.map = utils.get_share_map(self.robots)
         if len(self.reached_robots) + len(self.empty_robots) == len(self.robots):
-            return self.get_obs(), reward, True, True
+            return self.get_obs(), reward, True
         else:
-            return self.get_obs(), reward, False, False
+            return self.get_obs(), reward, False
 
     def reset(self, grid):
         self.robots = utils.initialize_robots(grid, full_battery=self.full_battery)

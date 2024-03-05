@@ -8,8 +8,6 @@ from tensorflow import keras
 
 GAME_ACTIONS = 4
 
-# Observation is a form of <x_location, y_location, battery> for each player
-
 tf.keras.backend.set_floatx('float32')
 HIDDEN_STATES = 16
 
@@ -181,7 +179,7 @@ class Node:
         child = {}
         action_index = 0
         for action, game in zip(actions, games):
-            observation, reward, done, trunc = game.step(action)
+            observation, reward, done = game.step(action)
             child[action] = Node(game, done, self, observation, action_index)
             action_index += 1
 
@@ -360,7 +358,7 @@ BUFFER_SIZE = int(1000)  # replay buffer size
 BATCH_SIZE = 128  # minibatch size
 UPDATE_EVERY = 1
 
-episodes = 2
+episodes = 1000
 
 rewards_rl = []
 rewards_classic = []
@@ -411,7 +409,6 @@ for e in range(episodes):
     rewards_classic.append(reward)
     observation = game.reset(grid)
     done = False
-    trunc = False
 
     new_game = deepcopy(game)
     mytree = Node(new_game, False, 0, observation, 0)
@@ -424,7 +421,7 @@ for e in range(episodes):
 
     step = 0
 
-    while not done and not trunc:
+    while not done:
 
         step = step + 1
 
@@ -434,7 +431,7 @@ for e in range(episodes):
         ps.append(p)
         p_obs.append(p_ob)
 
-        obs_temp, reward, done, trunc = game.step(action)
+        obs_temp, reward, done = game.step(action)
 
         reward_e = reward_e + reward
 

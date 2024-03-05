@@ -5,21 +5,22 @@ import json
 import time
 
 load_number = 0
-ui_enabled = True
+ui_enabled = False
 num_chargers = 0
 farthest = True
-ff_demo = True
+ff_demo = False
 share_map = False
-step_time = .5
+step_time = .2
 g = None
 
 # IF LOAD NUMBER = 0
-x = 10
-y = 10
-full_battery = 100
-robots_algo = 'floofi'
+x = 100
+y = 100
+full_battery = 250000
+robots_algo = 'lhs_rhs'
 remove_walls = 0
-
+if load_number == 0 and robots_algo == 'floofi' and ff_demo:
+    step_time = 1
 
 
 def load_grid(maze_number):
@@ -41,14 +42,12 @@ def save_maze(g):
     mazes_file = open('maze_1.txt', 'a')
     mazes_file.write(str(width) + ' | ' + str(height) + ' | ' + str(cl) + '\n')
 
+
 if 0 < load_number < 27:
     g = load_grid(load_number)
 else:
-    for i in range(1):
-        g = utils.initialize_grid(x, y, remove_walls=remove_walls, num_chargers=num_chargers)
-        print(g.connected_list)
-        #save_maze(g)
-    #exit(0)
+    g = utils.initialize_grid(x, y, remove_walls=remove_walls, num_chargers=num_chargers)
+
 robots = utils.initialize_robots(g, full_battery=full_battery, farthest=farthest, robots_algo=robots_algo)
 if ff_demo and robots_algo == 'floofi':
     robots = [robots[0]]
