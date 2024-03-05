@@ -45,7 +45,7 @@ class UI:
         self.robot_colors = [self.pink, self.gruen, self.gelb, self.purple]
         self.double_color = self.schwarz
         self.robot_margin = [self.cell_width * 0.2 * (r.id + 1) for r in robots]
-        self.robot_score_x = [self.board_width * 0.2 * (r.id + 1) for r in robots]
+        self.robot_score_x = [(self.board_width + self.margin_left + self.margin_right) * 0.2 * (r.id + 1) for r in robots]
 
         # Schriften
         pygame.init()
@@ -64,9 +64,9 @@ class UI:
         for reihe in range(self.grid.cells_y):
             for spalte in range(self.grid.cells_x):
                 pygame.draw.rect(self.surface, self.dunkelblau,
-                                 pygame.Rect(spalte * self.cell_width + self.margin_left, reihe * self.cell_width +
-                                             self.margin_top,
-                                             self.cell_width, self.cell_width), 2)
+                                 pygame.Rect(spalte * self.cell_width + self.margin_left,
+                                             reihe * self.cell_width + self.margin_top,
+                                             self.cell_width, self.cell_width), self.wall_width // 2)
                 if self.grid.get_id((reihe, spalte)) in self.grid.chargers:
                     c = ((spalte + 0.5) * self.cell_width + self.margin_left,
                          (reihe + 0.5) * self.cell_width + self.margin_top)

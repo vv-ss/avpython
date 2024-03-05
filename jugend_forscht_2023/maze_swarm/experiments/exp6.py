@@ -18,7 +18,7 @@ for x, y in [(5 * i, 5 * i) for i in range(2, 9)]:
         g = utils.initialize_grid(x, y, remove_walls=0)
         robots_ff = utils.initialize_robots(g, full_battery=full_battery, robots_algo='floofi', farthest=False)
         if demo:
-            robots=[robots[0]]
+            robots = [robots[0]]
         ui = None
         if ui_enabled:
             ui = utils.initialize_ui(g, robots_ff, False)
